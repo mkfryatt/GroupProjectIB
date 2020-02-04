@@ -1,0 +1,77 @@
+* {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+/* TODO: alter map and timeframe widths once there is a map */
+#timeframe {
+  height: 400px;
+  width: 15%;
+  float: left;
+  background-color: #91f5b2;
+}
+#map {
+  height: 400px;
+  width: 85%;
+  float: right;
+  background-color: #91abf5;
+}
+
+.input {
+  outline: none;
+  border: none;
+}
+
+.input button {
+  cursor: pointer;
+}
+
+.tab {
+  width: 100%;
+  overflow: hidden;
+  border: none;
+  background-color: #f1f1f1;
+}
+  
+/* Style the buttons that are used to open the tab content */
+.tab button {
+  width: 24%;
+  border: none;
+  box-shadow: none;
+  background-color: inherit;
+  float: center;
+  outline: none;
+  cursor: pointer;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+  
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #f59191;
+}
+
+/* Style the tab content */
+.tabcontent {
+  border: none;
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+  background-color: #f59191;
+}
+
+.form button {
+    background: none;
+    box-shadow: none;
+    background-color: inherit;
+    float: center;
+    cursor: pointer;
+    padding: 14px 16px;
+}
+
+  /* https://www.w3schools.com/howto/howto_js_tabs.asp */

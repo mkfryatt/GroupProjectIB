@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="test.js"></script>
+  </head>
+  <body>
+
+    <h3>Interface Demo</h3>
+
+    <!-- Timeframe -->
+    <div id="timeframe">
+      <fieldset class="input">
+        <input type="date" name="from"><br>
+        <input type="date" name="to">
+      </fieldset>
+    </div>
+
+    <!-- Map -->
+    <div id="map"></div>
+
+    <!-- Tab Buttons -->
+    <div class="tab">
+      <button class="tablinks" onclick="openTab(event, 'cal')">Add Scheduled Travel</button>
+      <button class="tablinks" onclick="openTab(event, 'wish')">Add Wish</button>
+      <button class="tablinks" onclick="openTab(event, 'matches')">View Matches</button>
+      <button class="tablinks" onclick="openTab(event, 'admin')">Add Presence</button>
+    </div>
+
+    <!-- Travel Tab -->
+    <div id="cal" class="tabcontent">
+      <h3>Upload scheduled travel</h3>
+      <fieldset class="input">
+        <div>
+        <label for="cal_upload">Choose calendar to upload: </label><br>
+        <input type="file" id="cal_upload" accept=".ical" multiple>
+        </div><div>
+        <button onclick="submitCalendar()">Submit</button></div>
+      </fieldset>
+    </div>
+
+    <!-- Wishes Tab -->
+    <div id="wish" class="tabcontent">
+      <h3>Add a wish</h3>
+      <fieldset class="input">
+        <input type="text" id="name_wish" placeholder="Name">
+        <input type="text" id="reason_wish" placeholder="Reason">
+        <input type="text" id="loc_wish" placeholder="Location"><br>
+        <label for="from_wish">From:</label>
+        <input type="date" id="from_wish">
+        <label for="to_wish">To:</label>
+        <input type="date" id="to_wish"><br>
+        <button onclick="submitWish()">Submit</button>
+      </fieldset>
+    </div>
+
+    <!-- Matches Tab -->
+    <div id="match" class="tabcontent">
+      <h3>View your matches</h3>
+    </div>
+
+    <!-- Admin Tab -->
+    <div id="admin" class="tabcontent">
+      <h3>Add the presence of an organisation</h3>
+      <fieldset class="input">
+        <div style="width: 50%">
+          <div>
+            <input type="text" id="org_admin" placeholder="Organisation">
+            <input type="text" id="loc_admin" placeholder="Location">
+          </div><br>
+          <div>
+            <label for="from_admin">From:</label>
+            <input type="date" id="from_admin">
+            <label for="to_admin">To:</label>
+            <input type="date" id="to_admin">
+        </div>
+        </div>
+        <div style="width: 10%">
+          <button onclick="submitAdmin()">Submit</button>
+        </div>
+      </fieldset>
+    </div>
+    
+  </body>
+</html>
+
+<!-- <input type="text" id="from_wish" onfocus="(this.type='date')" onblur="(this.type='text')" placeholder="Start date"> -->
