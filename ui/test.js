@@ -1,9 +1,19 @@
 function init() {
-  //TODO
+  document.getElementById("start_date_map").valueAsDate = new Date();
+  var date = new Date();
+  date.setMonth(1 + date.getMonth());
+  document.getElementById("end_date_map").valueAsDate = date;
+  //TODO: update map with these dates
 }
 
 function openTab(event, type) {
     var i, tabcontent, tablinks;
+
+    if (type=="match") {
+      addMatches();
+    } else {
+      removeMatches();
+    }
 
     tabcontent = document.getElementsByClassName("tabcontent");
     for (i = 0; i < tabcontent.length; i++) {
@@ -19,40 +29,26 @@ function openTab(event, type) {
     event.currentTarget.className += " active";
 }
 
-function submitWish() {
-    var name, loc, reason, from, to;
-
-    name = document.getElementById("name_wish").value;
-    reason = document.getElementById("reason_wish").value;
-    loc = document.getElementById("loc_wish").value;
-    from = new Date(document.getElementById("from_wish").value);
-    to = new Date(document.getElementById("to_wish").value);
-
-    //use an api to get the lat + lng of the location
-    //check that from < to
-    document.getElementById("name_wish").value = "";
-    document.getElementById("reason_wish").value = "";
-    document.getElementById("loc_wish").value = "";
-    document.getElementById("from_wish").value = Date.now;
-    document.getElementById("to_wish").value = Date.now;
+function addMatches() {
+  //TODO get list of matches
+  var matches = [{"reason": "blah", "matches": 3, "id": 343}, {reason: "dfdsvf", matches: 23, "id": 45}];
+  matches.forEach(element => {
+    var div = document.createElement("div");
+    div.setAttribute("class", "match_preview");
+    var inside = "<p>Reason: " 
+    + element.reason 
+    + "</p><p>Matches: " 
+    + element.matches 
+    + "</p><button id=\"view_match\" onclick=\"viewMatch("
+    + element.id
+    +")\">View</button><button id=\"remove_match\" onclick=\"viewMatch("
+    + element.id
+    +")\">X</button>"
+    div.innerHTML = inside;
+    document.getElementById("match").appendChild(div);
+  });
 }
 
-function submitAdmin() {
-    var loc, org, from, to;
-
-    loc = document.getElementById("loc_admin").value;
-    org = document.getElementById("org_admin").value;
-    from = new Date(document.getElementById("from_admin").value);
-    to = new Date(document.getElementById("to_admin").value);
-
-    //use an api to get the lat + lng of the location
-    //check that from < to
-    document.getElementById("loc_admin").value = "";
-    document.getElementById("org_admin").value = "";
-    document.getElementById("from_admin").value = Date.now;
-    document.getElementById("to_admin").value = Date.now;
-}
-
-function submitCalendar() {
-  
+function removeMatches() {
+  document.getElementById("match").innerHTML = "<h3>View your matches</h3>";
 }
