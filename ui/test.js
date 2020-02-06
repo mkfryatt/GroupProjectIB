@@ -3,7 +3,10 @@ function init() {
   var date = new Date();
   date.setMonth(1 + date.getMonth());
   document.getElementById("end_date_map").valueAsDate = date;
-  //TODO: update map with these dates
+  //TODO update map with these dates
+
+  document.getElementById("cal").style.display = "block";
+  document.getElementById("default_tab").className += " active";
 }
 
 function openTab(event, type) {
@@ -82,7 +85,7 @@ function viewMatch(id) {
 }
 
 function removeMatch(id) {
-  //TODO alert box
+  //TODO dialogue box
   //TODO tell db to delete it
   document.getElementById("match").removeChild(document.getElementById("match_preview_"+id));
 }

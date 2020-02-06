@@ -2,7 +2,7 @@
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
-/* TODO: alter map and timeframe widths once there is a map */
+/* TODO alter map and timeframe widths once there is a map */
 #timeframe {
   height: 400px;
   width: 15%;
@@ -96,6 +96,13 @@ input {
 }
 
 .match_preview button {
+  border: none;
+  margin: 2px;
+  background-color: #ddd;
+  cursor: pointer;
+}
+
+.match_view button {
   border: none;
   margin: 2px;
   background-color: #ddd;
