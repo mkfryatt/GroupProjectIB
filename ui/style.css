@@ -94,3 +94,10 @@ input {
   margin: 4px;
   display: inline-block;
 }
+
+.match_preview button {
+  border: none;
+  margin: 2px;
+  background-color: #ddd;
+  cursor: pointer;
+}
