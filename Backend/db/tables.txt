@@ -1,0 +1,125 @@
+unep_reps(
+  id INTEGER PRIMARY KEY,
+  firstName text NOT NULL,
+  lastName text NOT NULL
+  );
+
+organisations(
+  id INTEGER PRIMARY KEY,
+  name text NOT NULL
+  );
+
+locations(
+  id INTEGER PRIMARY KEY,
+  name text,
+  lat real NOT NULL,
+  long real NOT NULL
+  );
+
+timeframes(
+  id INTEGER PRIMARY KEY,
+  start int,
+  end int
+  );
+
+metadata(
+  wisher_id int NOT NULL,
+  FOREIGN KEY(wisher_id)
+  REFERENCES unep_reps(id)
+    ON UPDATE CASCADE
+  );
+
+presences(
+  id INTEGER PRIMARY KEY,
+  org_id integer NOT NULL,
+  loc_id integer NOT NULL,
+  time_id integer,
+  FOREIGN KEY (org_id)
+  REFERENCES organisations (id)
+    ON UPDATE CASCADE
+  FOREIGN KEY (loc_id)
+  REFERENCES locations(id)
+    ON UPDATE CASCADE
+  FOREIGN KEY (time_id)
+  REFERENCES timeframes (id)
+    ON UPDATE CASCADE
+    );
+
+trips(
+  id INTEGER PRIMARY KEY,
+  loc_id integer NOT NULL,
+  time_id timeframe NOT NULL,
+  FOREIGN KEY(loc_id)
+  REFERENCES locations(id)
+    ON UPDATE CASCADE
+  FOREIGN KEY(time_id)
+  REFERENCES timeframes(id)
+    ON UPDATE CASCADE
+  );
+
+trip_org_presences(
+  id INTEGER PRIMARY KEY,
+  trip_id integer NOT NULL,
+  org_id integer NOT NULL,
+  FOREIGN KEY(trip_id)
+  REFERENCES trips(id)
+    ON UPDATE CASCADE
+  FOREIGN KEY(org_id)
+  REFERENCES organisations(id)
+    ON UPDATE CASCADE
+  );
+
+rep_trips(
+  id INTEGER PRIMARY KEY,
+  rep_id int NOT NULL,
+  trip_id int NOT NULL,
+  FOREIGN KEY(rep_id)
+  REFERENCES unep_reps(id)
+    ON UPDATE CASCADE
+  FOREIGN KEY(trip_id)
+  REFERENCES unep_reps(id)
+    ON UPDATE CASCADE
+  );
+
+wish_constraints(
+  id INTEGER PRIMARY KEY,
+  wish_id integer NOT NULL,
+  type text NOT NULL,
+  loc_id int,
+  org_id int,
+  FOREIGN KEY (loc_id)
+  REFERENCES locations(id)
+    ON UPDATE CASCADE
+  FOREIGN KEY (org_id)
+  REFERENCES organisations(id)
+    ON UPDATE CASCADE
+  );
+
+wishes(
+  id INTEGER PRIMARY KEY,
+  time_id integer,
+  meta_id integer,
+  FOREIGN KEY(time_id)
+  REFERENCES timeframes(id)
+    ON UPDATE CASCADE
+  FOREIGN KEY(meta_id)
+  REFERENCES metadata(id)
+    ON UPDATE CASCADE
+  );
+
+
+suggestions(
+  id INTEGER PRIMARY KEY,
+  wish_id int NOT NULL,
+  loc_id int NOT NULL,
+  time_id int NOT NULL,
+  FOREIGN KEY (wish_id)
+  REFERENCES wishes(id)
+    ON UPDATE CASCADE
+  FOREIGN KEY (loc_id)
+  REFERENCES locations(id)
+    ON UPDATE CASCADE
+  FOREIGN KEY (time_id)
+  REFERENCES timeframes(id)
+    ON UPDATE CASCADE
+  );
