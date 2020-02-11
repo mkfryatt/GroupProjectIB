@@ -13,16 +13,17 @@ locations(
   id INTEGER PRIMARY KEY,
   name text,
   lat real NOT NULL,
-  long real NOT NULL
+  lon real NOT NULL
   );
 
 timeframes(
   id INTEGER PRIMARY KEY,
-  start int,
-  end int
+  startTime int,
+  endTime int
   );
 
 metadata(
+  id INTEGER PRIMARY KEY,
   wisher_id int NOT NULL,
   FOREIGN KEY(wisher_id)
   REFERENCES unep_reps(id)
@@ -87,11 +88,15 @@ wish_constraints(
   type text NOT NULL,
   loc_id int,
   org_id int,
+  time_id int,
   FOREIGN KEY (loc_id)
   REFERENCES locations(id)
     ON UPDATE CASCADE
   FOREIGN KEY (org_id)
   REFERENCES organisations(id)
+    ON UPDATE CASCADE
+  FOREIGN KEY (time_id)
+  REFERENCES timeframes(id)
     ON UPDATE CASCADE
   );
 
@@ -111,10 +116,14 @@ wishes(
 suggestions(
   id INTEGER PRIMARY KEY,
   wish_id int NOT NULL,
+  trip_id int NOT NULL,
   loc_id int NOT NULL,
   time_id int NOT NULL,
   FOREIGN KEY (wish_id)
   REFERENCES wishes(id)
+    ON UPDATE CASCADE
+  FOREIGN KEY (trip_id)
+  REFERENCES trips(id)
     ON UPDATE CASCADE
   FOREIGN KEY (loc_id)
   REFERENCES locations(id)

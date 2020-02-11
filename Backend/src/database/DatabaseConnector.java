@@ -7,14 +7,15 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class DatabaseController {
+public class DatabaseConnector {
 
   Connection conn;
 
-  public DatabaseController(String filePath) {
+  public DatabaseConnector(String filePath) {
     try {
       String url = "jdbc:sqlite:" + filePath;
       conn = DriverManager.getConnection(url);
@@ -27,13 +28,28 @@ public class DatabaseController {
     }
   }
 
-  private void executeStatement(String statement) {
+  public Connection getConn(){
+    return conn;
+  }
+
+  public void executeStatement(String statement) {
     try {
       Statement stmt = conn.createStatement();
       stmt.execute(statement);
     } catch (SQLException e) {
       e.printStackTrace();
     }
+  }
+
+  public ResultSet executeQuery(String sql){
+    try {
+      Statement stmt = conn.createStatement();
+      ResultSet rs = stmt.executeQuery(sql);
+      return rs;
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return null;
   }
 
   public void createTables(String textPath) {
@@ -65,7 +81,7 @@ public class DatabaseController {
   }
 
   public static void main(String[] args) {
-    DatabaseController dbCon = new DatabaseController("db/database.db");
+    DatabaseConnector dbCon = new DatabaseConnector("database.db");
     dbCon.createTables("db/tables.txt");
     dbCon.testInsert();
   }
