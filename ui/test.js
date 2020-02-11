@@ -34,58 +34,110 @@ function openTab(event, type) {
 
 function addMatchPreviews() {
   //TODO get list of matches
-  var matches = [{"reason": "blah", "matches": 3, "id": 343}, {reason: "dfdsvf", matches: 23, "id": 45}];
+  var matches = [{"reason": "blah", "matches": 3, "id": 343}, {"reason": "blah", "matches": 3, "id": 343}, {"reason": "blah", "matches": 3, "id": 343}, {"reason": "blah", "matches": 3, "id": 343}, {"reason": "blah", "matches": 3, "id": 343}, {reason: "dfdsvf", matches: 23, "id": 45}];
 
   removeMatchPreviews();
   matches.forEach(element => {
 
     var div = document.createElement("div");
-    div.setAttribute("class", "match_preview");
-    div.setAttribute("id", "match_preview_"+ element.id);
+    div.setAttribute("class", "col-sm-3");
+    div.setAttribute("id", "card_"+ element.id);
 
-    var p1 = document.createElement("p");
-    p1.innerHTML = "Reason: " + element.reason;
-    div.appendChild(p1);
+    var card = document.createElement("div");
+    card.setAttribute("class", "card");
 
-    var p2 = document.createElement("p");
-    p2.innerHTML = "Matches: " + element.matches;
-    div.appendChild(p2);
+    var cardBody = document.createElement("div");
+    cardBody.setAttribute("class", "card-body");
 
-    var button1 = document.createElement("button");
-    button1.innerHTML = "View";
-    button1.setAttribute("onclick", "viewMatch(" + element.id + ")");
-    div.appendChild(button1);
+    var cardTitle = document.createElement("h5");
+    cardTitle.setAttribute("class", "card-title");
+    cardTitle.innerHTML = "<span class=\"badge badge-success\">" + element.matches + "</span>";
+    
+    var cardText = document.createElement("p");
+    cardText.setAttribute("class", "card-text");
+    cardText.innerHTML = element.reason;
 
-    var button2 = document.createElement("button");
-    button2.innerHTML = "Remove";
-    button2.setAttribute("onclick", "removeMatch(" + element.id + ")");
-    div.appendChild(button2);
+    var btns = document.createElement("div");
+    btns.setAttribute("class", "btn-group");
 
-    document.getElementById("match").appendChild(div);
+    var view = document.createElement("button");
+    view.innerHTML = "View";
+    view.setAttribute("onclick", "viewMatch(" + element.id + ")");
+    view.setAttribute("class", "btn btn-success");
+
+    var remove = document.createElement("button");
+    remove.innerHTML = "Remove";
+    remove.setAttribute("onclick", "removeMatch(" + element.id + ")");
+    remove.setAttribute("class", "btn btn-danger");
+
+    cardBody.appendChild(cardTitle);
+    cardBody.appendChild(cardText);
+    btns.appendChild(view);
+    btns.appendChild(remove);
+    cardBody.appendChild(btns);
+    card.appendChild(cardBody);
+    div.appendChild(card);
+
+    document.getElementById("match-container").appendChild(div);
   });
 }
 
 function removeMatchPreviews() {
-  document.getElementById("match").innerHTML = "<h3>View your matches</h3>";
+  document.getElementById("match-container").innerHTML = "";
 }
 
 function viewMatch(id) {
-  document.getElementById("match").innerHTML = "";
+  //TODO get list of matches for this wish
+  var matches = [{"person": "john smith"}, {"person": "john smith"}, {"person": "john smith"}, {"person": "john smith"}, {"person": "john smith"}, {"person": "john smith"}];
 
-  var div = document.createElement("div");
-  div.setAttribute("class", "match_view");
-  div.innerHTML = "<p>info about the match here<\p>";
+  removeMatchPreviews();
+  var back = document.createElement("button");
+  back.innerHTML = "Back";
+  back.setAttribute("onclick", "addMatchPreviews()");
+  back.setAttribute("class", "btn btn-pimary");
+  document.getElementById("match").appendChild(back);
 
-  var button = document.createElement("button");
-  button.innerHTML = "Back";
-  button.setAttribute("onclick", "addMatchPreviews()");
-  div.appendChild(button);
-  
-  document.getElementById("match").appendChild(div);
+  matches.forEach(element => {
+
+    var div = document.createElement("div");
+    div.setAttribute("class", "col-sm-3");
+
+    var card = document.createElement("div");
+    card.setAttribute("class", "card");
+
+    var cardHeader = document.createElement("div");
+    cardHeader.setAttribute("class", "card-header");
+    cardHeader.innerHTML = element.person;
+    
+    var list = document.createElement("ul");
+    list.setAttribute("class", "list-group list-group-flush");
+
+    var stat1 = document.createElement("li");
+    stat1.setAttribute("class", "list-group-item");
+    stat1.innerHTML = "carbon saving: ???";
+
+    var stat2 = document.createElement("li");
+    stat2.setAttribute("class", "list-group-item");
+    stat2.innerHTML = "city: ???";
+
+    var stat3 = document.createElement("li");
+    stat3.setAttribute("class", "list-group-item");
+    stat3.innerHTML = "travel dates: ???";
+
+    list.appendChild(stat1);
+    list.appendChild(stat2);
+    list.appendChild(stat3);
+
+    card.appendChild(cardHeader);
+    card.appendChild(list);
+    div.appendChild(card);
+
+    document.getElementById("match-container").appendChild(div);
+  });
 }
 
 function removeMatch(id) {
   //TODO dialogue box
   //TODO tell db to delete it
-  document.getElementById("match").removeChild(document.getElementById("match_preview_"+id));
+  document.getElementById("match-container").removeChild(document.getElementById("card_"+id));
 }

@@ -1,19 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    
+    <!-- Stuff -->
     <link rel="stylesheet" type="text/css" href="style.css">
     <script src="test.js"></script>
+    <title>Demo Interface</title>
   </head>
   <body onload="init()">
 
-    <h3>Interface Demo</h3>
-
     <!-- Timeframe -->
-    <div id="timeframe">
-      <fieldset class="form_section">
-        <input type="date" name="start_date" id="start_date_map"><br>
-        <input type="date" name="end_date" id="end_date_map">
-      </fieldset>
+    <div id="timeframe" class="form-group">
+      <input type="date" name="start_date" id="start_date_map" class="form-control"><br>
+      <input type="date" name="end_date" id="end_date_map" class="form-control">
     </div>
 
     <!-- Map -->
@@ -21,7 +26,7 @@
 
     <!-- Tab Buttons -->
     <div class="tab">
-      <button class="tablinks" onclick="openTab(event, 'cal')" id="default_tab">Add Scheduled Travel</button>
+      <button class="tablinks" onclick="openTab(event, 'cal')" id="default_tab">Add Travel</button>
       <button class="tablinks" onclick="openTab(event, 'wish')">Add Wish</button>
       <button class="tablinks" onclick="openTab(event, 'match')">View Matches</button>
       <button class="tablinks" onclick="openTab(event, 'admin')">Add Presence</button>
@@ -30,82 +35,98 @@
     <!-- Travel Tab -->
     <div id="cal" class="tabcontent">
       <h3>Upload scheduled travel</h3>
-      <form>
-        <div class="form_section">
-          <label for="cal_upload">Choose calendar to upload: </label><br>
-          <input type="file" name="calendar" id="cal_upload" accept=".ical" multiple>
-        </div>
-        <div class="form_section">
-          <input type="submit">
-        </div>
-      </form>
+      <div class="form-group">
+        <label for="cal_upload">Choose calendar to upload: </label><br>
+        <input type="file" name="calendar" class ="form-control-file" id="cal_upload" accept=".ical" multiple>
+        <button class="btn btn-primary btn-lg">Submit</button>
+      </div>
     </div>
 
     <!-- Wishes Tab -->
     <div id="wish" class="tabcontent">
       <h3>Add a wish</h3>
-      <form>
+      <div class="form-group">
         <!-- General Info -->
-        <div id="general_wish" class="form_section">
-          <label for="general_wish">General</label><br>
-          <input type="text" name="name" id="name_wish" placeholder="Name"><br>
-          <input type="text" name="reason" id="reason_wish" placeholder="Reason"><br>
-          <input type="text" name="org" id="org_wish" placeholder="Organisaton">
+        <div class="form-row">
+          <div class="col">
+            <input type="text" name="name" id="name_wish" placeholder="Name" class="form-control">
+          </div>
+          <div class="col">
+            <input type="text" name="reason" id="reason-wish" placeholder="Reason" class="form-control">
+          </div>
+          <div class="col">
+            <input type="text" name="org" id="org_wish" placeholder="Organisation" class="form-control">
+          </div>
         </div>
         <!-- Location Info -->
-        <div id="loc_wish" class="form_section">
-          <label for="loc_wish">Location</label><br>
-          <input type="text" name="city" id="city_wish" placeholder="City"><br>
-          <input type="text" name="country" id="country_wish" placeholder="Country">
+        <div class="form-row">
+          <div class="col">
+            <input type="text" name="city" id="city_wish" placeholder="City" class="form-control">
+          </div>
+          <div class="col">
+            <input type="text" name="country" id="country_wish" placeholder="Country" class="form-control">
+          </div>
         </div>
         <!-- Time Info -->
-        <div id="dates_wish" class="form_section">
-          <label for="dates_wish">Dates</label><br>
-          <label for="start_date_wish">From:</label>
-          <input type="date" name="start_date" id="start_date_wish"><br>
-          <label for="end_date_wish">To:</label>
-          <input type="date" name="end_date" id="end_date_wish">
+        <div class="form-row">
+          <div class="col">
+            <label for="start_date_wish">Start date:</label>
+            <input type="date" name="start_date" id="start_date_wish" class="form-control">
+          </div>
+          <div class="col">
+            <label for="end_date_wish">End date:</label>
+            <input type="date" name="end_date" id="end_date_wish" class="form-control">
+          </div>
         </div>
         <!-- Submit -->
-        <div class="form_section">
-          <input type="submit">
-        </div>
-      </form>
+        <input type="submit" class="btn btn-primary btn-lg">
+      </div>
     </div>
 
     <!-- Matches Tab -->
     <div id="match" class="tabcontent">
+      <h3>View your matches</h3>
+      <div id="match-container" class="row">
+      </div>
     </div>
 
     <!-- Admin Tab -->
     <div id="admin" class="tabcontent">
       <h3>Add the presence of an organisation</h3>
-      <form>
+      <div class="form-group">
         <!-- General Info -->
-        <div id="general_admin" class="form_section">
-          <label for="general_admin">General</label><br>
-          <input type="text" name="org" id="org_admin" placeholder="Organisaton">
+        <div class="form-row">
+          <div class="col">
+            <input type="text" name="org" id="org_admin" placeholder="Organisaton" class="form-control">
+          </div>
         </div>
         <!-- Location Info -->
-        <div id="loc_admin" class="form_section">
-          <label for="loc_admin">Location</label><br>
-          <input type="text" name="city" id="city_admin" placeholder="City"><br>
-          <input type="text" name="country" id="country_admin" placeholder="Country">
+        <div class="form-row">
+          <div class="col">
+            <input type="text" name="city" id="city_admin" placeholder="City" class="form-control">
+          </div>
+          <div class="col">
+            <input type="text" name="country" id="country_admin" placeholder="Country" class="form-control">
+          </div>
         </div>
         <!-- Time Info -->
-        <div id="dates_admin" class="form_section">
-          <label for="dates_admin">Dates</label><br>
-          <label for="start_date_admin">From:</label>
-          <input type="date" name="start_date" id="start_date_admin"><br>
-          <label for="end_date_admin">To:</label>
-          <input type="date" name="end_date" id="end_date_admin">
+        <div class="form-row">
+          <div class="col">
+            <label for="start_date_admin">Start date:</label>
+            <input type="date" name="start_date" id="start_date_admin" class="form-control">
+          </div>
+          <div class="col">
+            <label for="end_date_admin">End date:</label>
+            <input type="date" name="end_date" id="end_date_admin" class="form-control">
+          </div>
         </div>
         <!-- Submit -->
-        <div class="form_section">
-          <input type="submit">
-        </div>
-      </form>
+        <input type="submit" class="btn btn-primary btn-lg">
+      </div>
     </div>
     
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
   </body>
 </html>
