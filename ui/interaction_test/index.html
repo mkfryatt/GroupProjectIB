@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" type="text/css" href="interaction_test/style.css">
+    <script src="interaction_test/util.js"></script>
+    <meta charset="UTF-8">
+    <title>Cmd</title>
+</head>
+<body class=bash onkeypress="return handleKeyPress(event)" onload="init()">
+<div id = "content"></div>
+<div class="bash">
+    <table>
+       <tr>
+           <td>
+               <div id="preamble_div">preamble</div>
+           </td>
+           <td>
+               <input type="text" id="linecmd" class="bash_input" >
+           </td>
+       </tr>
+    </table>
+
+    <button onclick="executeLine()" >Launch</button>
+</div>
+</body>
+</html>
