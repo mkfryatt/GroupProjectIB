@@ -5,15 +5,39 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
+    <!-- JQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    
+
     <!-- Stuff -->
-    <link rel="stylesheet" type="text/css" href="ui/style.css">
-    <script src="ui/test.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="test.js"></script>
     <title>Demo Interface</title>
   </head>
   <body onload="init()">
+
+    <!-- Pop-up dialogue box -->
+    <div class="modal" id="confirm-removal">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Remove Wish</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>Would you like to permanently delete this wish?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Delete Wish</button>
+            <button type="button" class="btn btn-secondary">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Timeframe -->
     <div id="timeframe" class="form-group">
@@ -26,10 +50,10 @@
 
     <!-- Tab Buttons -->
     <div class="tab">
-      <button class="tablinks" onclick="openTab(event, 'cal')" id="default_tab">Add Travel</button>
-      <button class="tablinks" onclick="openTab(event, 'wish')">Add Wish</button>
-      <button class="tablinks" onclick="openTab(event, 'match')">View Matches</button>
-      <button class="tablinks" onclick="openTab(event, 'admin')">Add Presence</button>
+      <button class="tablinks" onclick="openTab('cal')" id="cal_btn">Add Travel</button>
+      <button class="tablinks" onclick="openTab('wish')" id="wish_btn">Add Wish</button>
+      <button class="tablinks" onclick="openTab('match')" id="match_btn">View Matches</button>
+      <button class="tablinks" onclick="openTab('admin')" id="admin_btn">Add Presence</button>
     </div>
 
     <!-- Travel Tab -->
@@ -85,8 +109,11 @@
 
     <!-- Matches Tab -->
     <div id="match" class="tabcontent">
-      <h3>View your matches</h3>
-      <div id="match-container" class="row">
+      <h3 id="match-title"></h3>
+      <button class="btn-primary" id="match-back-btn" onclick="hideMatch()">Back</button>
+      <div id="match-previews" class="row">
+      </div>
+      <div id="match-view" class="row">
       </div>
     </div>
 
