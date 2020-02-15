@@ -10,7 +10,7 @@ function answerJsonAndDie($obj)
 function error($error){
     $obj = new stdClass();
     $obj->error = $error;
-    returnJson($obj);
+    answerJsonAndDie($obj);
 }
 
 function getUnepPresencesWithinTimeframe($params){

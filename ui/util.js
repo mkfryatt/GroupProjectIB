@@ -1,3 +1,5 @@
+const middleware_path = 'backend/middleware/';
+
 function getUnepPresencesWithinTimeframe(start, end, callbackFunction) {
     xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function () {

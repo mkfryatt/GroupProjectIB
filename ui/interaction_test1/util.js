@@ -1,4 +1,4 @@
-const middleware_path = '../../backend/middleware/';
+let middleware_path = '../../backend/middleware/';
 let preamble = '[user]$ ';
 let history = [];
 let history_id = -1;
