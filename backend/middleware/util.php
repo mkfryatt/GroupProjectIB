@@ -1,5 +1,8 @@
 <?php
 
+$dbconn = new PDO('sqlite:../src/database.db');
+if(!$dbconn)die("Couldn't connect to DB.");
+
 function answerJsonAndDie($obj)
 {
     header('Content-Type: application/json');

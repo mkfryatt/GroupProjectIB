@@ -1,12 +1,17 @@
-const middleware_path = 'backend/middleware/';
+const middleware_path = '../backend/middleware/';
 
-function getUnepPresencesWithinTimeframe(start, end, callbackFunction) {
+function sendXmlHttpRequest(request, callback) {
     xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
-            callbackFunction(JSON.parse(this.responseText));
+            callback(JSON.parse(this.responseText));
         }
     }
+    xmlhttp.open("GET", middleware_path + "util.php?q=" + JSON.stringify(request), true);
+    xmlhttp.send();
+}
+
+function getUnepPresencesWithinTimeframe(start, end, callbackFunction) {
     let request = {
         method: 'getUnepPresencesWithinTimeframe',
         params: {
@@ -14,8 +19,7 @@ function getUnepPresencesWithinTimeframe(start, end, callbackFunction) {
             end : end
         }
     };
-    xmlhttp.open("GET", middleware_path + "util.php?q=" + JSON.stringify(request), true);
-    xmlhttp.send();
+    sendXmlHttpRequest(request,callbackFunction);
 }
 
 function getOrganizationPresencesWithinTimeframe(organization, start, end) {
