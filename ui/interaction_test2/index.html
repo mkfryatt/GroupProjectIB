@@ -2,11 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <script src="util.js"></script>
     <title>Interaction Test 2</title>
+    <script type="text/javascript">
+        function loadContent(){
+            getUnepPresencesWithinTimeframe(0,1,function (result) {
+                alert(result);
+            })
+        }
+    </script>
 </head>
 <body>
-
-
+    <div id="target"></div>
+    <button onclick="loadContent()">LOAD</button>
 
 </body>
 </html>

@@ -16,7 +16,7 @@ function error($error){
 function getUnepPresencesWithinTimeframe($params){
 
     //TODO: query DB with $params->start, $params->end
-    sleep(2); //simulate latency
+    //sleep(2); //simulate latency
     $result = array();
     for($i  = 0; $i<10;$i++){
         $pre = new stdClass();
