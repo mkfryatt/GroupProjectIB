@@ -26,7 +26,6 @@ function init() {
   }).addTo(map);
 
   updateMap(map);
-  document.getElementById("start_date_map").addEventListener();
 }
 
 function updateMap(map){
@@ -56,16 +55,109 @@ function openTab(type) {
     $("#"+type).show();
 }
 
-function removeMatch(id) {
+function removeMatchConfirmation(id) {
   //TODO dialogue box
-  //TODO tell backend to delete it
+
+  var div1 = document.createElement("div");
+  div1.setAttribute("class", "modal");
+  div1.setAttribute("id", "confirm-removal");
+
+  var div2  = document.createElement("div");
+  div2.setAttribute("class", "modal-dialog");
+
+  var divContent = document.createElement("div");
+  divContent.setAttribute("class", "modal-content");
+
+  var divHeader = document.createElement("div");
+  divHeader.setAttribute("class", "modal-header");
+
+  var title = document.createElement("h5");
+  title.setAttribute("class", "modal-title");
+  title.innerText = "Remove Wish";
+
+  var btnX =document.createElement("button");
+  btnX.setAttribute("class", "close");
+  btnX.setAttribute("onclick", "$('#confirm-removal').remove()");
+
+  var span = document.createElement("span");
+  span.setAttribute("aria-hidden", "true");
+  span.innerHTML = "&times";
+
+  var divBody = document.createElement("div");
+  divBody.setAttribute("class", "modal-body");
+
+  var p = document.createElement("p");
+  p.innerText = "Would you like to permanently delete this wish?";
+
+  var divFooter = document.createElement("div");
+  divFooter.setAttribute("class", "modal-footer");
+
+  var btnDelete = document.createElement("button");
+  btnDelete.setAttribute("class", "btn btn-primary");
+  btnDelete.setAttribute("onclick", "deleteMatch("+id+")");
+  btnDelete.innerText = "Delete";
+
+  var btnCancel = document.createElement("button");
+  btnCancel.setAttribute("class", "btn btn-secondary");
+  btnCancel.setAttribute("onclick", "$('#confirm-removal').remove()");
+  btnCancel.innerText = "Cancel";
+
+  btnX.append(span);
+  divHeader.append(title);
+  divHeader.append(btnX);
+
+  divBody.append(p);
+
+  divFooter.append(btnDelete);
+  divFooter.append(btnCancel);
+
+  divContent.append(divHeader);
+  divContent.append(divBody);
+  divContent.append(divFooter);
+
+  div2.append(divContent);
+  div1.append(div2);
+
+  $("body").append(div1);
   $("#confirm-removal").show();
-  //$("#card_"+id).remove();
+
+  /* roughly this:
+  <div class="modal" id="confirm-removal">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Remove Wish</h5>
+          <button type="button" class="close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Would you like to permanently delete this wish?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-dismiss="modal">Delete Wish</button>
+          <button type="button" class="btn btn-secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  */
+}
+
+function deleteMatch(id) {
+  $("#confirm-removal").remove();
+  //TODO tell backend to delete it
+  $("#card_"+id).remove();
 }
 
 function getMatchPreviews() {
   //TODO get list of matches from backend
-  var matches = [{"reason": "reason goes here", "matches": 3, "id": 343}, {"reason": "reason goes here", "matches": 4, "id": 343}, {"reason": "blah", "matches": 3, "id": 343}, {"reason": "reason goes here", "matches": 3, "id": 343}, {"reason": "reason goes here", "matches": 3, "id": 343}, {reason: "dfdsvf", matches: 23, "id": 45}];
+  var matches = [{"reason": "reason goes here", "matches": 3, "id": 1}, 
+  {"reason": "reason goes here", "matches": 4, "id": 2}, 
+  {"reason": "blah", "matches": 3, "id": 3}, 
+  {"reason": "reason goes here", "matches": 3, "id": 4}, 
+  {"reason": "reason goes here", "matches": 3, "id": 5}, 
+  {reason: "dfdsvf", matches: 23, "id": 6}];
 
   matches.forEach(element => {
 
@@ -97,7 +189,7 @@ function getMatchPreviews() {
 
     var remove = document.createElement("button");
     remove.innerHTML = "Remove";
-    remove.setAttribute("onclick", "removeMatch(" + element.id + ")");
+    remove.setAttribute("onclick", "removeMatchConfirmation(" + element.id + ")");
     remove.setAttribute("class", "btn btn-danger");
 
     cardBody.append(cardTitle);
@@ -174,5 +266,48 @@ function showMatch(id) {
 }
 
 function carbonDetails() {
-  
+  var div1 = document.createElement("div");
+  div1.setAttribute("class", "modal");
+  div1.setAttribute("id", "carbon-details");
+
+  var div2  = document.createElement("div");
+  div2.setAttribute("class", "modal-dialog modal-dialog-centered");
+
+  var divContent = document.createElement("div");
+  divContent.setAttribute("class", "modal-content");
+
+  var divHeader = document.createElement("div");
+  divHeader.setAttribute("class", "modal-header");
+
+  var title = document.createElement("h5");
+  title.setAttribute("class", "modal-title");
+  title.innerText = "Your Carbon Savings";
+
+  var btnX =document.createElement("button");
+  btnX.setAttribute("class", "close");
+  btnX.setAttribute("onclick", "$('#carbon-details').remove()");
+
+  var span = document.createElement("span");
+  span.setAttribute("aria-hidden", "true");
+  span.innerHTML = "&times";
+
+  var divBody = document.createElement("div");
+  divBody.setAttribute("class", "modal-body");
+
+  //add stuff to div body
+
+  btnX.append(span);
+  divHeader.append(title);
+  divHeader.append(btnX);
+
+  //add stuff to div body
+
+  divContent.append(divHeader);
+  divContent.append(divBody);
+
+  div2.append(divContent);
+  div1.append(div2);
+
+  $("body").prepend(div1);
+  $("#carbon-details").show();
 }

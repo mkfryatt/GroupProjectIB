@@ -26,32 +26,12 @@
   </head>
   <body onload="init()">
 
-    <!-- Pop-up dialogue box -->
-    <div class="modal" id="confirm-removal">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Remove Wish</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <p>Would you like to permanently delete this wish?</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary" data-dismiss="modal">Delete Wish</button>
-            <button type="button" class="btn btn-secondary">Cancel</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Timeframe -->
     <div id="timeframe">
-      <div class="card" style="width: 100%;">
+      <div class="card" style="width: 100%; margin-bottom: 2rem;">
         <div class="card-body">
-          <h5 class="card-title" id="carbon-saved">Carbon Saved: </h5>
+          <h5 class="card-title" id="carbon-saved">Carbon Saved:</h5>
+          <button class="btn btn-primary" onclick="carbonDetails()">See Details</button>
         </div>
       </div>
       <div  class="form-group">
