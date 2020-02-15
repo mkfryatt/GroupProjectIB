@@ -53,9 +53,45 @@
 
     <!-- Travel Tab -->
     <div id="cal" class="tabcontent">
-    <h3>View and edit travel</h3>
-    <div id="travel-default" class="row">
-    </div>
+      <h3>View and edit travel</h3>
+      <div id="travel-default" class="row">
+      </div>
+      <div class="form-group" id="travel-add">
+        <!-- General Info -->
+        <div class="form-row">
+          <div class="col">
+            <input type="text" name="name" id="name-travel" placeholder="Name" class="form-control">
+          </div>
+          <div class="col">
+            <input type="text" name="reason" id="reason-travel" placeholder="Reason" class="form-control">
+          </div>
+          <div class="col">
+            <input type="text" name="org" id="org-travel" placeholder="Organisation" class="form-control">
+          </div>
+        </div>
+        <!-- Location Info -->
+        <div class="form-row">
+          <div class="col">
+            <input type="text" name="city" id="city-travel" placeholder="City" class="form-control" value="">
+          </div>
+          <div class="col">
+            <input type="text" name="country" id="country-travel" placeholder="Country" class="form-control">
+          </div>
+        </div>
+        <!-- Time Info -->
+        <div class="form-row">
+          <div class="col">
+            <label for="start_date_travel">Start date:</label>
+            <input type="date" name="start_date" id="start-date-travel" class="form-control">
+          </div>
+          <div class="col">
+            <label for="end_date_travel">End date:</label>
+            <input type="date" name="end_date" id="end-date-travel" class="form-control">
+          </div>
+        </div>
+        <!-- Submit -->
+        <button class="btn btn-primary btn-lg" onclick="">Submit</button>
+      </div>
     </div>
 
     <!-- Wishes Tab -->
@@ -95,7 +131,7 @@
           </div>
         </div>
         <!-- Submit -->
-        <input type="submit" class="btn btn-primary btn-lg">
+        <button class="btn btn-primary btn-lg">Submit</button>
       </div>
     </div>
 
@@ -140,7 +176,7 @@
           </div>
         </div>
         <!-- Submit -->
-        <input type="submit" class="btn btn-primary btn-lg">
+        <button class="btn btn-primary btn-lg">Submit</button>
       </div>
     </div>
     

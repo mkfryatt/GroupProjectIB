@@ -16,6 +16,7 @@ function init() {
   date.setMonth(1 + date.getMonth());
   document.getElementById("end_date_map").valueAsDate = date;
 
+  getTravel();
   getMatchPreviews();
   openTab("cal");
 
@@ -52,11 +53,6 @@ function openTab(type) {
   $(".tabcontent").hide();
   $(".tab button").css("background-color", "");
   $("#"+type+"_btn").css("background-color", "#f59191");
-
-  if (type==="cal") {
-    getTravel();
-  }
-
   $("#"+type).show();
 }
 
@@ -319,7 +315,15 @@ function carbonDetails() {
 }
 
 function getTravel() {
-  var travels = [{city:"cambridge", country:"uk", startDate: "date", endDate: "date"}];
+  //get travel from db
+  var travels = [{city:"cambridge", country:"uk", startDate: "date", endDate: "date", id:1}];
+
+  var btnAdd = document.createElement("button");
+  btnAdd.setAttribute("class", "btn btn-success");
+  btnAdd.setAttribute("onclick", "addTravel()");
+  btnAdd.innerText = "Add new travel";
+
+  $("#travel-default").append(btnAdd);
 
   travels.forEach(element => {
 
@@ -329,25 +333,27 @@ function getTravel() {
     var card = document.createElement("div");
     card.setAttribute("class", "card");
     
-    //edit and remove button for travel
-    
     var list = document.createElement("ul");
     list.setAttribute("class", "list-group list-group-flush");
 
     var stat1 = document.createElement("li");
     stat1.setAttribute("class", "list-group-item");
+    stat1.setAttribute("id", "city-"+element.id);
     stat1.innerText = "City: \n" + element.city;
 
     var stat2 = document.createElement("li");
     stat2.setAttribute("class", "list-group-item");
+    stat2.setAttribute("id", "country-"+element.id);
     stat2.innerText = "Country: \n" + element.country;
 
     var stat3 = document.createElement("li");
     stat3.setAttribute("class", "list-group-item");
+    stat3.setAttribute("id", "start-date-"+element.id);
     stat3.innerText = "Start: \n" + element.startDate;
 
     var stat4 = document.createElement("li");
     stat4.setAttribute("class", "list-group-item");
+    stat4.setAttribute("id", "end-date-"+element.id);
     stat4.innerText = "End: \n" + element.endDate;
 
     var footer = document.createElement("div");
@@ -358,12 +364,12 @@ function getTravel() {
 
     var btnEdit = document.createElement("button");
     btnEdit.setAttribute("class", "btn btn-secondary");
-    btnEdit.setAttribute("editTravel("+id+")");
+    btnEdit.setAttribute("onclick", "editTravel("+element.id+")");
     btnEdit.innerText = "Edit";
 
     var btnRemove = document.createElement("button");
     btnRemove.setAttribute("class", "btn btn-secondary");
-    btnRemove.setAttribute("removeTravelConfirmation("+id+")");
+    btnRemove.setAttribute("onclick", "removeTravelConfirmation("+element.id+")");
     btnRemove.innerText = "Remove";
 
     list.append(stat1);
@@ -381,4 +387,23 @@ function getTravel() {
 
     $("#travel-default").append(div);
   });
+
+  $("#travel-add").hide();
+  $("#travel-default").show();
+}
+
+function addTravel() {
+  $("#travel-default").hide();
+  $("#travel-add").show();
+}
+
+function editTravel(id) {
+  $("#travel-default").hide();
+  $("#travel-add").show();
+
+  var attrs = ["city", "country", "start-date", "end-date"];
+  attrs.forEach(element => {
+    $("#"+element+"-travel").attr("value", $("#"+element+"-"+id).text());
+  });
+  
 }
