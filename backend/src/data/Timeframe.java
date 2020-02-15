@@ -1,41 +1,29 @@
 package data;
 
-public class Timeframe {
+public interface Timeframe {
 
-  public int id;
-  public int startTime, endTime;
+  public int getStartTime();
 
-  public Timeframe(int id, int startTime, int endTime) {
-    this.startTime = startTime;
-    this.endTime = endTime;
-    this.id = id;
+  public void setStartTime(int startTime) ;
+
+  public int getEndTime();
+
+  public void setEndTime(int endTime);
+
+  public default boolean overlaps(Timeframe other) {
+    return this.getStartTime() <= other.getEndTime() && other.getStartTime() <= this.getEndTime();
   }
 
-  public Timeframe(int id) {
-    this(id, 0, Integer.MAX_VALUE);
+  //negative means other happens before this, positive means other happens afterwards
+  public default int differenceTo(Timeframe other){
+    if(this.overlaps(other)) return 0;
+    else { //No overlap
+      if(this.getStartTime() < other.getStartTime()){
+        return other.getStartTime() - this.getEndTime();
+      } else{
+        return this.getStartTime() - other.getEndTime();
+      }
+    }
   }
 
-  public int getStartTime() {
-    return startTime;
-  }
-
-  public void setStartTime(int startTime) {
-    this.startTime = startTime;
-  }
-
-  public int getEndTime() {
-    return endTime;
-  }
-
-  public void setEndTime(int endTime) {
-    this.endTime = endTime;
-  }
-
-  public boolean overlaps(Timeframe other) {
-    return this.startTime <= other.endTime && other.startTime <= this.endTime;
-  }
-
-  public int getId() {
-    return id;
-  }
 }

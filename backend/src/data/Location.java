@@ -43,4 +43,10 @@ public class Location {
   public void setLat(double lat) {
     this.lat = lat;
   }
+
+  public double computeDistance(Location other){
+    double dist = 0;
+    return dist;
+  }
+
 }

@@ -7,9 +7,9 @@ public abstract class WishConstraint {
     TIME
   }
 
-  int id;
-  Type type;
-  Wish wish;
+  public int id;
+  public Type type;
+  public Wish wish;
 
   public WishConstraint(int id, Type type, Wish wish){
     this.id = id;

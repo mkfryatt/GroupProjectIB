@@ -1,5 +1,6 @@
 unep_reps(
   id INTEGER PRIMARY KEY,
+  email text NOT NULL,
   firstName text NOT NULL,
   lastName text NOT NULL
   );
@@ -13,13 +14,8 @@ locations(
   id INTEGER PRIMARY KEY,
   name text,
   lat real NOT NULL,
-  lon real NOT NULL
-  );
-
-timeframes(
-  id INTEGER PRIMARY KEY,
-  startTime int,
-  endTime int
+  lon real NOT NULL,
+  geocode text NOT NULL
   );
 
 metadata(
@@ -34,27 +30,23 @@ presences(
   id INTEGER PRIMARY KEY,
   org_id integer NOT NULL,
   loc_id integer NOT NULL,
-  time_id integer,
+  startTime int NOT NULL,
+  endTime int NOT NULL,
   FOREIGN KEY (org_id)
   REFERENCES organisations (id)
     ON UPDATE CASCADE
   FOREIGN KEY (loc_id)
   REFERENCES locations(id)
     ON UPDATE CASCADE
-  FOREIGN KEY (time_id)
-  REFERENCES timeframes (id)
-    ON UPDATE CASCADE
     );
 
 trips(
   id INTEGER PRIMARY KEY,
   loc_id integer NOT NULL,
-  time_id timeframe NOT NULL,
+  startTime int NOT NULL,
+  endTime int NOT NULL,
   FOREIGN KEY(loc_id)
   REFERENCES locations(id)
-    ON UPDATE CASCADE
-  FOREIGN KEY(time_id)
-  REFERENCES timeframes(id)
     ON UPDATE CASCADE
   );
 
@@ -88,25 +80,21 @@ wish_constraints(
   type text NOT NULL,
   loc_id int,
   org_id int,
-  time_id int,
+  startTime int NOT NULL,
+  endTime int NOT NULL,
   FOREIGN KEY (loc_id)
   REFERENCES locations(id)
     ON UPDATE CASCADE
   FOREIGN KEY (org_id)
   REFERENCES organisations(id)
     ON UPDATE CASCADE
-  FOREIGN KEY (time_id)
-  REFERENCES timeframes(id)
-    ON UPDATE CASCADE
   );
 
 wishes(
   id INTEGER PRIMARY KEY,
-  time_id integer,
+  startTime int NOT NULL,
+  endTime int NOT NULL,
   meta_id integer,
-  FOREIGN KEY(time_id)
-  REFERENCES timeframes(id)
-    ON UPDATE CASCADE
   FOREIGN KEY(meta_id)
   REFERENCES metadata(id)
     ON UPDATE CASCADE
@@ -118,7 +106,9 @@ suggestions(
   wish_id int NOT NULL,
   trip_id int NOT NULL,
   loc_id int NOT NULL,
-  time_id int NOT NULL,
+  startTime int NOT NULL,
+  endTime int NOT NULL,
+  score real NOT NULL,
   FOREIGN KEY (wish_id)
   REFERENCES wishes(id)
     ON UPDATE CASCADE
@@ -127,8 +117,5 @@ suggestions(
     ON UPDATE CASCADE
   FOREIGN KEY (loc_id)
   REFERENCES locations(id)
-    ON UPDATE CASCADE
-  FOREIGN KEY (time_id)
-  REFERENCES timeframes(id)
     ON UPDATE CASCADE
   );
