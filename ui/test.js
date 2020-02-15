@@ -1,3 +1,15 @@
+var tickIcon = L.icon({
+  iconUrl: 'iconmonstr-location-7-240.png',
+  iconSize: [32, 32],
+  iconAnchor: [16,32],
+});
+
+var wishIcon = L.icon({
+  iconUrl: 'iconmonstr-location-13-240.png',
+  iconSize: [32, 32],
+  iconAnchor: [16,32],
+});
+
 function init() {
   document.getElementById("start_date_map").valueAsDate = new Date();
   var date = new Date();
@@ -6,6 +18,35 @@ function init() {
 
   getMatchPreviews();
   openTab("cal");
+
+  var map = L.map('map').setView({lon: 0, lat: 0}, 2);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+	    maxZoom: 19,
+	    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+
+  updateMap(map);
+  document.getElementById("start_date_map").addEventListener();
+}
+
+function updateMap(map){
+  var start = document.getElementById("start_date_map").valueAsDate;
+  var end = document.getElementById("end_date_map").valueAsDate;
+
+  //Filter by date from db file and display pins
+ displayPin(map, tickIcon,"Goldfish conference", 38.72, -9.14, "Lisbon", "Mark Smith", "1/04/20", "3/04/20");
+ displayPin(map, wishIcon,"Lemon meeting", 51.547, 0, "London", "Mark Smith", "1/04/20", "3/04/20");
+
+}
+
+function displayPin(map, eventType, eventName, eventX, eventY, eventLocationName, eventPerson, eventStart, eventEnd){
+  //Event name & Institution 
+  //Location (need Co-ords and city name)
+  //Person -> unep_rep & name
+  //Time
+
+  var marker = L.marker([eventX,eventY], {icon: eventType}).addTo(map);
+  marker.bindPopup("<p>" + eventName.bold() + "<br />" + eventLocationName +"<br />" + eventPerson + "<br />" + eventStart + " to " + eventEnd +"</p>");
 }
 
 function openTab(type) {
@@ -130,4 +171,8 @@ function showMatch(id) {
   });
   $("#match-previews").hide();
   $("#match-view").show();
+}
+
+function carbonDetails() {
+  
 }
