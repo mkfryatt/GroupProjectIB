@@ -49,10 +49,15 @@ function displayPin(map, eventType, eventName, eventX, eventY, eventLocationName
 }
 
 function openTab(type) {
-    $(".tabcontent").hide();
-    $(".tab button").css("background-color", "");
-    $("#"+type+"_btn").css("background-color", "#f59191");
-    $("#"+type).show();
+  $(".tabcontent").hide();
+  $(".tab button").css("background-color", "");
+  $("#"+type+"_btn").css("background-color", "#f59191");
+
+  if (type==="cal") {
+    getTravel();
+  }
+
+  $("#"+type).show();
 }
 
 function removeMatchConfirmation(id) {
@@ -227,7 +232,7 @@ function showMatch(id) {
   matches.forEach(element => {
 
     var div = document.createElement("div");
-    div.setAttribute("class", "col-sm-3");
+    div.setAttribute("class", "col-sm-1");
 
     var card = document.createElement("div");
     card.setAttribute("class", "card");
@@ -261,6 +266,7 @@ function showMatch(id) {
 
     $("#match-view").append(div);
   });
+
   $("#match-previews").hide();
   $("#match-view").show();
 }
@@ -310,4 +316,69 @@ function carbonDetails() {
 
   $("body").prepend(div1);
   $("#carbon-details").show();
+}
+
+function getTravel() {
+  var travels = [{city:"cambridge", country:"uk", startDate: "date", endDate: "date"}];
+
+  travels.forEach(element => {
+
+    var div = document.createElement("div");
+    div.setAttribute("class", "col-sm-1");
+
+    var card = document.createElement("div");
+    card.setAttribute("class", "card");
+    
+    //edit and remove button for travel
+    
+    var list = document.createElement("ul");
+    list.setAttribute("class", "list-group list-group-flush");
+
+    var stat1 = document.createElement("li");
+    stat1.setAttribute("class", "list-group-item");
+    stat1.innerText = "City: \n" + element.city;
+
+    var stat2 = document.createElement("li");
+    stat2.setAttribute("class", "list-group-item");
+    stat2.innerText = "Country: \n" + element.country;
+
+    var stat3 = document.createElement("li");
+    stat3.setAttribute("class", "list-group-item");
+    stat3.innerText = "Start: \n" + element.startDate;
+
+    var stat4 = document.createElement("li");
+    stat4.setAttribute("class", "list-group-item");
+    stat4.innerText = "End: \n" + element.endDate;
+
+    var footer = document.createElement("div");
+    footer.setAttribute("class", "card-footer");
+
+    var btnGroup = document.createElement("div");
+    btnGroup.setAttribute("class", "btn-group");
+
+    var btnEdit = document.createElement("button");
+    btnEdit.setAttribute("class", "btn btn-secondary");
+    btnEdit.setAttribute("editTravel("+id+")");
+    btnEdit.innerText = "Edit";
+
+    var btnRemove = document.createElement("button");
+    btnRemove.setAttribute("class", "btn btn-secondary");
+    btnRemove.setAttribute("removeTravelConfirmation("+id+")");
+    btnRemove.innerText = "Remove";
+
+    list.append(stat1);
+    list.append(stat2);
+    list.append(stat3);
+    list.append(stat4);
+
+    btnGroup.append(btnEdit);
+    btnGroup.append(btnRemove);
+    footer.append(btnGroup);
+
+    card.append(list);
+    card.append(footer);
+    div.append(card);
+
+    $("#travel-default").append(div);
+  });
 }

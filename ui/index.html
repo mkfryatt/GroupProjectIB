@@ -45,7 +45,7 @@
 
     <!-- Tab Buttons -->
     <div class="tab">
-      <button class="tablinks" onclick="openTab('cal')" id="cal_btn">Add Travel</button>
+      <button class="tablinks" onclick="openTab('cal')" id="cal_btn">My Travel</button>
       <button class="tablinks" onclick="openTab('wish')" id="wish_btn">Add Wish</button>
       <button class="tablinks" onclick="openTab('match')" id="match_btn">View Matches</button>
       <button class="tablinks" onclick="openTab('admin')" id="admin_btn">Add Presence</button>
@@ -53,12 +53,9 @@
 
     <!-- Travel Tab -->
     <div id="cal" class="tabcontent">
-      <h3>Upload scheduled travel</h3>
-      <div class="form-group">
-        <label for="cal_upload">Choose calendar to upload: </label><br>
-        <input type="file" name="calendar" class ="form-control-file" id="cal_upload" accept=".ical" multiple>
-        <button class="btn btn-primary btn-lg">Submit</button>
-      </div>
+    <h3>View and edit travel</h3>
+    <div id="travel-default" class="row">
+    </div>
     </div>
 
     <!-- Wishes Tab -->
