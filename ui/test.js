@@ -11,10 +11,10 @@ var wishIcon = L.icon({
 });
 
 function init() {
-  $("#start-date-map").valueAsDate = new Date();
+  document.getElementById("start-date-map").valueAsDate = new Date();
   var date = new Date();
   date.setMonth(1 + date.getMonth());
-  $("#end-date-map").valueAsDate = date;
+  document.getElementById("end-date-map").valueAsDate = date;
 
   getTravel();
   getMatchPreviews();
@@ -39,7 +39,7 @@ function updateMap(map){
 
 }
 
-function displayPin(map, eventType, eventName, eventX, eventY, eventLocationName, eventPerson, eventStart, eventEnd){
+function displayPin(map, eventType, eventName, eventX, eventY, eventLocationName, eventPerson, eventStart, eventEnd) {
   //Event name & Institution 
   //Location (need Co-ords and city name)
   //Person -> unep_rep & name
@@ -242,6 +242,8 @@ function showMatch(id) {
 }
 
 function carbonDetails() {
+//TODO get carbon savings from backend
+
   var div1 = document.createElement("div");
   div1.setAttribute("class", "modal");
   div1.setAttribute("id", "carbon-details");
@@ -313,7 +315,7 @@ function getTravel() {
 
   var btnAdd = document.createElement("button");
   btnAdd.setAttribute("class", "btn btn-success");
-  btnAdd.setAttribute("onclick", "addTravel()");
+  btnAdd.setAttribute("onclick", "showAddTravel()");
   btnAdd.innerText = "Add new travel";
 
   $("#travel-default").append(btnAdd);
@@ -330,11 +332,6 @@ function getTravel() {
     var list = document.createElement("ul");
     list.setAttribute("class", "list-group list-group-flush");
 
-    var stat1 = createLI("City", element.city, element.id);
-    var stat2 = createLI("Country", element.country, element.id);
-    var stat3 = createLI("Start", element.startDate, element.id);
-    var stat4 = createLI("End", element.endDate, element.id);
-
     var footer = document.createElement("div");
     footer.setAttribute("class", "card-footer");
 
@@ -343,7 +340,7 @@ function getTravel() {
 
     var btnEdit = document.createElement("button");
     btnEdit.setAttribute("class", "btn btn-primary");
-    btnEdit.setAttribute("onclick", "editTravel("+element.id+")");
+    btnEdit.setAttribute("onclick", "showEditTravel("+element.id+")");
     btnEdit.innerText = "Edit";
 
     var btnRemove = document.createElement("button");
@@ -351,10 +348,10 @@ function getTravel() {
     btnRemove.setAttribute("onclick", "removeTravelConfirmation("+element.id+")");
     btnRemove.innerText = "Remove";
 
-    list.append(stat1);
-    list.append(stat2);
-    list.append(stat3);
-    list.append(stat4);
+    list.append(createLI("City", element.city, element.id));
+    list.append(createLI("Country", element.country, element.id));
+    list.append(createLI("Start", element.startDate, element.id));
+    list.append(createLI("End", element.endDate, element.id));
 
     btnGroup.append(btnEdit);
     btnGroup.append(btnRemove);
@@ -371,13 +368,13 @@ function getTravel() {
   $("#travel-default").show();
 }
 
-function addTravel() {
+function showAddTravel() {
   $("#travel-default").hide();
   $("#travel-add").show();
   $("travel-btn").attr("onclick", "submitTravelNew()");
 }
 
-function editTravel(id) {
+function showEditTravel(id) {
   $("#travel-default").hide();
   $("#travel-add").show();
 
@@ -386,29 +383,18 @@ function editTravel(id) {
     $("#"+element+"-travel").attr("value", $("#"+element+"-"+id).text());
   });
 
-  //TODO fix
+  //TODO fix the parsing part
   var dateAttrs = ["start", "end"];
   dateAttrs.forEach(element => {
-    $("#"+element+"-travel").valueAsDate = Date.parse($("#"+element+"-"+id).text());
+    document.getElementById(element+"-travel").valueAsDate = Date.parse($("#"+element+"-"+id).text());
   });
 
-  $("#travel-btn").attr("onclick", "submitTravelEdit()");
+  $("#travel-btn").attr("onclick", "submitTravelEdit("+id+")");
 }
 
-function submitTravelEdit() {
-  //TODO submit travel to backend
-
-  //clear fields
-  var attrs = ["city", "country", "start", "end"];
-  attrs.forEach(element => {
-    $("#"+element+"-travel").attr("value", "");
-  });
-
-  // switch back to view of all travel
-  $("#travel-default").empty();
-  getTravel();
-  $("#travel-default").show();
-  $("#travel-add").hide();
+function submitTravelEdit(id) {
+  deleteTravel(id);
+  submitTravelNew();
 }
 
 function submitTravelNew() {
@@ -438,8 +424,17 @@ function removeTravelConfirmation(id) {
 }
 
 function deleteTravel(id) {
-  //TODO tell backend to delete travel
   $("#confirm-removal").remove();
+
   //TODO tell backend to delete it
+  /* something like this??
+  $.post("backend.php", 
+    {type: delete_travel, travel_id: id}, 
+    function(data, status) {
+      alert("Data: " + data + "\nStatus: " + status);
+    }
+  );
+  */
+
   $("#travel-"+id).remove();
 }

@@ -1,0 +1,44 @@
+init()
+
+updateMap(map)
+
+displayPin(map, eventType, eventName, eventX, eventY, eventLocationName, eventPerson, eventStart, eventEnd)
+
+openTab(type)
+
+createDialog(dialogID, dialogTitle, dialogQuestion, dialogOK)
+
+removeMatchConfirmation(id)
+
+deleteMatch(id)
+backend: POST delete wish / match
+
+getMatchPreviews()
+backend: GET get overview of each wish + number of matches
+
+hideMatch()
+
+showMatch(id)
+backend: GET get list of matches for wish
+
+carbonDetails()
+backend: GET get carbon savings breakdown
+
+createLI(title, value, id)
+
+getTravel()
+backend: GET get all travel items
+
+showAddTravel()
+
+showEditTravel(id)
+
+submitTravelEdit()
+
+submitTravelNew()
+backend: POST add new travel item
+
+removeTravelConfirmation(id)
+
+deleteTravel(id)
+backend: POST delete travel
