@@ -15,6 +15,7 @@ public class DataManager {
   HashMap<Integer, Organisation> orgMap;
   HashMap<Integer, Location> locMap;
   HashMap<Integer, Presence> presenceMap;
+  HashMap<Integer, UnepPresence> unepPresenceMap;
   HashMap<Integer, Trip> tripMap;
   HashMap<Integer, Wish> wishMap;
   HashMap<Integer, WishConstraint> constraintMap;
@@ -27,6 +28,7 @@ public class DataManager {
     orgMap = new HashMap<>();
     locMap = new HashMap<>();
     presenceMap = new HashMap<>();
+    unepPresenceMap = new HashMap<>();
     tripMap = new HashMap<>();
     wishMap = new HashMap<>();
     constraintMap = new HashMap<>();
@@ -41,6 +43,7 @@ public class DataManager {
     queryStrings.put("organisation", "SELECT id, name FROM organisations");
     queryStrings.put("location", "SELECT id, name, lat, lon FROM locations");
     queryStrings.put("presence", "SELECT id, org_id, loc_id, startTime, endTime FROM presences");
+    queryStrings.put("unepPresence", "SELECT id, loc_id, startTime, endTime FROM unep_presences");
     queryStrings.put("trip", "SELECT id, loc_id, startTime, endTime FROM presences");
     queryStrings.put("trip_org", "SELECT id, trip_id, org_id FROM trip_org_presences");
     queryStrings.put("rep_trip", "SELECT id, rep_id, trip_id FROM rep_trips");
@@ -91,6 +94,16 @@ public class DataManager {
         presenceMap.put(id, presence);
 
         orgPresenceMap.getOrDefault(org, new ArrayList<>()).add(presence);
+      }
+
+      rs = dbc.executeQuery(queryStrings.get("unepPresence"));
+      while (rs.next()){
+        int id = rs.getInt("id");
+        int startTime = rs.getInt("startTime");
+        int endTime = rs.getInt("endTime");
+        Location loc = locMap.get(rs.getInt("loc_id"));
+        UnepPresence up = new UnepPresence(id,loc,startTime,endTime);
+        unepPresenceMap.put(id,up);
       }
 
       //Trips

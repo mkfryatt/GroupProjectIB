@@ -26,6 +26,13 @@ metadata(
     ON UPDATE CASCADE
   );
 
+unep_presences(
+  id INTEGER PRIMARY KEY,
+  loc_id int NOT NULL,
+  startTime int,
+  endTime int
+  );
+
 presences(
   id INTEGER PRIMARY KEY,
   org_id integer NOT NULL,

@@ -84,6 +84,6 @@ public class DatabaseConnector {
   public static void main(String[] args) {
     DatabaseConnector dbCon = new DatabaseConnector("database.db");
     dbCon.createTables("db/tables.txt");
-    dbCon.testInsert();
+    //dbCon.testInsert();
   }
 }
