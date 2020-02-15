@@ -7,7 +7,7 @@
     <script type="text/javascript">
         function loadContent(){
             getUnepPresencesWithinTimeframe(0,1,function (result) {
-                alert(result);
+                document.getElementById('target').innerHTML+=JSON.stringify(result);
             })
         }
     </script>

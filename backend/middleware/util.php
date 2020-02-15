@@ -1,7 +1,23 @@
 <?php
 
-$dbconn = new PDO('sqlite:../src/database.db');
-if(!$dbconn)die("Couldn't connect to DB.");
+try{
+    $dbconn = new SQLite3('../database.db');
+}catch (Exception $e){
+    //TODO: fix this
+    die("Couldn't connect to DB.");
+}
+
+
+/*
+<?php
+
+$db = new SQLite3;
+$statement = $db->prepare('SELECT * FROM table WHERE id = :id;');
+$statement->bindValue(':id', $id);
+$result = $statement->execute();
+
+?>
+ */
 
 function answerJsonAndDie($obj)
 {
@@ -10,30 +26,27 @@ function answerJsonAndDie($obj)
     die();
 }
 
-function error($error){
+function error($error)
+{
     $obj = new stdClass();
     $obj->error = $error;
     answerJsonAndDie($obj);
 }
 
-function getUnepPresencesWithinTimeframe($params){
-
+function getUnepPresencesWithinTimeframe($params)
+{
     //TODO: query DB with $params->start, $params->end
-    //sleep(2); //simulate latency
+    global $dbconn;
+    $rows = $dbconn->query("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name");
+    if (!$rows) error('Query failed '.$dbconn->lastErrorMsg());
     $result = array();
-    for($i  = 0; $i<10;$i++){
-        $pre = new stdClass();
-        $pre->organization = 'Microsoft';
-        $pre->timeframe->start = $params->start + ($params->end - $params->start)/10;
-        $pre->timeframe->start = $params->end;
-        array_push($result,$pre);
+    while($row = $rows->fetchArray()) {
+        array_push($result,(object) $row);
     }
     answerJsonAndDie($result);
 }
 
 
-
-//TODO: connect to db
 $request = json_decode($_GET['q']);
 
 switch ($request->method) {
@@ -42,5 +55,5 @@ switch ($request->method) {
         break;
 
     default:
-        error('method: "'.$request->method.'" is not defined');
+        error('method: "' . $request->method . '" is not defined');
 }
