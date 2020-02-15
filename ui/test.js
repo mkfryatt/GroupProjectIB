@@ -1,46 +1,76 @@
+var tickIcon = L.icon({
+  iconUrl: 'iconmonstr-location-7-240.png',
+  iconSize: [32, 32],
+  iconAnchor: [16,32],
+});
+
+var wishIcon = L.icon({
+  iconUrl: 'iconmonstr-location-13-240.png',
+  iconSize: [32, 32],
+  iconAnchor: [16,32],
+});
+
 function init() {
   document.getElementById("start_date_map").valueAsDate = new Date();
   var date = new Date();
   date.setMonth(1 + date.getMonth());
   document.getElementById("end_date_map").valueAsDate = date;
-  //TODO update map with these dates
 
-  document.getElementById("cal").style.display = "block";
-  document.getElementById("default_tab").className += " active";
+  getMatchPreviews();
+  openTab("cal");
+
+  var map = L.map('map').setView({lon: 0, lat: 0}, 2);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+	    maxZoom: 19,
+	    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+
+  updateMap(map);
+  document.getElementById("start_date_map").addEventListener();
 }
 
-function openTab(event, type) {
-    var i, tabcontent, tablinks;
+function updateMap(map){
+  var start = document.getElementById("start_date_map").valueAsDate;
+  var end = document.getElementById("end_date_map").valueAsDate;
 
-    if (type=="match") {
-      addMatchPreviews();
-    } else {
-      removeMatchPreviews();
-    }
+  //Filter by date from db file and display pins
+ displayPin(map, tickIcon,"Goldfish conference", 38.72, -9.14, "Lisbon", "Mark Smith", "1/04/20", "3/04/20");
+ displayPin(map, wishIcon,"Lemon meeting", 51.547, 0, "London", "Mark Smith", "1/04/20", "3/04/20");
 
-    tabcontent = document.getElementsByClassName("tabcontent");
-    for (i = 0; i < tabcontent.length; i++) {
-      tabcontent[i].style.display = "none";
-    }
-
-    tablinks = document.getElementsByClassName("tablinks");
-    for (i = 0; i < tablinks.length; i++) {
-      tablinks[i].className = tablinks[i].className.replace(" active", "");
-    }
-
-    document.getElementById(type).style.display = "block";
-    event.currentTarget.className += " active";
 }
 
-function addMatchPreviews() {
-  //TODO get list of matches
-  var matches = [{"reason": "blah", "matches": 3, "id": 343}, {"reason": "blah", "matches": 3, "id": 343}, {"reason": "blah", "matches": 3, "id": 343}, {"reason": "blah", "matches": 3, "id": 343}, {"reason": "blah", "matches": 3, "id": 343}, {reason: "dfdsvf", matches: 23, "id": 45}];
+function displayPin(map, eventType, eventName, eventX, eventY, eventLocationName, eventPerson, eventStart, eventEnd){
+  //Event name & Institution 
+  //Location (need Co-ords and city name)
+  //Person -> unep_rep & name
+  //Time
 
-  removeMatchPreviews();
+  var marker = L.marker([eventX,eventY], {icon: eventType}).addTo(map);
+  marker.bindPopup("<p>" + eventName.bold() + "<br />" + eventLocationName +"<br />" + eventPerson + "<br />" + eventStart + " to " + eventEnd +"</p>");
+}
+
+function openTab(type) {
+    $(".tabcontent").hide();
+    $(".tab button").css("background-color", "");
+    $("#"+type+"_btn").css("background-color", "#f59191");
+    $("#"+type).show();
+}
+
+function removeMatch(id) {
+  //TODO dialogue box
+  //TODO tell backend to delete it
+  $("#confirm-removal").show();
+  //$("#card_"+id).remove();
+}
+
+function getMatchPreviews() {
+  //TODO get list of matches from backend
+  var matches = [{"reason": "reason goes here", "matches": 3, "id": 343}, {"reason": "reason goes here", "matches": 4, "id": 343}, {"reason": "blah", "matches": 3, "id": 343}, {"reason": "reason goes here", "matches": 3, "id": 343}, {"reason": "reason goes here", "matches": 3, "id": 343}, {reason: "dfdsvf", matches: 23, "id": 45}];
+
   matches.forEach(element => {
 
     var div = document.createElement("div");
-    div.setAttribute("class", "col-sm-3");
+    div.setAttribute("class", "col-sm-1");
     div.setAttribute("id", "card_"+ element.id);
 
     var card = document.createElement("div");
@@ -62,7 +92,7 @@ function addMatchPreviews() {
 
     var view = document.createElement("button");
     view.innerHTML = "View";
-    view.setAttribute("onclick", "viewMatch(" + element.id + ")");
+    view.setAttribute("onclick", "showMatch(" + element.id + ")");
     view.setAttribute("class", "btn btn-success");
 
     var remove = document.createElement("button");
@@ -70,32 +100,37 @@ function addMatchPreviews() {
     remove.setAttribute("onclick", "removeMatch(" + element.id + ")");
     remove.setAttribute("class", "btn btn-danger");
 
-    cardBody.appendChild(cardTitle);
-    cardBody.appendChild(cardText);
-    btns.appendChild(view);
-    btns.appendChild(remove);
-    cardBody.appendChild(btns);
-    card.appendChild(cardBody);
-    div.appendChild(card);
+    cardBody.append(cardTitle);
+    cardBody.append(cardText);
+    btns.append(view);
+    btns.append(remove);
+    cardBody.append(btns);
+    card.append(cardBody);
+    div.append(card);
+    $("#match-previews").append(div);
 
-    document.getElementById("match-container").appendChild(div);
   });
+
+  $("#match-title").text("View all matches");
+  $("#match-view").hide();
+  $("#match-back-btn").hide();
+  $("#match-previews").show();
 }
 
-function removeMatchPreviews() {
-  document.getElementById("match-container").innerHTML = "";
+function hideMatch() {
+  $("#match-view").empty();
+  $("#match-back-btn").hide();
+  $("#match-view").hide();
+  $("#match-title").text("View all matches");
+  $("#match-previews").show();
 }
 
-function viewMatch(id) {
-  //TODO get list of matches for this wish
+function showMatch(id) {
+  //TODO get list of matches for this wish from backend
   var matches = [{"person": "john smith"}, {"person": "john smith"}, {"person": "john smith"}, {"person": "john smith"}, {"person": "john smith"}, {"person": "john smith"}];
 
-  removeMatchPreviews();
-  var back = document.createElement("button");
-  back.innerHTML = "Back";
-  back.setAttribute("onclick", "addMatchPreviews()");
-  back.setAttribute("class", "btn btn-pimary");
-  document.getElementById("match").appendChild(back);
+  $("#match-title").text("View choices for match");
+  $("#match-back-btn").show();
 
   matches.forEach(element => {
 
@@ -124,20 +159,20 @@ function viewMatch(id) {
     stat3.setAttribute("class", "list-group-item");
     stat3.innerHTML = "travel dates: ???";
 
-    list.appendChild(stat1);
-    list.appendChild(stat2);
-    list.appendChild(stat3);
+    list.append(stat1);
+    list.append(stat2);
+    list.append(stat3);
 
-    card.appendChild(cardHeader);
-    card.appendChild(list);
-    div.appendChild(card);
+    card.append(cardHeader);
+    card.append(list);
+    div.append(card);
 
-    document.getElementById("match-container").appendChild(div);
+    $("#match-view").append(div);
   });
+  $("#match-previews").hide();
+  $("#match-view").show();
 }
 
-function removeMatch(id) {
-  //TODO dialogue box
-  //TODO tell db to delete it
-  document.getElementById("match-container").removeChild(document.getElementById("card_"+id));
+function carbonDetails() {
+  
 }
