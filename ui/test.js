@@ -11,10 +11,10 @@ var wishIcon = L.icon({
 });
 
 function init() {
-  document.getElementById("start_date_map").valueAsDate = new Date();
+  $("#start-date-map").valueAsDate = new Date();
   var date = new Date();
   date.setMonth(1 + date.getMonth());
-  document.getElementById("end_date_map").valueAsDate = date;
+  $("#end-date-map").valueAsDate = date;
 
   getTravel();
   getMatchPreviews();
@@ -30,8 +30,8 @@ function init() {
 }
 
 function updateMap(map){
-  var start = document.getElementById("start_date_map").valueAsDate;
-  var end = document.getElementById("end_date_map").valueAsDate;
+  var start = document.getElementById("start-date-map").valueAsDate;
+  var end = document.getElementById("end-date-map").valueAsDate;
 
   //Filter by date from db file and display pins
  displayPin(map, tickIcon,"Goldfish conference", 38.72, -9.14, "Lisbon", "Mark Smith", "1/04/20", "3/04/20");
@@ -52,16 +52,14 @@ function displayPin(map, eventType, eventName, eventX, eventY, eventLocationName
 function openTab(type) {
   $(".tabcontent").hide();
   $(".tab button").css("background-color", "");
-  $("#"+type+"_btn").css("background-color", "#f59191");
+  $("#"+type+"-btn").css("background-color", "#f59191");
   $("#"+type).show();
 }
 
-function removeMatchConfirmation(id) {
-  //TODO dialogue box
-
+function createDialog(dialogID, dialogTitle, dialogQuestion, dialogOK) {
   var div1 = document.createElement("div");
   div1.setAttribute("class", "modal");
-  div1.setAttribute("id", "confirm-removal");
+  div1.setAttribute("id", dialogID);
 
   var div2  = document.createElement("div");
   div2.setAttribute("class", "modal-dialog");
@@ -74,11 +72,11 @@ function removeMatchConfirmation(id) {
 
   var title = document.createElement("h5");
   title.setAttribute("class", "modal-title");
-  title.innerText = "Remove Wish";
+  title.innerText = dialogTitle;
 
   var btnX =document.createElement("button");
   btnX.setAttribute("class", "close");
-  btnX.setAttribute("onclick", "$('#confirm-removal').remove()");
+  btnX.setAttribute("onclick", "$('#"+dialogID + "').remove()");
 
   var span = document.createElement("span");
   span.setAttribute("aria-hidden", "true");
@@ -88,19 +86,19 @@ function removeMatchConfirmation(id) {
   divBody.setAttribute("class", "modal-body");
 
   var p = document.createElement("p");
-  p.innerText = "Would you like to permanently delete this wish?";
+  p.innerText = dialogQuestion;
 
   var divFooter = document.createElement("div");
   divFooter.setAttribute("class", "modal-footer");
 
   var btnDelete = document.createElement("button");
   btnDelete.setAttribute("class", "btn btn-primary");
-  btnDelete.setAttribute("onclick", "deleteMatch("+id+")");
+  btnDelete.setAttribute("onclick", dialogOK);
   btnDelete.innerText = "Delete";
 
   var btnCancel = document.createElement("button");
   btnCancel.setAttribute("class", "btn btn-secondary");
-  btnCancel.setAttribute("onclick", "$('#confirm-removal').remove()");
+  btnCancel.setAttribute("onclick", "$('#"+dialogID + "').remove()");
   btnCancel.innerText = "Cancel";
 
   btnX.append(span);
@@ -119,36 +117,24 @@ function removeMatchConfirmation(id) {
   div2.append(divContent);
   div1.append(div2);
 
-  $("body").append(div1);
-  $("#confirm-removal").show();
+  return div1;
+}
 
-  /* roughly this:
-  <div class="modal" id="confirm-removal">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Remove Wish</h5>
-          <button type="button" class="close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <p>Would you like to permanently delete this wish?</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" data-dismiss="modal">Delete Wish</button>
-          <button type="button" class="btn btn-secondary">Cancel</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  */
+function removeMatchConfirmation(id) {
+  var dialog = createDialog("confirm-removal", 
+    "Remove Wish", 
+    "Would you like to permanently delete this wish?", 
+    "deleteMatch("+id+")");
+
+  $("body").append(dialog);
+  $("#confirm-removal").show();
 }
 
 function deleteMatch(id) {
+  console.log("test");
   $("#confirm-removal").remove();
   //TODO tell backend to delete it
-  $("#card_"+id).remove();
+  $("#card-"+id).remove();
 }
 
 function getMatchPreviews() {
@@ -164,7 +150,7 @@ function getMatchPreviews() {
 
     var div = document.createElement("div");
     div.setAttribute("class", "col-sm-1");
-    div.setAttribute("id", "card_"+ element.id);
+    div.setAttribute("id", "card-"+ element.id);
 
     var card = document.createElement("div");
     card.setAttribute("class", "card");
@@ -240,21 +226,9 @@ function showMatch(id) {
     var list = document.createElement("ul");
     list.setAttribute("class", "list-group list-group-flush");
 
-    var stat1 = document.createElement("li");
-    stat1.setAttribute("class", "list-group-item");
-    stat1.innerHTML = "carbon saving: ???";
-
-    var stat2 = document.createElement("li");
-    stat2.setAttribute("class", "list-group-item");
-    stat2.innerHTML = "city: ???";
-
-    var stat3 = document.createElement("li");
-    stat3.setAttribute("class", "list-group-item");
-    stat3.innerHTML = "travel dates: ???";
-
-    list.append(stat1);
-    list.append(stat2);
-    list.append(stat3);
+    list.append(createLI("Carbon Saving", "???", ""));
+    list.append(createLI("City", "???", ""));
+    list.append(createLI("Dates", "???", ""));
 
     card.append(cardHeader);
     card.append(list);
@@ -314,9 +288,28 @@ function carbonDetails() {
   $("#carbon-details").show();
 }
 
+function createLI(title, value, id) {
+  var li = document.createElement("li");
+  li.setAttribute("class", "list-group-item");
+
+  var pTitle = document.createElement("p");
+  pTitle.innerText = title + ": ";
+
+  var pValue = document.createElement("p");
+  pValue.setAttribute("id", title.toLowerCase() + "-" + id);
+  pValue.innerText = value;
+
+  li.append(pTitle);
+  li.append(pValue);
+
+  return li;
+}
+
 function getTravel() {
   //get travel from db
-  var travels = [{city:"cambridge", country:"uk", startDate: "date", endDate: "date", id:1}];
+  $("#travel-default").empty();
+
+  var travels = [{city:"cambridge", country:"uk", startDate: "2020-06-06", endDate: "2020-07-06", id:1}];
 
   var btnAdd = document.createElement("button");
   btnAdd.setAttribute("class", "btn btn-success");
@@ -329,6 +322,7 @@ function getTravel() {
 
     var div = document.createElement("div");
     div.setAttribute("class", "col-sm-1");
+    div.setAttribute("id", "travel-"+element.id);
 
     var card = document.createElement("div");
     card.setAttribute("class", "card");
@@ -336,25 +330,10 @@ function getTravel() {
     var list = document.createElement("ul");
     list.setAttribute("class", "list-group list-group-flush");
 
-    var stat1 = document.createElement("li");
-    stat1.setAttribute("class", "list-group-item");
-    stat1.setAttribute("id", "city-"+element.id);
-    stat1.innerText = "City: \n" + element.city;
-
-    var stat2 = document.createElement("li");
-    stat2.setAttribute("class", "list-group-item");
-    stat2.setAttribute("id", "country-"+element.id);
-    stat2.innerText = "Country: \n" + element.country;
-
-    var stat3 = document.createElement("li");
-    stat3.setAttribute("class", "list-group-item");
-    stat3.setAttribute("id", "start-date-"+element.id);
-    stat3.innerText = "Start: \n" + element.startDate;
-
-    var stat4 = document.createElement("li");
-    stat4.setAttribute("class", "list-group-item");
-    stat4.setAttribute("id", "end-date-"+element.id);
-    stat4.innerText = "End: \n" + element.endDate;
+    var stat1 = createLI("City", element.city, element.id);
+    var stat2 = createLI("Country", element.country, element.id);
+    var stat3 = createLI("Start", element.startDate, element.id);
+    var stat4 = createLI("End", element.endDate, element.id);
 
     var footer = document.createElement("div");
     footer.setAttribute("class", "card-footer");
@@ -363,12 +342,12 @@ function getTravel() {
     btnGroup.setAttribute("class", "btn-group");
 
     var btnEdit = document.createElement("button");
-    btnEdit.setAttribute("class", "btn btn-secondary");
+    btnEdit.setAttribute("class", "btn btn-primary");
     btnEdit.setAttribute("onclick", "editTravel("+element.id+")");
     btnEdit.innerText = "Edit";
 
     var btnRemove = document.createElement("button");
-    btnRemove.setAttribute("class", "btn btn-secondary");
+    btnRemove.setAttribute("class", "btn btn-danger");
     btnRemove.setAttribute("onclick", "removeTravelConfirmation("+element.id+")");
     btnRemove.innerText = "Remove";
 
@@ -395,15 +374,72 @@ function getTravel() {
 function addTravel() {
   $("#travel-default").hide();
   $("#travel-add").show();
+  $("travel-btn").attr("onclick", "submitTravelNew()");
 }
 
 function editTravel(id) {
   $("#travel-default").hide();
   $("#travel-add").show();
 
-  var attrs = ["city", "country", "start-date", "end-date"];
-  attrs.forEach(element => {
+  var textAttrs = ["city", "country"];
+  textAttrs.forEach(element => {
     $("#"+element+"-travel").attr("value", $("#"+element+"-"+id).text());
   });
-  
+
+  //TODO fix
+  var dateAttrs = ["start", "end"];
+  dateAttrs.forEach(element => {
+    $("#"+element+"-travel").valueAsDate = Date.parse($("#"+element+"-"+id).text());
+  });
+
+  $("#travel-btn").attr("onclick", "submitTravelEdit()");
+}
+
+function submitTravelEdit() {
+  //TODO submit travel to backend
+
+  //clear fields
+  var attrs = ["city", "country", "start", "end"];
+  attrs.forEach(element => {
+    $("#"+element+"-travel").attr("value", "");
+  });
+
+  // switch back to view of all travel
+  $("#travel-default").empty();
+  getTravel();
+  $("#travel-default").show();
+  $("#travel-add").hide();
+}
+
+function submitTravelNew() {
+  //TODO submit travel to backend
+
+  //clear fields
+  var attrs = ["city", "country", "start-date", "end-date"];
+  attrs.forEach(element => {
+    $("#"+element+"-travel").attr("value", "");
+  });
+
+  // switch back to view of all travel
+  $("#travel-default").empty();
+  getTravel();
+  $("#travel-default").show();
+  $("#travel-add").hide();
+}
+
+function removeTravelConfirmation(id) {
+  var dialog = createDialog("confirm-removal", 
+    "Remove Travel", 
+    "Would you like to permanently delete this travel item?", 
+    "deleteTravel("+id+")");
+
+  $("body").append(dialog);
+  $("#confirm-removal").show();
+}
+
+function deleteTravel(id) {
+  //TODO tell backend to delete travel
+  $("#confirm-removal").remove();
+  //TODO tell backend to delete it
+  $("#travel-"+id).remove();
 }

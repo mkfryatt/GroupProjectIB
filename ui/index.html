@@ -35,8 +35,8 @@
         </div>
       </div>
       <div  class="form-group">
-        <input type="date" name="start_date" id="start_date_map" class="form-control"><br>
-        <input type="date" name="end_date" id="end_date_map" class="form-control">
+        <input type="date" name="start-date" id="start-date-map" class="form-control"><br>
+        <input type="date" name="end-date" id="end-date-map" class="form-control">
       </div>
     </div>
 
@@ -45,10 +45,10 @@
 
     <!-- Tab Buttons -->
     <div class="tab">
-      <button class="tablinks" onclick="openTab('cal')" id="cal_btn">My Travel</button>
-      <button class="tablinks" onclick="openTab('wish')" id="wish_btn">Add Wish</button>
-      <button class="tablinks" onclick="openTab('match')" id="match_btn">View Matches</button>
-      <button class="tablinks" onclick="openTab('admin')" id="admin_btn">Add Presence</button>
+      <button class="tablinks" onclick="openTab('cal')" id="cal-btn">My Travel</button>
+      <button class="tablinks" onclick="openTab('wish')" id="wish-btn">Add Wish</button>
+      <button class="tablinks" onclick="openTab('match')" id="match-btn">View Matches</button>
+      <button class="tablinks" onclick="openTab('admin')" id="admin-btn">Add Presence</button>
     </div>
 
     <!-- Travel Tab -->
@@ -81,16 +81,20 @@
         <!-- Time Info -->
         <div class="form-row">
           <div class="col">
-            <label for="start_date_travel">Start date:</label>
-            <input type="date" name="start_date" id="start-date-travel" class="form-control">
+            <label for="start-date-travel">Start date:</label>
+            <input type="date" name="start-date" id="start-date-travel" class="form-control">
           </div>
           <div class="col">
-            <label for="end_date_travel">End date:</label>
-            <input type="date" name="end_date" id="end-date-travel" class="form-control">
+            <label for="end-date-travel">End date:</label>
+            <input type="date" name="end-date" id="end-date-travel" class="form-control">
           </div>
         </div>
         <!-- Submit -->
-        <button class="btn btn-primary btn-lg" onclick="">Submit</button>
+        <div class="btn-group">
+          <button class="btn btn-success btn-lg" id="travel-btn" onclick="">Submit</button>
+          <button class="btn btn-secondary btn-lg" id="travel-btn" onclick="getTravel()">Back</button>
+        </div>
+        
       </div>
     </div>
 
@@ -101,37 +105,37 @@
         <!-- General Info -->
         <div class="form-row">
           <div class="col">
-            <input type="text" name="name" id="name_wish" placeholder="Name" class="form-control">
+            <input type="text" name="name" id="name-wish" placeholder="Name" class="form-control">
           </div>
           <div class="col">
             <input type="text" name="reason" id="reason-wish" placeholder="Reason" class="form-control">
           </div>
           <div class="col">
-            <input type="text" name="org" id="org_wish" placeholder="Organisation" class="form-control">
+            <input type="text" name="org" id="org-wish" placeholder="Organisation" class="form-control">
           </div>
         </div>
         <!-- Location Info -->
         <div class="form-row">
           <div class="col">
-            <input type="text" name="city" id="city_wish" placeholder="City" class="form-control">
+            <input type="text" name="city" id="city-wish" placeholder="City" class="form-control">
           </div>
           <div class="col">
-            <input type="text" name="country" id="country_wish" placeholder="Country" class="form-control">
+            <input type="text" name="country" id="country-wish" placeholder="Country" class="form-control">
           </div>
         </div>
         <!-- Time Info -->
         <div class="form-row">
           <div class="col">
-            <label for="start_date_wish">Start date:</label>
-            <input type="date" name="start_date" id="start_date_wish" class="form-control">
+            <label for="start-date-wish">Start date:</label>
+            <input type="date" name="start-date" id="start-date-wish" class="form-control">
           </div>
           <div class="col">
-            <label for="end_date_wish">End date:</label>
-            <input type="date" name="end_date" id="end_date_wish" class="form-control">
+            <label for="end-date-wish">End date:</label>
+            <input type="date" name="end-date" id="end-date-wish" class="form-control">
           </div>
         </div>
         <!-- Submit -->
-        <button class="btn btn-primary btn-lg">Submit</button>
+        <button class="btn btn-primary btn-lg" onclick="submitWish()">Submit</button>
       </div>
     </div>
 
@@ -152,31 +156,31 @@
         <!-- General Info -->
         <div class="form-row">
           <div class="col">
-            <input type="text" name="org" id="org_admin" placeholder="Organisaton" class="form-control">
+            <input type="text" name="org" id="org-admin" placeholder="Organisaton" class="form-control">
           </div>
         </div>
         <!-- Location Info -->
         <div class="form-row">
           <div class="col">
-            <input type="text" name="city" id="city_admin" placeholder="City" class="form-control">
+            <input type="text" name="city" id="city-admin" placeholder="City" class="form-control">
           </div>
           <div class="col">
-            <input type="text" name="country" id="country_admin" placeholder="Country" class="form-control">
+            <input type="text" name="country" id="country-admin" placeholder="Country" class="form-control">
           </div>
         </div>
         <!-- Time Info -->
         <div class="form-row">
           <div class="col">
-            <label for="start_date_admin">Start date:</label>
-            <input type="date" name="start_date" id="start_date_admin" class="form-control">
+            <label for="start-date-admin">Start date:</label>
+            <input type="date" name="start-date" id="start-date-admin" class="form-control">
           </div>
           <div class="col">
-            <label for="end_date_admin">End date:</label>
-            <input type="date" name="end_date" id="end_date_admin" class="form-control">
+            <label for="end-date-admin">End date:</label>
+            <input type="date" name="end-date" id="end-date-admin" class="form-control">
           </div>
         </div>
         <!-- Submit -->
-        <button class="btn btn-primary btn-lg">Submit</button>
+        <button class="btn btn-primary btn-lg" onclick="submitAdmin()">Submit</button>
       </div>
     </div>
     
