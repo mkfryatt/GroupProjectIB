@@ -3,19 +3,21 @@ package data;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Wish {
+public class Wish implements Timeframe {
   int id;
-  Timeframe time;
-  ArrayList<WishConstraint> constraints;
+  public int startTime, endTime;
+  public ArrayList<OrganisationConstraint> orgConstraints;
+  public LocationConstraint locConstraint;
+  public TimeConstraint timeConstraint;
 
-  public Wish(int id, Timeframe time, List<WishConstraint> constraints) {
+  public Wish(int id, int startTime, int endTime) {
     this.id = id;
-    this.time = time;
-    this.constraints = new ArrayList<>(constraints);
+    this.startTime = startTime;
+    this.endTime = endTime;
   }
 
   public Wish(){
-    this.constraints = new ArrayList<>();
+    orgConstraints = new ArrayList<>();
   }
 
   public int getId() {
@@ -26,19 +28,20 @@ public class Wish {
     this.id = id;
   }
 
-  public Timeframe getTime() {
-    return time;
+  public int getStartTime() {
+    return startTime;
   }
 
-  public void setTime(Timeframe time) {
-    this.time = time;
+  public void setStartTime(int startTime) {
+    this.startTime = startTime;
   }
 
-  public ArrayList<WishConstraint> getConstraints() {
-    return constraints;
+  public int getEndTime() {
+    return endTime;
   }
 
-  public void setConstraints(ArrayList<WishConstraint> constraints) {
-    this.constraints = constraints;
+  public void setEndTime(int endTime) {
+    this.endTime = endTime;
   }
+
 }
