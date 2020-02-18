@@ -19,6 +19,9 @@
     integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
     crossorigin=""></script>
 
+    <!-- searchbox thing -->
+    <script type='text/javascript' src='https://www.bing.com/api/maps/mapcontrol?key=AggPPU_FdoBKW9UXxPoEzElDhumgpCx_LbuW5RK8mMpLtpvQVBLL0wCZurcXTS1y&callback=loadMapScenario' async defer></script>
+
     <!-- Stuff -->
     <link rel="stylesheet" type="text/css" href="style.css">
     <script src="test.js"></script>
@@ -72,10 +75,31 @@
         <!-- Location Info -->
         <div class="form-row">
           <div class="col">
-            <input type="text" name="city" id="city-travel" placeholder="City" class="form-control" value="">
-          </div>
-          <div class="col">
-            <input type="text" name="country" id="country-travel" placeholder="Country" class="form-control">
+            <div id='searchbox-container-travel'>
+              <input type= 'text' class ="form-control"  placeholder="Location - Choosing country selects its capital." id= 'searchbox-travel'/>
+            </div>
+            <script type='text/javascript'>
+              function loadMapScenario() {
+                Microsoft.Maps.loadModule('Microsoft.Maps.AutoSuggest', {
+                    callback: onLoad,
+                });
+                function onLoad() {
+                    var options = { maxResults: 3, countryRegionSuggestions: false };
+                    var manager = new Microsoft.Maps.AutosuggestManager(options);
+                    manager.attachAutosuggest('#searchbox-travel', '#searchbox-container-travel', passLatLong);
+                }
+                function passLatLong(selection) {
+                  console.log(selection.address.locality)
+                  /* City = selection.address.locality - UNDEFINED for country/continent/Seas
+                  /*City/Location = selection.formattedSuggestion
+                  Lat = selection.location.latitude
+                  lon = selection.location.longitude
+
+                  Basically this needs to store it to somewhere so it can be submitted when the rest of the form is.
+                  */
+                }     
+              }
+            </script>
           </div>
         </div>
         <!-- Time Info -->
@@ -117,10 +141,31 @@
         <!-- Location Info -->
         <div class="form-row">
           <div class="col">
-            <input type="text" name="city" id="city-wish" placeholder="City" class="form-control">
-          </div>
-          <div class="col">
-            <input type="text" name="country" id="country-wish" placeholder="Country" class="form-control">
+            <div id='searchbox-container-wish'>
+              <input type= 'text' class ="form-control"  placeholder="Location - Choosing country selects its capital." id= 'searchbox-wish'/>
+            </div>
+            <script type='text/javascript'>
+              function loadMapScenario() {
+                Microsoft.Maps.loadModule('Microsoft.Maps.AutoSuggest', {
+                    callback: onLoad,
+                });
+                function onLoad() {
+                    var options = { maxResults: 3, countryRegionSuggestions: false };
+                    var manager = new Microsoft.Maps.AutosuggestManager(options);
+                    manager.attachAutosuggest('#searchbox-wish', '#searchbox-container-wish', passLatLong);
+                }
+                function passLatLong(selection) {
+                  console.log(selection.address.locality)
+                  /* City = selection.address.locality - UNDEFINED for country/continent/Seas
+                  /*City/Location = selection.formattedSuggestion
+                  Lat = selection.location.latitude
+                  lon = selection.location.longitude
+
+                  Basically this needs to store it to somewhere so it can be submitted when the rest of the form is.
+                  */
+                }     
+              }
+            </script>
           </div>
         </div>
         <!-- Time Info -->
@@ -162,10 +207,31 @@
         <!-- Location Info -->
         <div class="form-row">
           <div class="col">
-            <input type="text" name="city" id="city-admin" placeholder="City" class="form-control">
-          </div>
-          <div class="col">
-            <input type="text" name="country" id="country-admin" placeholder="Country" class="form-control">
+            <div id='searchbox-container-admin'>
+              <input type= 'text' class ="form-control"  placeholder="Location - Choosing country selects its capital." id= 'searchbox-admin'/>
+            </div>
+            <script type='text/javascript'>
+              function loadMapScenario() {
+                Microsoft.Maps.loadModule('Microsoft.Maps.AutoSuggest', {
+                    callback: onLoad,
+                });
+                function onLoad() {
+                    var options = { maxResults: 3, countryRegionSuggestions: false };
+                    var manager = new Microsoft.Maps.AutosuggestManager(options);
+                    manager.attachAutosuggest('#searchbox-admin', '#searchbox-container-admin', passLatLong);
+                }
+                function passLatLong(selection) {
+                  console.log(selection.address.locality)
+                  /* City = selection.address.locality - UNDEFINED for country/continent/Seas
+                  /*City/Location = selection.formattedSuggestion
+                  Lat = selection.location.latitude
+                  lon = selection.location.longitude
+
+                  Basically this needs to store it to somewhere so it can be submitted when the rest of the form is.
+                  */
+                }     
+              }
+            </script>
           </div>
         </div>
         <!-- Time Info -->

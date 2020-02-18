@@ -10,6 +10,16 @@ var wishIcon = L.icon({
   iconAnchor: [16,32],
 });
 
+//TODO fix error here
+/*
+test.js:13 Uncaught TypeError: Cannot read property 'BingProvider' of undefined
+*/
+const provider = new window.GeoSearch.BingProvider({ 
+  params: {
+    key: 'AggPPU_FdoBKW9UXxPoEzElDhumgpCx_LbuW5RK8mMpLtpvQVBLL0wCZurcXTS1y'
+  },
+});
+
 function init() {
   document.getElementById("start-date-map").valueAsDate = new Date();
   var date = new Date();
@@ -20,11 +30,14 @@ function init() {
   getMatchPreviews();
   openTab("cal");
 
-  var map = L.map('map').setView({lon: 0, lat: 0}, 2);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-	    maxZoom: 19,
-	    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-  }).addTo(map);
+  var map = L.map('map').setView({lon: 0.0917, lat: 52.2196 }, 2);
+  L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 18,
+    id: 'mapbox/streets-v11',
+    tileSize: 512,
+    zoomOffset: -1,
+    accessToken: 'pk.eyJ1IjoiamdjNDYiLCJhIjoiY2s2N3N0N3czMGIwaDNtb2RxNHZzazgwNSJ9.1OQ8CCRVLbUBbycUpn4T5Q'}).addTo(map);
 
   updateMap(map);
 }
@@ -293,17 +306,7 @@ function carbonDetails() {
 function createLI(title, value, id) {
   var li = document.createElement("li");
   li.setAttribute("class", "list-group-item");
-
-  var pTitle = document.createElement("p");
-  pTitle.innerText = title + ": ";
-
-  var pValue = document.createElement("p");
-  pValue.setAttribute("id", title.toLowerCase() + "-" + id);
-  pValue.innerText = value;
-
-  li.append(pTitle);
-  li.append(pValue);
-
+  li.innerText = title + ": \n" + value;
   return li;
 }
 
@@ -375,19 +378,24 @@ function showAddTravel() {
 }
 
 function showEditTravel(id) {
+  //TODO get values for travel with this id
+  var travel = {city:"cambridge", country:"uk", startDate: "2020-06-06", endDate: "2020-07-06", id:1};
+
   $("#travel-default").hide();
   $("#travel-add").show();
 
-  var textAttrs = ["city", "country"];
-  textAttrs.forEach(element => {
-    $("#"+element+"-travel").attr("value", $("#"+element+"-"+id).text());
-  });
+  var textAttrs = ["searchbox"];
+  var textVals = [travel.city];
+  for (var i=0; i<2; i++) {
+    $("#"+textAttrs[i]+"-travel").attr("value", textVals[i]);
+  }
 
   //TODO fix the parsing part
   var dateAttrs = ["start", "end"];
-  dateAttrs.forEach(element => {
-    document.getElementById(element+"-travel").valueAsDate = Date.parse($("#"+element+"-"+id).text());
-  });
+  var dateVals = [travel.startDate, travel.endDate];
+  for (var i=0; i<2; i++) {
+    $("#"+dateAttrs[i]+"-travel").attr("value", dateVals[i]);
+  }
 
   $("#travel-btn").attr("onclick", "submitTravelEdit("+id+")");
 }
@@ -401,7 +409,7 @@ function submitTravelNew() {
   //TODO submit travel to backend
 
   //clear fields
-  var attrs = ["city", "country", "start-date", "end-date"];
+  var attrs = ["searchbox", "start-date", "end-date"];
   attrs.forEach(element => {
     $("#"+element+"-travel").attr("value", "");
   });
@@ -437,4 +445,10 @@ function deleteTravel(id) {
   */
 
   $("#travel-"+id).remove();
+}
+
+function submitWish() {
+  //TODO submit wish to backend
+
+  //clear fields
 }
