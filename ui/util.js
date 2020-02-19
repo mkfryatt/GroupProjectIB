@@ -11,12 +11,12 @@ function sendXmlHttpRequest(request, callback) {
     xmlhttp.send();
 }
 
-function getUnepPresencesWithinTimeframe(start, end, callbackFunction) {
+function getUnepPresencesWithinTimeframe(startTime, endTime, callbackFunction) {
     let request = {
         method: 'getUnepPresencesWithinTimeframe',
         params: {
-            start : start,
-            end : end
+            startTime : start,
+            endTime : end
         }
     };
     sendXmlHttpRequest(request,callbackFunction);

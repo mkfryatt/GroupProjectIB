@@ -28,6 +28,7 @@ metadata(
 
 unep_presences(
   id INTEGER PRIMARY KEY,
+  name text NOT NULL,
   loc_id int NOT NULL,
   startTime int,
   endTime int
