@@ -61,7 +61,7 @@ public class DatabaseConnector {
       return;
     }
 
-    String[] tables = tableFile.split("\\n\\n");
+    String[] tables = tableFile.split("\\r\\n\\r\\n");
     for (String s : tables) {
       System.out.println(s);
       executeStatement("CREATE TABLE IF NOT EXISTS " + s);
@@ -69,11 +69,12 @@ public class DatabaseConnector {
   }
 
   public void testInsert() {
-    String sql = "INSERT INTO unep_reps(firstName,lastName) VALUES(?,?)";
+    String sql = "INSERT INTO unep_reps(firstName,lastName,email) VALUES(?,?,?)";
     try {
       PreparedStatement pstmt = conn.prepareStatement(sql);
       pstmt.setString(1, "Franz");
       pstmt.setString(2,"Smith");
+      pstmt.setString(3,"test@somemail.com");
       pstmt.executeUpdate();
     } catch (SQLException e) {
       e.printStackTrace();
@@ -83,6 +84,6 @@ public class DatabaseConnector {
   public static void main(String[] args) {
     DatabaseConnector dbCon = new DatabaseConnector("database.db");
     dbCon.createTables("db/tables.txt");
-    dbCon.testInsert();
+    //dbCon.testInsert();
   }
 }

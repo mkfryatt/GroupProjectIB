@@ -11,6 +11,17 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 
+    <!--Map-->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+    crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+    integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+    crossorigin=""></script>
+
+    <!-- searchbox thing -->
+    <script type='text/javascript' src='https://www.bing.com/api/maps/mapcontrol?key=AggPPU_FdoBKW9UXxPoEzElDhumgpCx_LbuW5RK8mMpLtpvQVBLL0wCZurcXTS1y&callback=loadMapScenario' async defer></script>
+
     <!-- Stuff -->
     <link rel="stylesheet" type="text/css" href="style.css">
     <script src="test.js"></script>
@@ -18,31 +29,18 @@
   </head>
   <body onload="init()">
 
-    <!-- Pop-up dialogue box -->
-    <div class="modal" id="confirm-removal">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Remove Wish</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <p>Would you like to permanently delete this wish?</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary" data-dismiss="modal">Delete Wish</button>
-            <button type="button" class="btn btn-secondary">Cancel</button>
-          </div>
+    <!-- Timeframe -->
+    <div id="timeframe">
+      <div class="card" style="width: 100%; margin-bottom: 2rem;">
+        <div class="card-body">
+          <h5 class="card-title" id="carbon-saved">Carbon Saved:</h5>
+          <button class="btn btn-primary" onclick="carbonDetails()">See Details</button>
         </div>
       </div>
-    </div>
-
-    <!-- Timeframe -->
-    <div id="timeframe" class="form-group">
-      <input type="date" name="start_date" id="start_date_map" class="form-control"><br>
-      <input type="date" name="end_date" id="end_date_map" class="form-control">
+      <div  class="form-group">
+        <input type="date" name="start-date" id="start-date-map" class="form-control"><br>
+        <input type="date" name="end-date" id="end-date-map" class="form-control">
+      </div>
     </div>
 
     <!-- Map -->
@@ -50,19 +48,77 @@
 
     <!-- Tab Buttons -->
     <div class="tab">
-      <button class="tablinks" onclick="openTab('cal')" id="cal_btn">Add Travel</button>
-      <button class="tablinks" onclick="openTab('wish')" id="wish_btn">Add Wish</button>
-      <button class="tablinks" onclick="openTab('match')" id="match_btn">View Matches</button>
-      <button class="tablinks" onclick="openTab('admin')" id="admin_btn">Add Presence</button>
+      <button class="tablinks" onclick="openTab('cal')" id="cal-btn">My Travel</button>
+      <button class="tablinks" onclick="openTab('wish')" id="wish-btn">Add Wish</button>
+      <button class="tablinks" onclick="openTab('match')" id="match-btn">View Matches</button>
+      <button class="tablinks" onclick="openTab('admin')" id="admin-btn">Add Presence</button>
     </div>
 
     <!-- Travel Tab -->
     <div id="cal" class="tabcontent">
-      <h3>Upload scheduled travel</h3>
-      <div class="form-group">
-        <label for="cal_upload">Choose calendar to upload: </label><br>
-        <input type="file" name="calendar" class ="form-control-file" id="cal_upload" accept=".ical" multiple>
-        <button class="btn btn-primary btn-lg">Submit</button>
+      <h3>View and edit travel</h3>
+      <div id="travel-default" class="row">
+      </div>
+      <div class="form-group" id="travel-add">
+        <!-- General Info -->
+        <div class="form-row">
+          <div class="col">
+            <input type="text" name="name" id="name-travel" placeholder="Name" class="form-control">
+          </div>
+          <div class="col">
+            <input type="text" name="reason" id="reason-travel" placeholder="Reason" class="form-control">
+          </div>
+          <div class="col">
+            <input type="text" name="org" id="org-travel" placeholder="Organisation" class="form-control">
+          </div>
+        </div>
+        <!-- Location Info -->
+        <div class="form-row">
+          <div class="col">
+            <div id='searchbox-container-travel'>
+              <input type= 'text' class ="form-control"  placeholder="Location - Choosing country selects its capital." id= 'searchbox-travel'/>
+            </div>
+            <script type='text/javascript'>
+              function loadMapScenario() {
+                Microsoft.Maps.loadModule('Microsoft.Maps.AutoSuggest', {
+                    callback: onLoad,
+                });
+                function onLoad() {
+                    var options = { maxResults: 3, countryRegionSuggestions: false };
+                    var manager = new Microsoft.Maps.AutosuggestManager(options);
+                    manager.attachAutosuggest('#searchbox-travel', '#searchbox-container-travel', passLatLong);
+                }
+                function passLatLong(selection) {
+                  console.log(selection.address.locality)
+                  /* City = selection.address.locality - UNDEFINED for country/continent/Seas
+                  /*City/Location = selection.formattedSuggestion
+                  Lat = selection.location.latitude
+                  lon = selection.location.longitude
+
+                  Basically this needs to store it to somewhere so it can be submitted when the rest of the form is.
+                  */
+                }     
+              }
+            </script>
+          </div>
+        </div>
+        <!-- Time Info -->
+        <div class="form-row">
+          <div class="col">
+            <label for="start-date-travel">Start date:</label>
+            <input type="date" name="start-date" id="start-date-travel" class="form-control">
+          </div>
+          <div class="col">
+            <label for="end-date-travel">End date:</label>
+            <input type="date" name="end-date" id="end-date-travel" class="form-control">
+          </div>
+        </div>
+        <!-- Submit -->
+        <div class="btn-group">
+          <button class="btn btn-success btn-lg" id="travel-btn" onclick="">Submit</button>
+          <button class="btn btn-secondary btn-lg" id="travel-btn" onclick="getTravel()">Back</button>
+        </div>
+        
       </div>
     </div>
 
@@ -73,37 +129,58 @@
         <!-- General Info -->
         <div class="form-row">
           <div class="col">
-            <input type="text" name="name" id="name_wish" placeholder="Name" class="form-control">
+            <input type="text" name="name" id="name-wish" placeholder="Name" class="form-control">
           </div>
           <div class="col">
             <input type="text" name="reason" id="reason-wish" placeholder="Reason" class="form-control">
           </div>
           <div class="col">
-            <input type="text" name="org" id="org_wish" placeholder="Organisation" class="form-control">
+            <input type="text" name="org" id="org-wish" placeholder="Organisation" class="form-control">
           </div>
         </div>
         <!-- Location Info -->
         <div class="form-row">
           <div class="col">
-            <input type="text" name="city" id="city_wish" placeholder="City" class="form-control">
-          </div>
-          <div class="col">
-            <input type="text" name="country" id="country_wish" placeholder="Country" class="form-control">
+            <div id='searchbox-container-wish'>
+              <input type= 'text' class ="form-control"  placeholder="Location - Choosing country selects its capital." id= 'searchbox-wish'/>
+            </div>
+            <script type='text/javascript'>
+              function loadMapScenario() {
+                Microsoft.Maps.loadModule('Microsoft.Maps.AutoSuggest', {
+                    callback: onLoad,
+                });
+                function onLoad() {
+                    var options = { maxResults: 3, countryRegionSuggestions: false };
+                    var manager = new Microsoft.Maps.AutosuggestManager(options);
+                    manager.attachAutosuggest('#searchbox-wish', '#searchbox-container-wish', passLatLong);
+                }
+                function passLatLong(selection) {
+                  console.log(selection.address.locality)
+                  /* City = selection.address.locality - UNDEFINED for country/continent/Seas
+                  /*City/Location = selection.formattedSuggestion
+                  Lat = selection.location.latitude
+                  lon = selection.location.longitude
+
+                  Basically this needs to store it to somewhere so it can be submitted when the rest of the form is.
+                  */
+                }     
+              }
+            </script>
           </div>
         </div>
         <!-- Time Info -->
         <div class="form-row">
           <div class="col">
-            <label for="start_date_wish">Start date:</label>
-            <input type="date" name="start_date" id="start_date_wish" class="form-control">
+            <label for="start-date-wish">Start date:</label>
+            <input type="date" name="start-date" id="start-date-wish" class="form-control">
           </div>
           <div class="col">
-            <label for="end_date_wish">End date:</label>
-            <input type="date" name="end_date" id="end_date_wish" class="form-control">
+            <label for="end-date-wish">End date:</label>
+            <input type="date" name="end-date" id="end-date-wish" class="form-control">
           </div>
         </div>
         <!-- Submit -->
-        <input type="submit" class="btn btn-primary btn-lg">
+        <button class="btn btn-primary btn-lg" onclick="submitWish()">Submit</button>
       </div>
     </div>
 
@@ -124,31 +201,52 @@
         <!-- General Info -->
         <div class="form-row">
           <div class="col">
-            <input type="text" name="org" id="org_admin" placeholder="Organisaton" class="form-control">
+            <input type="text" name="org" id="org-admin" placeholder="Organisaton" class="form-control">
           </div>
         </div>
         <!-- Location Info -->
         <div class="form-row">
           <div class="col">
-            <input type="text" name="city" id="city_admin" placeholder="City" class="form-control">
-          </div>
-          <div class="col">
-            <input type="text" name="country" id="country_admin" placeholder="Country" class="form-control">
+            <div id='searchbox-container-admin'>
+              <input type= 'text' class ="form-control"  placeholder="Location - Choosing country selects its capital." id= 'searchbox-admin'/>
+            </div>
+            <script type='text/javascript'>
+              function loadMapScenario() {
+                Microsoft.Maps.loadModule('Microsoft.Maps.AutoSuggest', {
+                    callback: onLoad,
+                });
+                function onLoad() {
+                    var options = { maxResults: 3, countryRegionSuggestions: false };
+                    var manager = new Microsoft.Maps.AutosuggestManager(options);
+                    manager.attachAutosuggest('#searchbox-admin', '#searchbox-container-admin', passLatLong);
+                }
+                function passLatLong(selection) {
+                  console.log(selection.address.locality)
+                  /* City = selection.address.locality - UNDEFINED for country/continent/Seas
+                  /*City/Location = selection.formattedSuggestion
+                  Lat = selection.location.latitude
+                  lon = selection.location.longitude
+
+                  Basically this needs to store it to somewhere so it can be submitted when the rest of the form is.
+                  */
+                }     
+              }
+            </script>
           </div>
         </div>
         <!-- Time Info -->
         <div class="form-row">
           <div class="col">
-            <label for="start_date_admin">Start date:</label>
-            <input type="date" name="start_date" id="start_date_admin" class="form-control">
+            <label for="start-date-admin">Start date:</label>
+            <input type="date" name="start-date" id="start-date-admin" class="form-control">
           </div>
           <div class="col">
-            <label for="end_date_admin">End date:</label>
-            <input type="date" name="end_date" id="end_date_admin" class="form-control">
+            <label for="end-date-admin">End date:</label>
+            <input type="date" name="end-date" id="end-date-admin" class="form-control">
           </div>
         </div>
         <!-- Submit -->
-        <input type="submit" class="btn btn-primary btn-lg">
+        <button class="btn btn-primary btn-lg" onclick="submitAdmin()">Submit</button>
       </div>
     </div>
     
