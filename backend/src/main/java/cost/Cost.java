@@ -1,6 +1,5 @@
 package cost;
 
-
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -16,13 +15,13 @@ import java.net.URLConnection;
 import java.util.Base64;
 
 public class Cost {
-    public static Location unepCambridgeLocation = new Location(0,"UNEP Cambridge Office", 0.091957, 52.21987);
+    public static Location unepCambridgeLocation = new Location(0, "UNEP Cambridge Office", 0.091957, 52.21987);
 
     public static Double calculateFLightEmissions(Location source, Location destination) {
 
         String stringURL = "https://api.carbonkit.net/3.6/categories/Great_Circle_flight_methodology/calculation?type" +
-                "=great+circle+route&" + "values.lat1=" + ((Double) source.getLat()).toString() + "&values.long1=" + ((Double)(source.getLon())).toString() +
-                "&values.lat2=" + ((Double)(destination.getLat())).toString() + "&values.long2=" + ((Double)(destination.getLon())).toString();
+                "=great+circle+route&" + "values.lat1=" + ((Double) source.getLat()).toString() + "&values.long1=" + ((Double) (source.getLon())).toString() +
+                "&values.lat2=" + ((Double) (destination.getLat())).toString() + "&values.long2=" + ((Double) (destination.getLon())).toString();
 
         URL url;
         String connectionResult = null;
@@ -80,9 +79,9 @@ public class Cost {
     }
 
     public static int calculateTimeDiff(Timeframe a, Timeframe b) {
-        if(checkTimeframeOverlap(a, b)) {
+        if (checkTimeframeOverlap(a, b)) {
             return 0;
-        } else if(checkTimeframeBefore(a,b)) {
+        } else if (checkTimeframeBefore(a, b)) {
             return (b.getStartTime() - a.getEndTime());
         } else {
             return (a.getStartTime() - b.getEndTime());
