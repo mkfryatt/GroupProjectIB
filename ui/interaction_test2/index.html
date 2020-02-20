@@ -6,7 +6,7 @@
     <title>Interaction Test 2</title>
     <script type="text/javascript">
         function loadContent(){
-            getAllWishesFromUser("otherTest@mail.com",function (result) {
+            getTravelWithinTimeframe(0,1000,function (result) {
                 document.getElementById('target').innerHTML+=JSON.stringify(result);
             })
         }
