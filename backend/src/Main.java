@@ -40,8 +40,10 @@ public class Main {
     for (Trip t : dm.tripMap.values()){
       //Check for direct matches
       for(Organisation presentOrg :  t.getPresentOrgs()){
-        for(Wish w : orgMap.get(presentOrg)){
-          //TODO: Create suggestion
+        if (orgMap.containsKey(presentOrg)) {
+          for(Wish w : orgMap.get(presentOrg)){
+            //TODO: Create suggestion
+          }
         }
       }
 
