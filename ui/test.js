@@ -291,17 +291,17 @@ function showEditTravel(id) {
   $("#travel-default").hide();
   $("#travel-add").show();
 
-  var textAttrs = ["searchbox"];
-  var textVals = [travel.city];
+  var textAttrs = ["name", "org", "reason", "searchbox"];
+  var textVals = [travel.name, travel.org, travel.reason, travel.city];
   for (var i=0; i<2; i++) {
-    $("#"+textAttrs[i]+"-travel").attr("value", textVals[i]);
+    $("#"+textAttrs[i]+"-travel").val(textVals[i]);
   }
 
   //TODO fix the date parsing part
   var dateAttrs = ["start", "end"];
   var dateVals = [travel.startDate, travel.endDate];
   for (var i=0; i<2; i++) {
-    $("#"+dateAttrs[i]+"-travel").attr("value", dateVals[i]);
+    $("#"+dateAttrs[i]+"-travel").val(dateVals[i]);
   }
 
   $("#travel-btn").attr("onclick", "submitTravelEdit("+id+")");
