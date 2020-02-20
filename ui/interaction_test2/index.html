@@ -6,7 +6,7 @@
     <title>Interaction Test 2</title>
     <script type="text/javascript">
         function loadContent(){
-            getUnepPresencesWithinTimeframe(0,1,function (result) {
+            getTravelWithinTimeframe(0,1000,function (result) {
                 document.getElementById('target').innerHTML+=JSON.stringify(result);
             })
         }
