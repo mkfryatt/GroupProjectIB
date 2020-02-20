@@ -10,16 +10,6 @@ var wishIcon = L.icon({
   iconAnchor: [16,32],
 });
 
-//TODO fix error here
-/*
-test.js:13 Uncaught TypeError: Cannot read property 'BingProvider' of undefined
-*/
-const provider = new window.GeoSearch.BingProvider({ 
-  params: {
-    key: 'AggPPU_FdoBKW9UXxPoEzElDhumgpCx_LbuW5RK8mMpLtpvQVBLL0wCZurcXTS1y'
-  },
-});
-
 function init() {
   document.getElementById("start-date-map").valueAsDate = new Date();
   var date = new Date();
@@ -451,4 +441,10 @@ function submitWish() {
   //TODO submit wish to backend
 
   //clear fields
+}
+
+function loadMapScenario() {
+  loadMapScenarioTravel();
+  loadMapScenarioWish();
+  loadMapScenarioAdmin();
 }
