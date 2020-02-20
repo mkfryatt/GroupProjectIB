@@ -1,4 +1,8 @@
+var email = "";
+
 function init() {
+  showLogin();
+
   document.getElementById("start-date-map").valueAsDate = new Date();
   var date = new Date();
   date.setMonth(1 + date.getMonth());
@@ -14,8 +18,62 @@ function init() {
 function openTab(type) {
   $(".tabcontent").hide();
   $(".tab button").css("background-color", "");
-  $("#"+type+"-btn").css("background-color", "#f59191");
+  $("#"+type+"-btn").css("background-color", "#f4f4f4");
   $("#"+type).show();
+}
+
+function showLogin() {
+  var div1 = document.createElement("div");
+  div1.setAttribute("class", "modal");
+  div1.setAttribute("id", "login");
+
+  var div2  = document.createElement("div");
+  div2.setAttribute("class", "modal-dialog");
+
+  var divContent = document.createElement("div");
+  divContent.setAttribute("class", "modal-content");
+
+  var divBody = document.createElement("div");
+  divBody.setAttribute("class", "modal-body");
+
+  var warning = document.createElement("div");
+  warning.setAttribute("class", "alert alert-danger");
+  warning.setAttribute("id", "warning");
+  warning.innerText = "Please enter a valid email address.";
+
+  var input = document.createElement("input");
+  input.setAttribute("class", "form-control");
+  input.setAttribute("id", "email");
+  input.setAttribute("placeholder", "Email");
+  input.setAttribute("value", "");
+
+  var button = document.createElement("button");
+  button.setAttribute("class", "btn btn-primary");
+  button.setAttribute("onclick", "tryLogin()");
+  button.innerText = "Login";
+
+  divBody.append(warning);
+  divBody.append(input);
+  divBody.append(button);
+
+  divContent.append(divBody);
+
+  div2.append(divContent);
+  div1.append(div2);
+
+  $("body").append(div1);
+  $("#warning").hide();
+  $("#login").show();
+}
+
+function tryLogin() {
+  if ($("#email").val()=="") {
+    //TODO better email validation
+    $("#warning").show();
+  } else {
+    email = $("#email").val();
+    $("#login").remove();
+  }
 }
 
 function showMatchPreviews() {
@@ -224,7 +282,7 @@ function showDefaultTravel() {
 function showAddTravel() {
   $("#travel-default").hide();
   $("#travel-add").show();
-  $("travel-btn").attr("onclick", "submitTravelNew()");
+  $("#travel-btn").attr("onclick", "submitTravelNew()");
 }
 
 function showEditTravel(id) {

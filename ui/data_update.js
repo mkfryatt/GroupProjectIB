@@ -6,22 +6,28 @@ function deleteMatch(id) {
 }
 
 function submitTravelEdit(id) {
+  var email = $("#email").val();
+  if (email == "") {
+    //TODO tell them no
+}
   deleteTravel(id);
   submitTravelNew();
 }
 
 function submitTravelNew() {
+  var attrs = ["searchbox", "start-date", "end-date"];
+
   //TODO submit travel to backend
+  console.log("submit travel");
 
   //clear fields
-  var attrs = ["searchbox", "start-date", "end-date"];
   attrs.forEach(element => {
     $("#"+element+"-travel").attr("value", "");
   });
 
   // switch back to view of all travel
   $("#travel-default").empty();
-  getTravel();
+  showDefaultTravel();
   $("#travel-default").show();
   $("#travel-add").hide();
 }
