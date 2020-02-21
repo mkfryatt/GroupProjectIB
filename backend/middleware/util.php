@@ -372,7 +372,7 @@ switch ($request->method) {
         break;
 
     case 'createNewWish':
-        $result = createNewWish($request->params);
+        $result = createNewWish($request->params->rep_id,$request->params->timeConstraints, $request->params->orgConstraints, $request->params->locConstraints);
         answerJsonAndDie($result);
         break;
 
