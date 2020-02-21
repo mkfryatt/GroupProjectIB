@@ -40,7 +40,7 @@ function getAllTables($params)
     while ($row = $rows->fetchArray()) {
         array_push($result, (object)$row);
     }
-    return($result);
+    return ($result);
 }
 
 function getWishesWithinTimeframe($params)
@@ -57,7 +57,7 @@ WHERE startTime >= ? AND endTime <= ?");
     while ($row = $rows->fetchArray()) {
         array_push($result, (object)$row);
     }
-    return($result);
+    return ($result);
 }
 
 function getTravelWithinTimeframe($params)
@@ -74,7 +74,7 @@ FROM trips JOIN locations on trips.loc_id = locations.id WHERE startTime >= ? AN
     while ($row = $rows->fetchArray()) {
         array_push($result, (object)$row);
     }
-    return($result);
+    return ($result);
 }
 
 function getUnepPresencesWithinTimeframe($params)
@@ -92,7 +92,7 @@ function getUnepPresencesWithinTimeframe($params)
     while ($row = $rows->fetchArray()) {
         array_push($result, (object)$row);
     }
-    return($result);
+    return ($result);
 }
 
 function getAllTravelFromUser($params)
@@ -111,29 +111,32 @@ WHERE unep_reps.email = ?");
     while ($row = $rows->fetchArray()) {
         array_push($result, (object)$row);
     }
-    return($result);
+    return ($result);
 }
 
-function getOrganisationFromId($org_id){
+function getOrganisationFromId($org_id)
+{
     global $dbconn;
     $stmt = $dbconn->prepare("SELECT * from organisations where id = ?");
-    $stmt->bindValue(1,$org_id,SQLITE3_INTEGER);
+    $stmt->bindValue(1, $org_id, SQLITE3_INTEGER);
     $rows = $stmt->execute();
     return $rows->fetchArray();
 }
 
-function getLocationFromId($loc_id){
+function getLocationFromId($loc_id)
+{
     global $dbconn;
     $stmt = $dbconn->prepare("SELECT * from locations WHERE id = ?");
-    $stmt->bindValue(1,$loc_id,SQLITE3_INTEGER);
+    $stmt->bindValue(1, $loc_id, SQLITE3_INTEGER);
     $rows = $stmt->execute();
     return $rows->fetchArray();
 }
 
-function getUnepRepFromId($rep_id){
+function getUnepRepFromId($rep_id)
+{
     global $dbconn;
     $stmt = $dbconn->prepare("SELECT * from unep_reps where id = ?");
-    $stmt->bindValue(1,$rep_id,SQLITE3_INTEGER);
+    $stmt->bindValue(1, $rep_id, SQLITE3_INTEGER);
     $rows = $stmt->execute();
     return $rows->fetchArray();
 }
@@ -192,7 +195,7 @@ WHERE unep_reps.email = ?");
         $rowTemp['constraints'] = getAllConstraintsFromWish($row['id']);
         array_push($result, (object)$rowTemp);
     }
-    return($result);
+    return ($result);
 }
 
 function getAllSuggestionsForTravel($params)
@@ -208,7 +211,7 @@ WHERE trips.id = ? ORDER BY suggestions.score");
     while ($row = $rows->fetchArray()) {
         array_push($result, (object)$row);
     }
-    return($result);
+    return ($result);
 }
 
 function getOrCreateLocation($data)
@@ -251,7 +254,7 @@ function createNewTravel($params)
     while ($row = $rows->fetchArray()) {
         array_push($result, (object)$row);
     }
-    return($result);
+    return ($result);
 }
 
 function deleteTravelFromId($params)
@@ -265,25 +268,27 @@ function deleteTravelFromId($params)
     while ($row = $rows->fetchArray()) {
         array_push($result, (object)$row);
     }
-    return($result);
+    return ($result);
 }
 
-function createNewWish($params)
+function createNewWish($rep_id, $time_constraints, $org_constraints, $loc_constraints)
 {
-    //TODO: IMPLEMENT
     global $dbconn;
-    $stmt = $dbconn->prepare("INSERT INTO trips (loc_id,startTime,endTime) VALUES(?,?,?)");
-    $stmt->bindValue(2, $params->startTime, SQLITE3_INTEGER);
-    $stmt->bindValue(3, $params->endTime, SQLITE3_INTEGER);
 
-
-    $rows = $stmt->execute();
-    if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
-    $result = array();
-    while ($row = $rows->fetchArray()) {
-        array_push($result, (object)$row);
+    //TODO: insert new wish for that rep_id
+    $wish_id = null;
+    //TIP: LAST_INSERT_ROWID() returns last inserted id in the DB.
+    //it's determined on a per-connection basis so no need to worry about concurrency.
+    foreach ($time_constraints as $time_constraint) {
+        $time_constraint->startTime;
+        $time_constraint->endTime;
+        //TODO: insert time constraint using these two limits.
+        //error("unvalid range") when startTime > endTime.
     }
-    return($result);
+
+    //TODO: similarly for org_constraints, loc_constraints. Content structure is specified in util.js
+
+    return (object)array('outcome'=>'succeeded','inserted_id'=> $wish_id);
 }
 
 function deleteWishFromId($params)
@@ -297,7 +302,7 @@ function deleteWishFromId($params)
     while ($row = $rows->fetchArray()) {
         array_push($result, (object)$row);
     }
-    return($result);
+    return ($result);
 }
 
 $request = json_decode($_GET['q']);
