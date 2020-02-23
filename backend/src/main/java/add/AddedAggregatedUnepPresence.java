@@ -2,8 +2,6 @@ package main.java.add;
 
 
 import data.Location;
-import data.UnepRep;
-import data.Wish;
 import cost.Cost;
 
 import java.sql.ResultSet;
