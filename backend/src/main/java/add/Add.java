@@ -5,6 +5,7 @@ import database.DatabaseConnector;
 public class Add {
     public static DatabaseConnector dbCon = new DatabaseConnector("database.db");
 
+
     public static void add(String table, int key) {
         switch(table) {
             case "UNEP HQ":
