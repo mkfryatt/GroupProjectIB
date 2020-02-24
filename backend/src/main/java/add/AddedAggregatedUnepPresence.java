@@ -19,7 +19,6 @@ public class AddedAggregatedUnepPresence {
         int UPendTime = rsUnepPres.getInt("endTime");
         if (rsUnepPres.next())
             throw new InternalError("key " + key + ": identifies multiple entries in specified table (" + table + ")");
-        //TODO: query for all wishes
         ResultSet wishes = Add.dbCon.executeQuery("SELECT * FROM wishes");
         //For each wish:
         while (wishes.next()) {
