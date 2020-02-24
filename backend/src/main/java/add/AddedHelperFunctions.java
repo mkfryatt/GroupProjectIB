@@ -59,7 +59,7 @@ public class AddedHelperFunctions {
         }
     }
 
-    static boolean insertSuggestion(int wish_id,String unep_presence_type,int unep_table_id,Location startLocation,String org_presence_type,int org_table_id,Location endLocation,int time_wasted){
+    static boolean insertSuggestion(int wish_id,String unep_presence_type,int unep_table_id,String org_presence_type,int org_table_id,Location startLocation,Location endLocation,int time_wasted){
         final int timeLimit = Integer.MAX_VALUE;
         if(time_wasted>=timeLimit)return false;
         double emissions = cost.Cost.calculateFlightEmissions(startLocation,endLocation);
