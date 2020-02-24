@@ -14,7 +14,7 @@ public class AddedAggregatedUnepPresence {
         ResultSet rsUnepPres = Add.dbCon.executeQuery("SELECT * FROM aggregate_unep_presences WHERE table_id = " + key + " AND type = '" + table + "'");
         if (!rsUnepPres.next())
             throw new InternalError("key " + key + ": does not exist in specified table (" + table + ")");
-        int UPloc_id = rsUnepPres.getInt("loc_id");///TODO: ensure loc_id is in the aggregated view
+        int UPloc_id = rsUnepPres.getInt("loc_id");
         int UPstartTime = rsUnepPres.getInt("startTime");
         int UPendTime = rsUnepPres.getInt("endTime");
         if (rsUnepPres.next())
