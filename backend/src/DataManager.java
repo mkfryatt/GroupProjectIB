@@ -5,7 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import data.*;
+import main.java.data.*;
 import java.util.Set;
 
 public class DataManager {
@@ -46,7 +46,7 @@ public class DataManager {
     queryStrings.put("trip", "SELECT id, loc_id, startTime, endTime FROM presences");
     queryStrings.put("trip_org", "SELECT id, trip_id, org_id FROM trip_org_presences");
     queryStrings.put("rep_trip", "SELECT id, rep_id, trip_id FROM rep_trips");
-    queryStrings.put("wish", "SELECT id, startTime, endTime FROM wishes");
+    queryStrings.put("wish", "SELECT id, wisher_id FROM wishes");
     queryStrings
         .put("wish_constraint", "SELECT id, type, wish_id, loc_id, org_id FROM wish_constraints");
     queryStrings.put("suggestion",
@@ -142,8 +142,7 @@ public class DataManager {
         int id = rs.getInt("id");
         Wish wish = new Wish();
         wish.setId(id);
-        wish.setStartTime(rs.getInt("startTime"));
-        wish.setEndTime(rs.getInt("endTime"));
+        wish.wisher = unepRepMap.get(rs.getInt("rep_id"));
         wishMap.put(id, wish);
       }
 
@@ -213,40 +212,40 @@ public class DataManager {
     return true;
   }
 
-  public Suggestion generateNewSuggestion(Wish w, Trip trip, Location l, int startTime, int endTime,
-      double score) {
-    //REALLY hacky, please don't do it like this
-    //supposed to be done using get_last_inserted() from database after inserting with null id
-    Set<Integer> sgIds = suggestionMap.keySet();
-    int i = 1;
-    while (sgIds.contains(i)) {
-      i++;
-    }
-    Suggestion sg = new Suggestion(i, w, trip, l, startTime, endTime, score);
-    suggestionMap.put(i, sg);
-    return sg;
-  }
-
-  public boolean pushSuggestions(DatabaseConnector dbc) {
-    String suggestionSQL = "REPLACE INTO suggestions(id, wish_id, trip_id, loc_id, startTime, endTime) VALUES(?,?,?,?,?,?)";
-    Connection conn = dbc.getConn();
-    try {
-
-      for (Suggestion s : suggestionMap.values()) {
-        PreparedStatement pstmt = conn.prepareStatement(suggestionSQL);
-        pstmt.setInt(1, s.getId());
-        pstmt.setInt(2, s.getWish().getId());
-        pstmt.setInt(3, s.getTrip().getId());
-        pstmt.setInt(4, s.getLoc().getId());
-        pstmt.setInt(5, s.getStartTime());
-        pstmt.setInt(6, s.getEndTime());
-        pstmt.executeUpdate();
-      }
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-    return true;
-  }
+//  public Suggestion generateNewSuggestion(Wish w, Trip trip, Location l, int startTime, int endTime,
+//      double score) {
+//    //REALLY hacky, please don't do it like this
+//    //supposed to be done using get_last_inserted() from database after inserting with null id
+//    Set<Integer> sgIds = suggestionMap.keySet();
+//    int i = 1;
+//    while (sgIds.contains(i)) {
+//      i++;
+//    }
+//    Suggestion sg = new Suggestion(i, w, trip, l, startTime, endTime, score);
+//    suggestionMap.put(i, sg);
+//    return sg;
+//  }
+//
+//  public boolean pushSuggestions(DatabaseConnector dbc) {
+//    String suggestionSQL = "REPLACE INTO suggestions(wish_id, trip_id, unep_presence_id, org_presence_id, trip_org_id, emissions, emmission_delta, time_wasted, score) ";
+//    Connection conn = dbc.getConn();
+//    try {
+//
+//      for (Suggestion s : suggestionMap.values()) {
+//        PreparedStatement pstmt = conn.prepareStatement(suggestionSQL);
+//        pstmt.setInt(1, s.getId());
+//        pstmt.setInt(2, s.getWish().getId());
+//        pstmt.setInt(3, s.getTrip().getId());
+//        pstmt.setInt(4, s.getLoc().getId());
+//        pstmt.setInt(5, s.getStartTime());
+//        pstmt.setInt(6, s.getEndTime());
+//        pstmt.executeUpdate();
+//      }
+//    } catch (SQLException e) {
+//      e.printStackTrace();
+//    }
+//    return true;
+//  }
 
 
 }

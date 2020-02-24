@@ -1,17 +1,28 @@
 package main.java.data;
 
-public class Presence implements Timeframe{
-  public int id;
-  public Organisation org;
-  public Location loc;
-  public int startTime,endTime;
+public class UnepPresence implements Timeframe {
+  int id;
+  Location loc;
+  int startTime, endTime;
 
-  public Presence(int id, Organisation org, Location loc, int startTime, int endTime) {
+  public UnepPresence(int id, Location loc, int startTime, int endTime) {
     this.id = id;
-    this.org = org;
     this.loc = loc;
     this.startTime = startTime;
     this.endTime = endTime;
+  }
+
+  public UnepPresence(int id, Location loc) {
+    this(id,loc,0,Integer.MAX_VALUE);
+
+  }
+
+  public Location getLoc() {
+    return loc;
+  }
+
+  public void setLoc(Location loc) {
+    this.loc = loc;
   }
 
   @Override

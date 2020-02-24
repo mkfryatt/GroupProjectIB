@@ -1,18 +1,19 @@
-package data;
+package main.java.data;
 
 public class Suggestion {
   public int id;
   public Wish wish;
   public Trip trip;
-  public Location loc;
-  public Timeframe time;
+  public UnepPresence unepPresence;
+  public Presence orgPresence;
+  public double score;
 
-  public Suggestion(int id, Wish wish, Trip trip, Location loc, Timeframe time) {
+  public Suggestion(int id, Wish wish, Trip trip, double score) {
     this.id = id;
     this.wish = wish;
     this.trip = trip;
-    this.loc = loc;
-    this.time = time;
+
+    this.score = score;
   }
 
   public int getId() {
@@ -39,21 +40,12 @@ public class Suggestion {
     this.trip = trip;
   }
 
-  public Location getLoc() {
-    return loc;
+
+  public double getScore() {
+    return score;
   }
 
-  public void setLoc(Location loc) {
-    this.loc = loc;
+  public void setScore(double score) {
+    this.score = score;
   }
-
-  public Timeframe getTime() {
-    return time;
-  }
-
-  public void setTime(Timeframe time) {
-    this.time = time;
-  }
-
-
 }

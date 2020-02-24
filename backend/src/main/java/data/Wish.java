@@ -1,21 +1,24 @@
-package data;
+package main.java.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import main.java.data.OrganisationConstraint;
+import main.java.data.Timeframe;
 
 public class Wish {
   int id;
-  Timeframe time;
-  ArrayList<WishConstraint> constraints;
+  public UnepRep wisher;
+  public ArrayList<OrganisationConstraint> orgConstraints;
+  public LocationConstraint locConstraint;
+  public TimeConstraint timeConstraint;
 
-  public Wish(int id, Timeframe time, List<WishConstraint> constraints) {
+  public Wish(int id, UnepRep wisher) {
     this.id = id;
-    this.time = time;
-    this.constraints = new ArrayList<>(constraints);
+    this.wisher = wisher;
   }
 
   public Wish(){
-    this.constraints = new ArrayList<>();
+    orgConstraints = new ArrayList<>();
   }
 
   public int getId() {
@@ -26,19 +29,4 @@ public class Wish {
     this.id = id;
   }
 
-  public Timeframe getTime() {
-    return time;
-  }
-
-  public void setTime(Timeframe time) {
-    this.time = time;
-  }
-
-  public ArrayList<WishConstraint> getConstraints() {
-    return constraints;
-  }
-
-  public void setConstraints(ArrayList<WishConstraint> constraints) {
-    this.constraints = constraints;
-  }
 }
