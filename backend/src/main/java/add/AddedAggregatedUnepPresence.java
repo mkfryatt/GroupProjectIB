@@ -7,29 +7,20 @@ import cost.Cost;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-//For each wish:
-//does it have any Organization Constraints?
-// No, it doesn't
-// It HAS to be one (and only one) location constraints.
-// Consider cost of the union of the time constraints of the wish and the timeframe (possibly infinte) of the newly added uneppresence. use this to generate 1 suggestion.
-// Yes it does
-// query in AggregatedOrgPresences where org is one of the OrgConstraints associated with the wish, and also filter for a possible location constraints (if no location constraints, don't filter by location)
-// For each OrgPresence, consider the intersection between timeframe of that OrgPresence and the union of the wish timefrmaes; for each interval generate 1 suggestion.
-
-
 public class AddedAggregatedUnepPresence {
 
 
-    public static void add(String table, int key) throws SQLException {
+    public static int add(String table, int key) throws SQLException {
+        int generatedSuggestions = 0;
         ResultSet rsUnepPres = Add.dbCon.executeQuery("SELECT * FROM aggregate_unep_presences WHERE table_id = " + key + " AND type = '" + table + "'");
         if (!rsUnepPres.next())
             throw new InternalError("key " + key + ": does not exist in specified table (" + table + ")");
-        int UPloc_id = rsUnepPres.getInt("loc_id");///TODO: ensure loc_id is in the aggregated view
+        int UPloc_id = rsUnepPres.getInt("loc_id");
+        Location UPlocation = AddedHelperFunctions.getLocationById(UPloc_id);
         int UPstartTime = rsUnepPres.getInt("startTime");
         int UPendTime = rsUnepPres.getInt("endTime");
         if (rsUnepPres.next())
             throw new InternalError("key " + key + ": identifies multiple entries in specified table (" + table + ")");
-        //TODO: query for all wishes
         ResultSet wishes = Add.dbCon.executeQuery("SELECT * FROM wishes");
         //For each wish:
         while (wishes.next()) {
@@ -58,11 +49,14 @@ public class AddedAggregatedUnepPresence {
                 while (matchingOrgPresences.next()) {
                     // For each OrgPresence, consider the intersection between timeframe of that OrgPresence and the union of the wish timeframes.
                     ResultSet timeConstraints = Add.dbCon.executeQuery("SELECT * FROM wish_constraints WHERE type = 'TIME' AND wish_id = " + id);
-                    double cost = Cost.calculateCost(
-                            AddedHelperFunctions.smallestTimeDeltaFiltered(timeConstraints, matchingOrgPresences.getInt("startTime"), matchingOrgPresences.getInt("endTime"), UPstartTime, UPendTime),
+                    if (AddedHelperFunctions.insertSuggestion(
+                            wishes.getInt("id"), table, key,
+                            matchingOrgPresences.getString("type"),
+                            matchingOrgPresences.getInt("table_id"),
+                            UPlocation,
                             AddedHelperFunctions.getLocationById(matchingOrgPresences.getInt("loc_id")),
-                            AddedHelperFunctions.getLocationById(UPloc_id));
-                    //TODO: insert this suggestion in DB
+                            AddedHelperFunctions.smallestTimeDeltaFiltered(timeConstraints, matchingOrgPresences.getInt("startTime"), matchingOrgPresences.getInt("endTime"), UPstartTime, UPendTime)
+                            )) generatedSuggestions++;
                 }
             } else {
                 // No, it doesn't. Then there should be one (and only one) location constraint.
@@ -70,13 +64,11 @@ public class AddedAggregatedUnepPresence {
                     throw new InternalError("ill-formed wish " + id + ": no org constraint nor location constraint");
                 //Consider all time constraints
                 ResultSet timeConstraints = Add.dbCon.executeQuery("SELECT * FROM wish_constraints WHERE type = 'TIME' AND wish_id = " + id);
-                double cost = Cost.calculateCost(
-                        AddedHelperFunctions.smallestTimeDelta(timeConstraints, UPstartTime, UPendTime),
-                        locationConstraint,
-                        AddedHelperFunctions.getLocationById(UPloc_id));
                 // Finally we can generate 1 suggestion, relying only on "table".key, with the aforementioned cost
-                //TODO: insert this suggestion in DB
+                if (AddedHelperFunctions.insertSuggestion(wishes.getInt("id"), table, key, null, 0, UPlocation, locationConstraint, AddedHelperFunctions.smallestTimeDelta(timeConstraints, UPstartTime, UPendTime)))
+                    generatedSuggestions++;
             }
         }
+        return generatedSuggestions;
     }
 }
