@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import data.Location;
 import data.Timeframe;
+import javafx.util.Pair;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,7 +18,7 @@ import java.util.Base64;
 public class Cost {
     public static Location unepCambridgeLocation = new Location(0, "UNEP Cambridge Office", 0.091957, 52.21987);
 
-    public static Double calculateFLightEmissions(Location source, Location destination) {
+    public static Double calculateFlightEmissions(Location source, Location destination) {
 
         String stringURL = "https://api.carbonkit.net/3.6/categories/Great_Circle_flight_methodology/calculation?type" +
                 "=great+circle+route&" + "values.lat1=" + ((Double) source.getLat()).toString() + "&values.long1=" + ((Double) (source.getLon())).toString() +
@@ -93,11 +94,12 @@ public class Cost {
 
 
     public static Double calculateCost(int timeDiff, Location wish, Location trip) {
+
         Double TimeDiffScore = 0.0;
         Double FlightEmissionScore = 0.0;
 
-        Double emissionsCamToWish = calculateFLightEmissions(unepCambridgeLocation, wish);
-        Double emissionTripToWish = calculateFLightEmissions(trip, wish);
+        Double emissionsCamToWish = calculateFlightEmissions(unepCambridgeLocation, wish);
+        Double emissionTripToWish = calculateFlightEmissions(trip, wish);
 
         if (emissionTripToWish > emissionsCamToWish) {
             // indicates that flying from Cambridge is better than flying from this match location.
