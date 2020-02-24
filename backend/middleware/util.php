@@ -40,15 +40,15 @@ function getAllTables($params)
     while ($row = $rows->fetchArray()) {
         array_push($result, (object)$row);
     }
-    return($result);
+    return ($result);
 }
 
 function getWishesWithinTimeframe($params)
 {
     global $dbconn;
-    $stmt = $dbconn->prepare("SELECT wishes.id, wishes.startTime, wishes.endTime, metadata.wisher_id FROM wishes 
-JOIN metadata on wishes.meta_id = metadata.id
-WHERE startTime >= ? AND endTime <= ?");
+    $stmt = $dbconn->prepare("SELECT wishes.id, wc.startTime, wc.endTime, wishes.wisher_id FROM wishes
+JOIN wish_constraints AS wc ON wc.wish_id = wishes.id 
+WHERE wc.type = 'TIME' AND startTime<? AND endTime<?");
     $stmt->bindValue(1, $params->startTime, SQLITE3_INTEGER);
     $stmt->bindValue(2, $params->endTime, SQLITE3_INTEGER);
     $rows = $stmt->execute();
@@ -57,7 +57,7 @@ WHERE startTime >= ? AND endTime <= ?");
     while ($row = $rows->fetchArray()) {
         array_push($result, (object)$row);
     }
-    return($result);
+    return ($result);
 }
 
 function getTravelWithinTimeframe($params)
@@ -74,7 +74,7 @@ FROM trips JOIN locations on trips.loc_id = locations.id WHERE startTime >= ? AN
     while ($row = $rows->fetchArray()) {
         array_push($result, (object)$row);
     }
-    return($result);
+    return ($result);
 }
 
 function getUnepPresencesWithinTimeframe($params)
@@ -92,7 +92,7 @@ function getUnepPresencesWithinTimeframe($params)
     while ($row = $rows->fetchArray()) {
         array_push($result, (object)$row);
     }
-    return($result);
+    return ($result);
 }
 
 function getAllTravelFromUser($params)
@@ -111,29 +111,32 @@ WHERE unep_reps.email = ?");
     while ($row = $rows->fetchArray()) {
         array_push($result, (object)$row);
     }
-    return($result);
+    return ($result);
 }
 
-function getOrganisationFromId($org_id){
+function getOrganisationFromId($org_id)
+{
     global $dbconn;
     $stmt = $dbconn->prepare("SELECT * from organisations where id = ?");
-    $stmt->bindValue(1,$org_id,SQLITE3_INTEGER);
+    $stmt->bindValue(1, $org_id, SQLITE3_INTEGER);
     $rows = $stmt->execute();
     return $rows->fetchArray();
 }
 
-function getLocationFromId($loc_id){
+function getLocationFromId($loc_id)
+{
     global $dbconn;
     $stmt = $dbconn->prepare("SELECT * from locations WHERE id = ?");
-    $stmt->bindValue(1,$loc_id,SQLITE3_INTEGER);
+    $stmt->bindValue(1, $loc_id, SQLITE3_INTEGER);
     $rows = $stmt->execute();
     return $rows->fetchArray();
 }
 
-function getUnepRepFromId($rep_id){
+function getUnepRepFromId($rep_id)
+{
     global $dbconn;
     $stmt = $dbconn->prepare("SELECT * from unep_reps where id = ?");
-    $stmt->bindValue(1,$rep_id,SQLITE3_INTEGER);
+    $stmt->bindValue(1, $rep_id, SQLITE3_INTEGER);
     $rows = $stmt->execute();
     return $rows->fetchArray();
 }
@@ -179,9 +182,8 @@ function getAllConstraintsFromWish($wishId)
 function getAllWishesFromUser($params)
 {
     global $dbconn;
-    $stmt = $dbconn->prepare("SELECT wishes.id, email, startTime, endTime  FROM wishes
-JOIN metadata ON metadata.id = wishes.meta_id
-JOIN unep_reps ON metadata.wisher_id = unep_reps.id
+    $stmt = $dbconn->prepare("SELECT wishes.id, email FROM wishes
+JOIN unep_reps ON wishes.wisher_id = unep_reps.id
 WHERE unep_reps.email = ?");
     $stmt->bindValue(1, $params->email, SQLITE3_TEXT);
     $rows = $stmt->execute();
@@ -192,7 +194,7 @@ WHERE unep_reps.email = ?");
         $rowTemp['constraints'] = getAllConstraintsFromWish($row['id']);
         array_push($result, (object)$rowTemp);
     }
-    return($result);
+    return ($result);
 }
 
 function getAllSuggestionsForTravel($params)
@@ -208,7 +210,7 @@ WHERE trips.id = ? ORDER BY suggestions.score");
     while ($row = $rows->fetchArray()) {
         array_push($result, (object)$row);
     }
-    return($result);
+    return ($result);
 }
 
 function getOrCreateLocation($data)
@@ -247,11 +249,11 @@ function createNewTravel($params)
 
     $rows = $stmt->execute();
     if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
-    $result = array();
-    while ($row = $rows->fetchArray()) {
-        array_push($result, (object)$row);
-    }
-    return($result);
+
+
+    $trip_id = sqlite_last_insert_rowid();
+
+    return (object)array('outcome'=>'succeeded','inserted_id'=> $trip_id);
 }
 
 function deleteTravelFromId($params)
@@ -265,25 +267,53 @@ function deleteTravelFromId($params)
     while ($row = $rows->fetchArray()) {
         array_push($result, (object)$row);
     }
-    return($result);
+    return ($result);
 }
 
-function createNewWish($params)
+function createNewWish($rep_id, $time_constraints, $org_constraints, $loc_constraints)
 {
-    //TODO: IMPLEMENT
     global $dbconn;
-    $stmt = $dbconn->prepare("INSERT INTO trips (loc_id,startTime,endTime) VALUES(?,?,?)");
-    $stmt->bindValue(2, $params->startTime, SQLITE3_INTEGER);
-    $stmt->bindValue(3, $params->endTime, SQLITE3_INTEGER);
 
+    //TODO: insert new wish for that rep_id
 
+    $stmt = $dbconn->prepare("INSERT INTO wishes(wisher_id) VALUES (?)");
+    $stmt->bindValue(1, $rep_id->id, SQLITE3_INTEGER);
     $rows = $stmt->execute();
-    if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
-    $result = array();
-    while ($row = $rows->fetchArray()) {
-        array_push($result, (object)$row);
+
+    $wish_id = sqlite_last_insert_rowid();;
+    //TIP: LAST_INSERT_ROWID() returns last inserted id in the DB.
+    //it's determined on a per-connection basis so no need to worry about concurrency.
+    foreach ($time_constraints as $time_constraint) {
+        //TODO: insert time constraint using these two limits.
+        //error("invalid range") when startTime > endTime.
+
+        $startTime = $time_constraint->startTime;
+        $endTime = $time_constraint->endTime;
+
+        if($endTime<$startTime){
+            error("invalid time range (endTime<startTime");
+        }
+
+        $stmt = $dbconn->prepare("INSERT INTO wish_constraints(type,startTime,endTime) VALUES ('TIME',?,?)");
+        $stmt->bindValue(1, $startTime, SQLITE3_INTEGER);
+        $stmt->bindValue(2, $endTime, SQLITE3_INTEGER);
+        $rows = $stmt->execute();
     }
-    return($result);
+
+    foreach ($org_constraints as $org_constraint){
+        $stmt = $dbconn->prepare("INSERT INTO wish_constraints(type,org_id) VALUES ('ORGANISATION',?)");
+        $stmt->bindValue(1, $org_constraint->org_id, SQLITE3_INTEGER);
+        $rows = $stmt->execute();
+    }
+
+    foreach ($loc_constraints as $loc_constraint){
+        $stmt = $dbconn->prepare("INSERT INTO wish_constraints(type,loc_id) VALUES ('LOCATION',?)");
+        $stmt->bindValue(1, $loc_constraint->loc_id, SQLITE3_INTEGER);
+        $rows = $stmt->execute();
+    }
+
+    //TODO: similarly for org_constraints, loc_constraints. Content structure is specified in util.js
+    return (object)array('outcome'=>'succeeded','inserted_id'=> $wish_id);
 }
 
 function deleteWishFromId($params)
@@ -297,7 +327,7 @@ function deleteWishFromId($params)
     while ($row = $rows->fetchArray()) {
         array_push($result, (object)$row);
     }
-    return($result);
+    return ($result);
 }
 
 $request = json_decode($_GET['q']);
@@ -367,7 +397,7 @@ switch ($request->method) {
         break;
 
     case 'createNewWish':
-        $result = createNewWish($request->params);
+        $result = createNewWish($request->params->rep_id,$request->params->timeConstraints, $request->params->orgConstraints, $request->params->locConstraints);
         answerJsonAndDie($result);
         break;
 

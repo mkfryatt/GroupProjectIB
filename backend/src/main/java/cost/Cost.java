@@ -65,11 +65,14 @@ public class Cost {
 
     public static boolean checkTimeframeOverlap(Timeframe a, Timeframe b) {
         // check if there is any overlap in the timeframes of Events A
-        boolean bIna = ((a.getStartTime() <= b.getStartTime()) && (a.getEndTime() >= b.getEndTime()));
-        boolean aInb = ((b.getStartTime() <= a.getStartTime()) && (b.getEndTime() >= a.getEndTime()));
-        boolean bLefta = (b.getStartTime() < a.getStartTime()) && (b.getEndTime() < a.getEndTime());
-        boolean bRighta = (a.getStartTime() < b.getStartTime()) && (a.getEndTime() < b.getEndTime());
-        return (bLefta || bRighta || bIna || aInb);
+
+//        boolean bIna = ((a.getStartTime() <= b.getStartTime()) && (a.getEndTime() >= b.getEndTime()));
+//        boolean aInb = ((b.getStartTime() <= a.getStartTime()) && (b.getEndTime() >= a.getEndTime()));
+//        boolean bLefta = (b.getStartTime() < a.getStartTime()) && (b.getEndTime() < a.getEndTime());
+//        boolean bRighta = (a.getStartTime() < b.getStartTime()) && (a.getEndTime() < b.getEndTime());
+//        return (bLefta || bRighta || bIna || aInb);
+
+        return (a.getStartTime() < b.getEndTime() && b.getStartTime() < a.getEndTime());
 
     }
 

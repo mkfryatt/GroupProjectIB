@@ -148,12 +148,21 @@ function deleteTravelFromId(id, callbackFunction) {
     sendXmlHttpRequest(request,callbackFunction);
 }
 
-function createNewWish(id, callbackFunction) {
-    //broken for now
+/*
+params:
+- rep_id : number,  the id of the unep person expressing the wish
+- timeConstraints : array of Objects with fields startTime,endTime (unix timestamp format)
+- orgConstraint : array of Objects with field org_id
+- locConstraint : array of positions
+*/
+function createNewWish(rep_id, timeConstraints, orgConstraints, locConstraints, callbackFunction) {
     let request = {
-        method: 'stub',
+        method: 'createNewWish',
         params: {
-            id: id
+            rep_id: rep_id,
+            timeConstraints: timeConstraints,
+            orgConstraints: orgConstraints,
+            locConstraints: locConstraints
         }
     };
     sendXmlHttpRequest(request,callbackFunction);

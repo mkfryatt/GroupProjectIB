@@ -1,4 +1,3 @@
-import data.WishConstraint.Type;
 import database.DatabaseConnector;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
