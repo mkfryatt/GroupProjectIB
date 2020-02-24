@@ -80,7 +80,7 @@ public class AddedAggregatedWish {
                     // TODO add suggestiton to db if cost is high enough
                 } else {
                     // type = "presence" which means HQ
-                    ResultSet rsUnepPres = Add.dbCon.executeQuery("SELECT * FROM agree_unep_presences");
+                    ResultSet rsUnepPres = Add.dbCon.executeQuery("SELECT * FROM aggregate_unep_presences");
                     while (rsUnepPres.next()) {
                         int UnepPresStartTime = rsUnepPres.getInt("startTime");
                         int UnepPresEndTime = rsUnepPres.getInt("endTime");
@@ -104,7 +104,7 @@ public class AddedAggregatedWish {
                 throw new InternalError("ill formed wish " + wishId + ": no organisation or location constraints " +
                         "given");
             }
-            ResultSet unepPres = Add.dbCon.executeQuery("SELECT * FROM aggr_unep_presences");
+            ResultSet unepPres = Add.dbCon.executeQuery("SELECT * FROM aggregate_unep_presences");
             // Go through each unep_presence, calculate cost of unep_loc and wish_loc
             while (unepPres.next()) {
                 int unepPresLoc = unepPres.getInt("loc_id");
