@@ -123,6 +123,15 @@ function getOrganisationFromId($org_id)
     return $rows->fetchArray();
 }
 
+function getOrganisationIdFromName($org_name){
+    global $dbconn;
+    $stmt = $dbconn->prepare("SELECT * from organisations where name=?");
+    $stmt->bindValue(1,$org_name,SQLITE3_TEXT);
+    $rows = $stmt->execute();
+    $row = $rows->fetchArray();
+    return $row['id'];
+}
+
 function getLocationFromId($loc_id)
 {
     global $dbconn;
@@ -139,6 +148,16 @@ function getUnepRepFromId($rep_id)
     $stmt->bindValue(1, $rep_id, SQLITE3_INTEGER);
     $rows = $stmt->execute();
     return $rows->fetchArray();
+}
+
+function getUnepRepIdFromEmail($email){
+    global $dbconn;
+    $stmt = $dbconn->prepare("SELECT * from unep_reps where email = ?");
+    $stmt->bindValue(1,$email,SQLITE3_TEXT);
+
+    $rows = $stmt->execute();
+    $row = $rows->fetchArray();
+    return $row["id"];
 }
 
 function getAllConstraintsFromWish($wishId)
@@ -200,7 +219,7 @@ WHERE unep_reps.email = ?");
 function getAllSuggestionsForTravel($params)
 {
     global $dbconn;
-    $stmt = $dbconn->prepare("SELECT suggestions.id, suggestions.score, startTime, endTime  FROM trips
+    $stmt = $dbconn->prepare("SELECT suggestions.id, suggestions.score  FROM trips
 JOIN suggestions ON suggestions.trip_id = trips.id
 WHERE trips.id = ? ORDER BY suggestions.score");
     $stmt->bindValue(1, $params->trip_id, SQLITE3_INTEGER);
@@ -217,15 +236,15 @@ function getOrCreateLocation($data)
 {
     global $dbconn;
     $locStmt = $dbconn->prepare("SELECT id FROM locations WHERE city = ? AND country = ?");
-    $locStmt->bindValue(1, $data['city']);
-    $locStmt->bindValue(2, $data['country']);
+    $locStmt->bindValue(1, $data->city);
+    $locStmt->bindValue(2, $data->country);
     $rows = $locStmt->execute();
     if ($rows->rowCount() == 0) {
         $newLocStmt = $dbconn->prepare("INSERT INTO locations(lat,lon,city,country) VALUES(?,?,?,?)");
-        $newLocStmt->bindValue(1, $data['lat'], SQLITE3_FLOAT);
-        $newLocStmt->bindValue(2, $data['lon'], SQLITE3_FLOAT);
-        $newLocStmt->bindValue(3, $data['city'], SQLITE3_TEXT);
-        $newLocStmt->bindValue(4, $data['country'], SQLITE3_TEXT);
+        $newLocStmt->bindValue(1, $data->lat, SQLITE3_FLOAT);
+        $newLocStmt->bindValue(2, $data->lon, SQLITE3_FLOAT);
+        $newLocStmt->bindValue(3, $data->city, SQLITE3_TEXT);
+        $newLocStmt->bindValue(4, $data->country, SQLITE3_TEXT);
         $newLocStmt->execute();
         return sqlite_last_insert_rowid($dbconn);
     } else {
@@ -240,6 +259,7 @@ function createNewTravel($params)
     global $dbconn;
 
     $locId = getOrCreateLocation($params);
+    $rep_id = getUnepRepIdFromEmail($params->unep_rep);
 
     $stmt = $dbconn->prepare("INSERT INTO trips (loc_id,startTime,endTime) VALUES(?,?,?)");
     $stmt->bindValue(1, $locId, SQLITE3_INTEGER);
@@ -250,8 +270,23 @@ function createNewTravel($params)
     $rows = $stmt->execute();
     if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
 
+    $trip_id = sqlite_last_insert_rowid($dbconn);
 
-    $trip_id = sqlite_last_insert_rowid();
+    $stmt = $dbconn->prepare("INSERT INTO rep_trips(rep_id,trip_id) VALUES(?,?)");
+    $stmt->bindValue(1,$rep_id,SQLITE3_INTEGER);
+    $stmt->bindValue(2,$trip_id,SQLITE3_INTEGER);
+    $stmt->execute();
+    if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
+
+    if($params->org !== ""){
+        $org_id = getOrganisationIdFromName($params->org);
+        $stmt = $dbconn->prepare("INSERT INTO trip_org_presences(trip_id, org_id) VALUES(?,?)");
+        $stmt->bindValue(1,$trip_id,SQLITE3_INTEGER);
+        $stmt->bindValue(2,$org_id,SQLITE3_INTEGER);
+        $stmt->execute();
+        if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
+    }
+
 
     return (object)array('outcome'=>'succeeded','inserted_id'=> $trip_id);
 }
@@ -302,13 +337,15 @@ function createNewWish($rep_id, $time_constraints, $org_constraints, $loc_constr
 
     foreach ($org_constraints as $org_constraint){
         $stmt = $dbconn->prepare("INSERT INTO wish_constraints(type,org_id) VALUES ('ORGANISATION',?)");
-        $stmt->bindValue(1, $org_constraint->org_id, SQLITE3_INTEGER);
+        $org_id = getOrganisationIdFromName($org_constraint->name);
+        $stmt->bindValue(1, org_id, SQLITE3_INTEGER);
         $rows = $stmt->execute();
     }
 
     foreach ($loc_constraints as $loc_constraint){
         $stmt = $dbconn->prepare("INSERT INTO wish_constraints(type,loc_id) VALUES ('LOCATION',?)");
-        $stmt->bindValue(1, $loc_constraint->loc_id, SQLITE3_INTEGER);
+        $loc_id = getOrCreateLocation($loc_constraint);
+        $stmt->bindValue(1, loc_id, SQLITE3_INTEGER);
         $rows = $stmt->execute();
     }
 

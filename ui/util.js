@@ -123,7 +123,7 @@ function getAllSuggestionsForTravel(trip_id, callbackFunction) {
     sendXmlHttpRequest(request,callbackFunction);
 }
 
-function createNewTravel(city, country, lat, lon, startTime, endTime, callbackFunction) {
+function createNewTravel(city, country, lat, lon, startTime, endTime, unep_rep, org, callbackFunction) {
     let request = {
         method: 'createNewTravel',
         params: {
@@ -132,7 +132,9 @@ function createNewTravel(city, country, lat, lon, startTime, endTime, callbackFu
             lat: lat,
             lon: lon,
             startTime: startTime,
-            endTime: endTime
+            endTime: endTime,
+            unep_rep: unep_rep,
+            org: org
         }
     };
     sendXmlHttpRequest(request,callbackFunction);
