@@ -57,7 +57,6 @@ public class AddedAggregatedUnepPresence {
                             AddedHelperFunctions.getLocationById(matchingOrgPresences.getInt("loc_id")),
                             AddedHelperFunctions.smallestTimeDeltaFiltered(timeConstraints, matchingOrgPresences.getInt("startTime"), matchingOrgPresences.getInt("endTime"), UPstartTime, UPendTime)
                             )) generatedSuggestions++;
-
                 }
             } else {
                 // No, it doesn't. Then there should be one (and only one) location constraint.

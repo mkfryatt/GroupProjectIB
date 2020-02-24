@@ -7,7 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class AddedAggregatedOrgPresence {
-    public static void add(String table, int key) throws SQLException {
+    public static int add(String table, int key) throws SQLException {
+        int generatedSuggestions = 0;
+
         //Get organization presence details
         ResultSet rsOrgPres = Add.dbCon.executeQuery("SELECT * FROM aggregate_org_presences WHERE table_id = " + key + " AND type = '" + table + "'");
         if (!rsOrgPres.next())
@@ -33,18 +35,25 @@ public class AddedAggregatedOrgPresence {
             //try to match with all the UnepPresences
             ResultSet rsUnepPresences = Add.dbCon.executeQuery("SELECT * FROM aggregate_unep_presences");
             while (rsUnepPresences.next()) {
-                double cost = Cost.calculateCost(
+
+                if (AddedHelperFunctions.insertSuggestion(
+                        rsWishes.getInt("id"),
+                        rsUnepPresences.getString("type"),
+                        rsUnepPresences.getInt("table_id"),
+                        table,
+                        key,
+                        AddedHelperFunctions.getLocationById(rsUnepPresences.getInt("loc_id")),
+                        OPlocation,
                         AddedHelperFunctions.smallestTimeDeltaFiltered(
                                 Add.dbCon.executeQuery("SELECT * FROM wish_constraints WHERE type='TIME' AND wish_id=" + rsWishes.getInt("id")),
                                 OPstartTime,
                                 OPendtTime,
                                 rsUnepPresences.getInt("startTime"),
                                 rsUnepPresences.getInt("endTime")
-                        ),
-                        OPlocation,
-                        AddedHelperFunctions.getLocationById(rsUnepPresences.getInt("loc_id")));
-                //TODO: add this suggestion to table
+                        )
+                )) generatedSuggestions++;
             }
         }
+        return generatedSuggestions;
     }
 }
