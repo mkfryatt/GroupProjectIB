@@ -8,11 +8,7 @@ function init() {
   date.setMonth(1 + date.getMonth());
   document.getElementById("end-date-map").valueAsDate = date;
 
-  showDefaultTravel();
-  showMatchPreviews();
   openTab("cal");
-
-  initMap();
 }
 
 function openTab(type) {
@@ -73,6 +69,10 @@ function tryLogin() {
   } else {
     email = $("#email").val();
     $("#login").remove();
+
+    showDefaultTravel();
+    showMatchPreviews();
+    initMap();
   }
 }
 
