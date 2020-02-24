@@ -6,7 +6,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import data.Location;
 import data.Timeframe;
-import javafx.util.Pair;
 
 import java.io.BufferedReader;
 import java.io.IOException;

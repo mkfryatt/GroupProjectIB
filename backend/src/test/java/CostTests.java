@@ -1,4 +1,7 @@
+package test.java;
+
 import data.Location;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
