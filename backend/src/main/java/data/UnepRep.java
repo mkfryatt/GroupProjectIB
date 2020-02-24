@@ -1,4 +1,4 @@
-package data;
+package main.java.data;
 
 public class UnepRep {
   public int id;

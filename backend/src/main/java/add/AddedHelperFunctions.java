@@ -1,6 +1,7 @@
 package main.java.add;
 
-import data.Location;
+import main.java.cost.Cost;
+import main.java.data.Location;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -62,8 +63,8 @@ public class AddedHelperFunctions {
     static boolean insertSuggestion(int wish_id, String unep_presence_type, int unep_table_id, String org_presence_type, int org_table_id, Location startLocation, Location endLocation, int time_wasted) {
         final int timeLimit = Integer.MAX_VALUE;
         if (time_wasted >= timeLimit) return false;
-        double emissions = cost.Cost.calculateFlightEmissions(startLocation, endLocation);
-        double score = cost.Cost.calculateCost(time_wasted, endLocation, startLocation);
+        double emissions = Cost.calculateFlightEmissions(startLocation, endLocation);
+        double score = Cost.calculateCost(time_wasted, endLocation, startLocation);
         if (org_presence_type == null) {
             Add.dbCon.executeStatement(String.format(
                     "INSERT INTO suggestions (wish_id,unep_presence_type,unep_table_id,emissions,time_wasted,score) VALUES (%d,%s,%d,%f,%d,%f) "

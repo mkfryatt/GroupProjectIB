@@ -2,7 +2,7 @@ package data;
 
 public class OrganisationConstraint extends WishConstraint {
 
-  public Organisation org;
+  Organisation org;
 
   public OrganisationConstraint(int id, Wish wish, Organisation org) {
     super(id, Type.ORGANISATION, wish);

@@ -1,5 +1,5 @@
 import database.DatabaseConnector;
-import data.*;
+import main.java.data.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -10,9 +10,9 @@ public class Main {
     DataManager dm = new DataManager();
     dm.loadDatabase(dbc);
 
-    generateSuggestions(dm);
+    //generateSuggestions(dm);
 
-    dm.pushSuggestions(dbc);
+    //dm.pushSuggestions(dbc);
 
     System.out.println("done");
   }

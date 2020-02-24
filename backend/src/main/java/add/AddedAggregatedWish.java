@@ -1,10 +1,9 @@
 package main.java.add;
 
-import cost.Cost;
-import data.Location;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import main.java.cost.Cost;
+import main.java.data.Location;
 
 public class AddedAggregatedWish {
 
@@ -76,7 +75,8 @@ public class AddedAggregatedWish {
                 if (type.equals("trip_org_presences")) {
                     int timeDiff = AddedHelperFunctions.smallestTimeDelta(timeConstraints,
                             matchingOrgStartTime, matchingOrgEndTime);
-                    double cost = Cost.calculateCost(timeDiff, matchingOrgLocation, matchingOrgLocation);
+                    double cost = Cost
+                        .calculateCost(timeDiff, matchingOrgLocation, matchingOrgLocation);
                     // TODO add suggestiton to db if cost is high enough
                 } else {
                     // type = "presence" which means HQ
