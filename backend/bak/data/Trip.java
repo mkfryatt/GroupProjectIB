@@ -3,25 +3,23 @@ package data;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Trip implements Timeframe {
-
+public class Trip {
   int id;
   Location loc;
-  public int startTime, endTime;
+  Timeframe time;
   ArrayList<Organisation> presentOrgs;
   ArrayList<UnepRep> presentReps;
 
-  public Trip(int id, Location loc, int startTime, int endTime,
+  public Trip(int id, Location loc, Timeframe time,
       List<Organisation> presentOrgs, List<UnepRep> presentReps) {
     this.id = id;
     this.loc = loc;
-    this.startTime = startTime;
-    this.endTime = endTime;
+    this.time = time;
     this.presentOrgs = new ArrayList<>(presentOrgs);
     this.presentReps = new ArrayList<>(presentReps);
   }
 
-  public Trip() {
+  public Trip(){
     this.presentOrgs = new ArrayList<>();
     this.presentReps = new ArrayList<>();
   }
@@ -42,24 +40,12 @@ public class Trip implements Timeframe {
     this.loc = loc;
   }
 
-  @Override
-  public int getStartTime() {
-    return startTime;
+  public Timeframe getTime() {
+    return time;
   }
 
-  @Override
-  public void setStartTime(int startTime) {
-    this.startTime = startTime;
-  }
-
-  @Override
-  public int getEndTime() {
-    return endTime;
-  }
-
-  @Override
-  public void setEndTime(int endTime) {
-    this.endTime = endTime;
+  public void setTime(Timeframe time) {
+    this.time = time;
   }
 
   public ArrayList<Organisation> getPresentOrgs() {

@@ -1,11 +1,13 @@
 package test.java;
 
-import data.Location;
+import main.java.data.*;
+import main.java.cost.*;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static cost.Cost.calculateCost;
+import static main.java.cost.Cost.calculateCost;
+import static main.java.cost.Cost.calculateCost;
 
 public class CostTests {
     public static Location nairobiWish = new Location(0, "nairobi", 36.8219, 1.2921);

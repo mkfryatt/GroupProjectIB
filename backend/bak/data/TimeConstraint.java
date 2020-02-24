@@ -1,37 +1,16 @@
 package data;
 
-public class TimeConstraint extends WishConstraint implements Timeframe {
+public class TimeConstraint extends WishConstraint {
 
-  public int startTime, endTime;
+  Timeframe time;
 
-  public TimeConstraint(int id, Wish wish, int startTime, int endTime) {
+  public TimeConstraint(int id, Wish wish, Timeframe time) {
     super(id, Type.TIME, wish);
-    this.startTime = startTime;
-    this.endTime = endTime;
-  }
-
-  @Override
-  public int getStartTime() {
-    return startTime;
-  }
-
-  @Override
-  public void setStartTime(int startTime) {
-    this.startTime = startTime;
-  }
-
-  @Override
-  public int getEndTime() {
-    return endTime;
-  }
-
-  @Override
-  public void setEndTime(int endTime) {
-    this.endTime = endTime;
+    this.time = time;
   }
 
   @Override
   public boolean meetsRequirement(Trip trip) {
-    return this.overlaps(trip);
+    return this.time.overlaps(trip.time);
   }
 }

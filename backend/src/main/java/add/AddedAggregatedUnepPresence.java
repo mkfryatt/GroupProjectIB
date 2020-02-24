@@ -1,9 +1,6 @@
 package main.java.add;
 
-
-import data.Location;
-import cost.Cost;
-
+import main.java.data.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 

@@ -1,25 +1,27 @@
-package data;
+package main.java.data;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Trip {
+public class Trip implements Timeframe {
+
   int id;
   Location loc;
-  Timeframe time;
+  public int startTime, endTime;
   ArrayList<Organisation> presentOrgs;
   ArrayList<UnepRep> presentReps;
 
-  public Trip(int id, Location loc, Timeframe time,
+  public Trip(int id, Location loc, int startTime, int endTime,
       List<Organisation> presentOrgs, List<UnepRep> presentReps) {
     this.id = id;
     this.loc = loc;
-    this.time = time;
+    this.startTime = startTime;
+    this.endTime = endTime;
     this.presentOrgs = new ArrayList<>(presentOrgs);
     this.presentReps = new ArrayList<>(presentReps);
   }
 
-  public Trip(){
+  public Trip() {
     this.presentOrgs = new ArrayList<>();
     this.presentReps = new ArrayList<>();
   }
@@ -40,12 +42,24 @@ public class Trip {
     this.loc = loc;
   }
 
-  public Timeframe getTime() {
-    return time;
+  @Override
+  public int getStartTime() {
+    return startTime;
   }
 
-  public void setTime(Timeframe time) {
-    this.time = time;
+  @Override
+  public void setStartTime(int startTime) {
+    this.startTime = startTime;
+  }
+
+  @Override
+  public int getEndTime() {
+    return endTime;
+  }
+
+  @Override
+  public void setEndTime(int endTime) {
+    this.endTime = endTime;
   }
 
   public ArrayList<Organisation> getPresentOrgs() {
