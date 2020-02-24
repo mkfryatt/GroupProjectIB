@@ -219,7 +219,7 @@ WHERE unep_reps.email = ?");
 function getAllSuggestionsForTravel($params)
 {
     global $dbconn;
-    $stmt = $dbconn->prepare("SELECT suggestions.id, suggestions.score  FROM trips
+    $stmt = $dbconn->prepare("SELECT suggestions.id, suggestions.emissions, suggestions.emmission_delta, suggestions.time_wasted, suggestions.score  FROM trips
 JOIN suggestions ON suggestions.trip_id = trips.id
 WHERE trips.id = ? ORDER BY suggestions.score");
     $stmt->bindValue(1, $params->trip_id, SQLITE3_INTEGER);
