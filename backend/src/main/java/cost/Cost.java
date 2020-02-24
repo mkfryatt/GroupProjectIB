@@ -92,21 +92,17 @@ public class Cost {
         }
     }
 
+    public static Double calculateCost(int timeDiff, double emission, double baselineEmission) {
 
-    public static Double calculateCost(int timeDiff, Location wish, Location trip) {
+        double TimeDiffScore = 0.0;
+        double FlightEmissionScore = 0.0;
 
-        Double TimeDiffScore = 0.0;
-        Double FlightEmissionScore = 0.0;
-
-        Double emissionsCamToWish = calculateFlightEmissions(unepCambridgeLocation, wish);
-        Double emissionTripToWish = calculateFlightEmissions(trip, wish);
-
-        if (emissionTripToWish > emissionsCamToWish) {
+        if (emission > baselineEmission) {
             // indicates that flying from Cambridge is better than flying from this match location.
             return 0.0;
         } else {
             // TODO DECIDE ON FUNCTION FOR THIS
-            FlightEmissionScore += (-0.0002 * emissionTripToWish) + 1;
+            FlightEmissionScore += (-0.0002 * emission) + 1;
         }
 
         if (timeDiff < 3) {
@@ -116,6 +112,11 @@ public class Cost {
         }
         return (0.5 * TimeDiffScore) + (0.5 * FlightEmissionScore);
 
+    }
+
+
+    public static Double calculateCost(int timeDiff, Location wish, Location trip) {
+        return calculateCost(timeDiff,calculateFlightEmissions(trip, wish),calculateFlightEmissions(unepCambridgeLocation, wish));
     }
 
     public static void main(String[] args) {
