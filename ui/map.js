@@ -10,6 +10,8 @@ var wishIcon = L.icon({
 	iconAnchor: [16,32],
 });
 
+var selectionTravel, selectionWish, selectionAdmin;
+
 function initMap() {
 	var map = L.map('map').setView({lon: 0.0917, lat: 52.2196 }, 2);
 	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
@@ -59,7 +61,8 @@ function loadMapScenarioAdmin() {
 		manager.attachAutosuggest('#searchbox-admin', '#searchbox-container-admin', passLatLong);
 	}
 	function passLatLong(selection) {
-	  console.log(selection.address.locality)
+	  console.log(selection.address.locality);
+	  selectionAdmin = selection;
 	}     
 }
 
@@ -73,7 +76,8 @@ function loadMapScenarioWish() {
       manager.attachAutosuggest('#searchbox-wish', '#searchbox-container-wish', passLatLong);
   }
   function passLatLong(selection) {
-    console.log(selection.address.locality)
+	console.log(selection.address.locality);
+	selectionWish = selection;
   }     
 }
 
@@ -87,7 +91,8 @@ function loadMapScenarioTravel() {
       manager.attachAutosuggest('#searchbox-travel', '#searchbox-container-travel', passLatLong);
   }
   function passLatLong(selection) {
-    console.log(selection.address.locality)
+	console.log(selection.address.locality);
+	selectionTravel = selection;
     /* City = selection.address.locality - UNDEFINED for country/continent/Seas
     /*City/Location = selection.formattedSuggestion
     Lat = selection.location.latitude
@@ -95,5 +100,5 @@ function loadMapScenarioTravel() {
 
     Basically this needs to store it to somewhere so it can be submitted when the rest of the form is.
     */
-  }     
+  }    
 }
