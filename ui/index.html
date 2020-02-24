@@ -41,8 +41,8 @@
         </div>
       </div>
       <div  class="form-group">
-        <input type="date" name="start-date" id="start-date-map" class="form-control"><br>
-        <input type="date" name="end-date" id="end-date-map" class="form-control">
+        <input type="date" id="start-date-map" class="form-control"><br>
+        <input type="date" id="end-date-map" class="form-control">
       </div>
     </div>
 
@@ -60,19 +60,14 @@
     <!-- Travel Tab -->
     <div id="cal" class="tabcontent">
       <h3>View and edit travel</h3>
+      <div id="warning-travel" class="alert alert-danger"></div>
       <div id="travel-default" class="row">
       </div>
       <div class="form-group" id="travel-add">
         <!-- General Info -->
         <div class="form-row">
           <div class="col">
-            <input type="text" name="name" id="name-travel" placeholder="Name" class="form-control">
-          </div>
-          <div class="col">
-            <input type="text" name="reason" id="reason-travel" placeholder="Reason" class="form-control">
-          </div>
-          <div class="col">
-            <input type="text" name="org" id="org-travel" placeholder="Organisation" class="form-control">
+            <input type="text" id="org-travel" placeholder="Organisation [optional]" class="form-control">
           </div>
         </div>
         <!-- Location Info -->
@@ -85,11 +80,11 @@
         <div class="form-row">
           <div class="col">
             <label for="start-date-travel">Start date:</label>
-            <input type="date" name="start-date" id="start-date-travel" class="form-control">
+            <input type="date" id="start-date-travel" class="form-control">
           </div>
           <div class="col">
             <label for="end-date-travel">End date:</label>
-            <input type="date" name="end-date" id="end-date-travel" class="form-control">
+            <input type="date" id="end-date-travel" class="form-control">
           </div>
         </div>
         <!-- Submit -->
@@ -103,17 +98,12 @@
     <!-- Wishes Tab -->
     <div id="wish" class="tabcontent">
       <h3>Add a wish</h3>
+      <div id="warning-wish" class="alert alert-danger"></div>
       <div class="form-group">
         <!-- General Info -->
         <div class="form-row">
           <div class="col">
-            <input type="text" name="name" id="name-wish" placeholder="Name" class="form-control">
-          </div>
-          <div class="col">
-            <input type="text" name="reason" id="reason-wish" placeholder="Reason" class="form-control">
-          </div>
-          <div class="col">
-            <input type="text" name="org" id="org-wish" placeholder="Organisation" class="form-control">
+            <input type="text" id="org-wish" placeholder="Organisation [optional]" class="form-control">
           </div>
         </div>
         <!-- Location Info -->
@@ -126,11 +116,11 @@
         <div class="form-row">
           <div class="col">
             <label for="start-date-wish">Start date:</label>
-            <input type="date" name="start-date" id="start-date-wish" class="form-control">
+            <input type="date" id="start-date-wish" class="form-control">
           </div>
           <div class="col">
             <label for="end-date-wish">End date:</label>
-            <input type="date" name="end-date" id="end-date-wish" class="form-control">
+            <input type="date" id="end-date-wish" class="form-control">
           </div>
         </div>
         <!-- Submit -->
@@ -151,11 +141,12 @@
     <!-- Admin Tab -->
     <div id="admin" class="tabcontent">
       <h3>Add the presence of an organisation</h3>
+      <div id="warning-admin" class="alert alert-danger"></div>
       <div class="form-group">
         <!-- General Info -->
         <div class="form-row">
           <div class="col">
-            <input type="text" name="org" id="org-admin" placeholder="Organisaton" class="form-control">
+            <input type="text" id="org-admin" placeholder="Organisaton" class="form-control">
           </div>
         </div>
         <!-- Location Info -->
@@ -168,11 +159,11 @@
         <div class="form-row">
           <div class="col">
             <label for="start-date-admin">Start date:</label>
-            <input type="date" name="start-date" id="start-date-admin" class="form-control">
+            <input type="date" id="start-date-admin" class="form-control">
           </div>
           <div class="col">
             <label for="end-date-admin">End date:</label>
-            <input type="date" name="end-date" id="end-date-admin" class="form-control">
+            <input type="date" id="end-date-admin" class="form-control">
           </div>
         </div>
         <!-- Submit -->

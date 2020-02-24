@@ -8,6 +8,9 @@ function init() {
   date.setMonth(1 + date.getMonth());
   document.getElementById("end-date-map").valueAsDate = date;
 
+  var tabs = ["travel", "wish", "admin"];
+  tabs.forEach(e => {$("#warning-"+e).hide();});
+
   openTab("cal");
 }
 
@@ -291,8 +294,8 @@ function showEditTravel(id) {
   $("#travel-default").hide();
   $("#travel-add").show();
 
-  var textAttrs = ["name", "org", "reason", "searchbox"];
-  var textVals = [travel.name, travel.org, travel.reason, travel.city];
+  var textAttrs = ["org", "searchbox"];
+  var textVals = [travel.org, travel.city + ", "+ travel.country];
   for (var i=0; i<2; i++) {
     $("#"+textAttrs[i]+"-travel").val(textVals[i]);
   }
@@ -301,7 +304,7 @@ function showEditTravel(id) {
   var dateAttrs = ["start", "end"];
   var dateVals = [travel.startDate, travel.endDate];
   for (var i=0; i<2; i++) {
-    $("#"+dateAttrs[i]+"-travel").val(dateVals[i]);
+    $("#"+dateAttrs[i]+"-date-travel").val(dateVals[i]);
   }
 
   $("#travel-btn").attr("onclick", "submitTravelEdit("+id+")");
