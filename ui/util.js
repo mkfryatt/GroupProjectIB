@@ -191,8 +191,6 @@ function deleteWishFromId(id, callbackFunction) {
     sendXmlHttpRequest(request,callbackFunction);
 }
 
-
-
 function getOrganisationPresencesWithinTimeframe(startTime, endTime, callbackFunction) {
     let request = {
         method: 'getOrganisationPresencesWithinTimeframe',
@@ -203,3 +201,36 @@ function getOrganisationPresencesWithinTimeframe(startTime, endTime, callbackFun
     };
     sendXmlHttpRequest(request,callbackFunction);
 }
+
+function createNewOrganisationPresence(orgName, city, country, lon, lat, startTime, endTime, callbackFunction) {
+    let request = {
+        method: 'createNewOrganisationPresence',
+        params: {
+            orgName: orgName,
+            city: city,
+            country: country,
+            lon: lon,
+            lat: lat,
+            startTime: startTime,
+            endTime: endTime
+        }
+    };
+    sendXmlHttpRequest(request,callbackFunction);
+}
+
+function createNewUnepPresence(name, city, country, lon, lat, startTime, endTime, callbackFunction) {
+    let request = {
+        method: 'createNewUnepPresence',
+        params: {
+            name: name,
+            city: city,
+            country: country,
+            lon: lon,
+            lat: lat,
+            startTime: startTime,
+            endTime: endTime
+        }
+    };
+    sendXmlHttpRequest(request,callbackFunction);
+}
+

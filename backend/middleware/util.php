@@ -536,6 +536,49 @@ function deleteWishFromId($params)
     return ($result);
 }
 
+function createNewUnepPresence($params)
+{
+    global $dbconn;
+
+    $locId = getOrCreateLocation($params);
+
+    $stmt = $dbconn->prepare("INSERT INTO unep_presences (name, loc_id,startTime,endTime) VALUES(?,?,?,?)");
+    $stmt->bindValue(1, $params->name, SQLITE3_INTEGER);
+    $stmt->bindValue(2, $locId, SQLITE3_INTEGER);
+    $stmt->bindValue(3, $params->startTime, SQLITE3_INTEGER);
+    $stmt->bindValue(4, $params->endTime, SQLITE3_INTEGER);
+
+
+    $rows = $stmt->execute();
+    if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
+
+    $unep_presence_id = sqlite_last_insert_rowid($dbconn);
+
+    return (object)array('outcome' => 'succeeded', 'inserted_id' => $unep_presence_id);
+}
+
+function createNewOrganisationPresence($params)
+{
+    global $dbconn;
+
+    $org_id = getOrganisationIdFromName($params->orgName);
+    $locId = getOrCreateLocation($params);
+
+    $stmt = $dbconn->prepare("INSERT INTO presences (org_id, loc_id,startTime,endTime) VALUES(?,?,?,?)");
+    $stmt->bindValue(1, $org_id, SQLITE3_INTEGER);
+    $stmt->bindValue(2, $locId, SQLITE3_INTEGER);
+    $stmt->bindValue(3, $params->startTime, SQLITE3_INTEGER);
+    $stmt->bindValue(4, $params->endTime, SQLITE3_INTEGER);
+
+
+    $rows = $stmt->execute();
+    if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
+
+    $unep_presence_id = sqlite_last_insert_rowid($dbconn);
+
+    return (object)array('outcome' => 'succeeded', 'inserted_id' => $unep_presence_id);
+}
+
 $request = json_decode($_GET['q']);
 
 switch ($request->method) {
@@ -627,6 +670,15 @@ switch ($request->method) {
         answerJsonAndDie($result);
         break;
 
+    case 'createNewUnepPresence':
+        $result = createNewUnepPresence($request->params);
+        answerJsonAndDie($result);
+        break;
+
+    case 'createNewOrganisationPresence':
+        $result = createNewOrganisationPresence($request->params);
+        answerJsonAndDie($result);
+        break;
     default:
         error('method: "' . $request->method . '" is not defined');
 }
