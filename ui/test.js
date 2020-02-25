@@ -81,17 +81,28 @@ function tryLogin() {
     email = $("#email").val();
     $("#login").remove();
 
-    getAllTravelFromUser(email, showDefaultTravel);
-    getAllWishesFromUser(email, showWishes);
+    getAllTravelFromUser(email, makeDefaultTravel);
+    $("#travel-add").hide();
+    $("#travel-default").show();
+
+    getAllWishesFromUser(email, makeWishes);
+    $("#match-previews").hide();
+    $("#matches-back-btn").hide();
+    $("#wish-previews").show();
+
     initMap();
   }
 }
 
-function showWishes(wishes) {
+function makeWishes(wishes) {
   if (wishes.hasOwnProperty("error")) {
     //getAllWishesFromUser(email, showWishes);
     return;
   }
+
+  $("#wish-previews").empty();
+  $("#match-title").text("View all wishes");
+  $("#matches-back-btn").hide();
 
   wishes.forEach(element => {
 
@@ -137,20 +148,14 @@ function showWishes(wishes) {
     card.append(cardBody);
     div.append(card);
     $("#wish-previews").append(div);
-
   });
-
-  $("#match-title").text("View all wishes");
-  $("#match-previews").hide();
-  $("#match-back-btn").hide();
-  $("#wish-previews").show();
 }
 
 function hideMatches() {
   $("#match-previews").empty();
   $("#matches-back-btn").hide();
   $("#match-previews").hide();
-  $("#match-title").text("View all wish");
+  $("#match-title").text("View all wishes");
   $("#wish-previews").show();
 }
 
@@ -187,7 +192,6 @@ function showMatches(id) {
     card.append(cardHeader);
     card.append(list);
     div.append(card);
-
     $("#match-previews").append(div);
   });
 
@@ -242,7 +246,7 @@ function showCarbonDetails() {
   $("#carbon-details").show();
 }
 
-function showDefaultTravel(travels) {
+function makeDefaultTravel(travels) {
   $("#travel-default").empty();
 
   var btnAdd = document.createElement("button");
@@ -295,9 +299,6 @@ function showDefaultTravel(travels) {
 
     $("#travel-default").append(div);
   });
-
-  $("#travel-add").hide();
-  $("#travel-default").show();
 }
 
 function showAddTravel() {

@@ -40,9 +40,7 @@ function callbackSubmitTravel(result) {
     clearForm("travel");
     $("#warning-travel").hide();
     updateMap();
-    showDefaultTravel();
-    $("#travel-default").hide();
-    $("#travel-add").show()
+    makeDefaultTravel();
   }
 }
 
