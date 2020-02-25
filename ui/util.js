@@ -83,6 +83,16 @@ function getUnepRepFromId(rep_id, callbackFunction) {
     sendXmlHttpRequest(request,callbackFunction);
 }
 
+function getTravelFromId(travel_id, callbackFunction) {
+    let request = {
+        method: 'getTravelFromId',
+        params: {
+            travel_id: travel_id
+        }
+    };
+    sendXmlHttpRequest(request,callbackFunction);
+}
+
 function getAllTravelFromUser(email, callbackFunction) {
     let request = {
         method: 'getAllTravelFromUser',
@@ -103,11 +113,21 @@ function getAllWishesFromUser(email, callbackFunction) {
     sendXmlHttpRequest(request,callbackFunction);
 }
 
-function getAllSuggestionsForTravel(trip_id, callbackFunction) {
+// function getAllSuggestionsForTravel(trip_id, callbackFunction) {
+//     let request = {
+//         method: 'getAllSuggestionsForTravel',
+//         params: {
+//             trip_id: trip_id
+//         }
+//     };
+//     sendXmlHttpRequest(request,callbackFunction);
+// }
+
+function getAllSuggestionsFromWish(wish_id, callbackFunction) {
     let request = {
-        method: 'getAllSuggestionsForTravel',
+        method: 'getAllSuggestionsFromWish',
         params: {
-            trip_id: trip_id
+            wish_id: wish_id
         }
     };
     sendXmlHttpRequest(request,callbackFunction);
@@ -147,11 +167,11 @@ params:
 - orgConstraint : array of Objects with field org_id
 - locConstraint : array of positions
 */
-function createNewWish(rep_id, timeConstraints, orgConstraints, locConstraints, callbackFunction) {
+function createNewWish(email, timeConstraints, orgConstraints, locConstraints, callbackFunction) {
     let request = {
         method: 'createNewWish',
         params: {
-            rep_id: rep_id,
+            email: email,
             timeConstraints: timeConstraints,
             orgConstraints: orgConstraints,
             locConstraints: locConstraints
@@ -173,6 +193,13 @@ function deleteWishFromId(id, callbackFunction) {
 
 
 
-function getOrganizationPresencesWithinTimeframe(organization, start, end) {
-    //TODO:
+function getOrganisationPresencesWithinTimeframe(startTime, endTime, callbackFunction) {
+    let request = {
+        method: 'getOrganisationPresencesWithinTimeframe',
+        params: {
+            startTime: startTime,
+            endTime: endTime
+        }
+    };
+    sendXmlHttpRequest(request,callbackFunction);
 }

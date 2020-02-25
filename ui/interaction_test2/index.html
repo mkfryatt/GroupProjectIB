@@ -6,7 +6,7 @@
     <title>Interaction Test 2</title>
     <script type="text/javascript">
         function loadContent(){
-            getTravelWithinTimeframe(0,1000,function (result) {
+            getAllSuggestionsFromWish(1,function (result) {
                 document.getElementById('target').innerHTML+=JSON.stringify(result);
             })
         }

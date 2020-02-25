@@ -64,8 +64,48 @@ function getTravelWithinTimeframe($params)
 {
     global $dbconn;
     $stmt = $dbconn->prepare("SELECT trips.id, trips.startTime, trips.endTime, locations.city, locations.country, locations.lat, locations.lon
-FROM trips JOIN locations on trips.loc_id = locations.id WHERE startTime >= ? AND endTime <= ?
+FROM trips JOIN locations on trips.loc_id = locations.id WHERE endTime >= ? OR startTime <= ?
 ");
+    $stmt->bindValue(1, $params->startTime, SQLITE3_INTEGER);
+    $stmt->bindValue(2, $params->endTime, SQLITE3_INTEGER);
+    $rows = $stmt->execute();
+    if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
+    $result = array();
+    while ($row = $rows->fetchArray()) {
+        $resultRow = $row;
+        //Get all involved organisations
+        $stmt = $dbconn->prepare("SELECT o.name from trip_org_presences JOIN organisations o on trip_org_presences.org_id = o.id WHERE trip_org_presences.trip_id = ?");
+        $stmt->bindValue(1, $row['id'], SQLITE3_INTEGER);
+        $orgrows = $stmt->execute();
+        if (!$orgrows) error('Query failed ' . $dbconn->lastErrorMsg());
+        $orgs = array();
+        while ($org = $orgrows->fetchArray()) {
+            $orgs[] = $org;
+        }
+        $resultRow['organisations'] = $orgs;
+
+        //Get all involved unep_reps
+        $stmt = $dbconn->prepare("SELECT r.email, r.firstName, r.lastName FROM rep_trips rt JOIN unep_reps r on rt.rep_id = r.id where rt.trip_id = ?");
+        $stmt->bindValue(1, $row['id'], SQLITE3_INTEGER);
+        $reprows = $stmt->execute();
+        if (!$reprows) error('Query failed ' . $dbconn->lastErrorMsg());
+        $reps = array();
+        while ($rep = $reprows->fetchArray()) {
+            $reps[] = $rep;
+        }
+        $resultRow['unep_reps'] = $reps;
+        array_push($result, (object)$resultRow);
+    }
+    return ($result);
+}
+
+function getUnepPresencesWithinTimeframe($params)
+{
+    global $dbconn;
+    $stmt = $dbconn->prepare("SELECT unep_presences.name, unep_presences.startTime, 
+       unep_presences.endTime, locations.city, locations.country, locations.lat, locations.lon
+       FROM unep_presences JOIN locations on unep_presences.loc_id = locations.id
+        WHERE endTime >= ? OR startTime <= ?");
     $stmt->bindValue(1, $params->startTime, SQLITE3_INTEGER);
     $stmt->bindValue(2, $params->endTime, SQLITE3_INTEGER);
     $rows = $stmt->execute();
@@ -77,13 +117,13 @@ FROM trips JOIN locations on trips.loc_id = locations.id WHERE startTime >= ? AN
     return ($result);
 }
 
-function getUnepPresencesWithinTimeframe($params)
+function getOrganisationPresencesWithinTimeframe($params)
 {
     global $dbconn;
-    $stmt = $dbconn->prepare("SELECT unep_presences.name, unep_presences.startTime, 
-       unep_presences.endTime, locations.city, locations.country, locations.lat, locations.lon
-       FROM unep_presences JOIN locations on unep_presences.loc_id = locations.id
-        WHERE startTime >= ? AND endTime <= ?");
+    $stmt = $dbconn->prepare("SELECT p.id, o.name, p.startTime, p.endTime, l.city, l.country, l.lat, l.lon FROM presences p
+        JOIN organisations o on p.org_id = o.id
+        JOIN locations l on p.loc_id = l.id
+        WHERE endTime >= ? OR startTime <= ?");
     $stmt->bindValue(1, $params->startTime, SQLITE3_INTEGER);
     $stmt->bindValue(2, $params->endTime, SQLITE3_INTEGER);
     $rows = $stmt->execute();
@@ -123,10 +163,11 @@ function getOrganisationFromId($org_id)
     return $rows->fetchArray();
 }
 
-function getOrganisationIdFromName($org_name){
+function getOrganisationIdFromName($org_name)
+{
     global $dbconn;
     $stmt = $dbconn->prepare("SELECT * from organisations where name=?");
-    $stmt->bindValue(1,$org_name,SQLITE3_TEXT);
+    $stmt->bindValue(1, $org_name, SQLITE3_TEXT);
     $rows = $stmt->execute();
     $row = $rows->fetchArray();
     return $row['id'];
@@ -150,10 +191,20 @@ function getUnepRepFromId($rep_id)
     return $rows->fetchArray();
 }
 
-function getUnepRepIdFromEmail($email){
+function getTravelFromId($params)
+{
+    global $dbconn;
+    $stmt = $dbconn->prepare("SELECT * from trips where id = ?");
+    $stmt->bindValue(1, $params->travel_id, SQLITE3_INTEGER);
+    $rows = $stmt->execute();
+    return $rows->fetchArray();
+}
+
+function getUnepRepIdFromEmail($email)
+{
     global $dbconn;
     $stmt = $dbconn->prepare("SELECT * from unep_reps where email = ?");
-    $stmt->bindValue(1,$email,SQLITE3_TEXT);
+    $stmt->bindValue(1, $email, SQLITE3_TEXT);
 
     $rows = $stmt->execute();
     $row = $rows->fetchArray();
@@ -187,11 +238,13 @@ function getAllConstraintsFromWish($wishId)
                 case 'ORGANISATION':
                     $orgEntry = getOrganisationFromId($row['org_id']);
                     $result["organisations"][] = $orgEntry;
+                    break;
                 case 'LOCATION':
                     $locEntry = getLocationFromId($row['loc_id']);
                     $result["organisations"][] = $locEntry;
+                    break;
                 default:
-                    error("Stuff happened while getting constraints.");
+                    error("Invalid type while getting constraints. Type:" . $row['type']);
             }
         }
     }
@@ -216,18 +269,134 @@ WHERE unep_reps.email = ?");
     return ($result);
 }
 
-function getAllSuggestionsForTravel($params)
+//function getAllSuggestionsForTravel($params)
+//{
+//    global $dbconn;
+//    $stmt = $dbconn->prepare("SELECT suggestions.id, suggestions.emissions, suggestions.emmission_delta, suggestions.time_wasted, suggestions.score  FROM trips
+//JOIN suggestions ON suggestions.trip_id = trips.id
+//WHERE trips.id = ? ORDER BY suggestions.score");
+//    $stmt->bindValue(1, $params->trip_id, SQLITE3_INTEGER);
+//    $rows = $stmt->execute();
+//    if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
+//    $result = array();
+//    while ($row = $rows->fetchArray()) {
+//        array_push($result, (object)$row);
+//    }
+//    return ($result);
+//}
+
+function getAllSuggestionsFromWish($params)
 {
     global $dbconn;
-    $stmt = $dbconn->prepare("SELECT suggestions.id, suggestions.emissions, suggestions.emmission_delta, suggestions.time_wasted, suggestions.score  FROM trips
-JOIN suggestions ON suggestions.trip_id = trips.id
-WHERE trips.id = ? ORDER BY suggestions.score");
-    $stmt->bindValue(1, $params->trip_id, SQLITE3_INTEGER);
+    $stmt = $dbconn->prepare("
+SELECT s.id, w.wisher_id, s.emissions, s.emmission_delta, s.time_wasted, s.score,
+l.city as wishCity, l.country as wishCountry, l.lat as wishLat, l.lon as wishLon, 
+s.trips__dep_id as unepTripId, t.startTime as unepTripStart, t.endTime as unepTripEnd,
+up.id as unepPresenceId, up.name as unepPresenceName,
+s.trip_org_presences__dep_id, o1.name as 'tripOrgName', l2.city as 'tripCity', l2.country as 'tripCountry', l2.lon as 'tripLon', l2.lat as 'tripLat',
+s.presences__dep_id, o2.name as 'presenceOrgName', l3.city as 'orgCity', l3.country as 'orgCountry', l3.lon as 'orgLon', l3.lat as 'orgLat'
+FROM suggestions s
+JOIN wishes w ON s.wish_id = w.id
+LEFT JOIN wish_constraints wc ON wc.wish_id = w.id AND wc.type = 'LOCATION'
+LEFT JOIN locations l ON wc.loc_id = l.id
+
+LEFT JOIN trips t ON s.trips__dep_id = t.id
+LEFT JOIN unep_presences up ON s.unep_presences__dep_id = up.id
+
+LEFT JOIN trip_org_presences top ON s.trip_org_presences__dep_id = top.id
+LEFT JOIN organisations o1 ON top.org_id = o1.id
+LEFT JOIN trips t2 ON top.trip_id = t2.id
+LEFT JOIN locations l2 ON t2.loc_id = l2.id
+
+
+LEFT JOIN presences p ON s.presences__dep_id = p.id
+LEFT JOIN organisations o2 ON p.org_id = o2.id
+LEFT JOIN locations l3 ON p.loc_id = l3.id
+
+WHERE w.id = ?
+
+ORDER BY s.score DESC");
+    $stmt->bindValue(1, $params->wish_id, SQLITE3_INTEGER);
     $rows = $stmt->execute();
     if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
     $result = array();
+
+    $baseKeys = array("id", "wisher_id", "emissions", "emmision_delta", "time_wasted", "score");
+    $locConstraintKeys = array("wishCity", "wishCountry", "wishLat", "wishLon");
+    $usedLoc = false;
+    $unepTripKeys = array("unepTripId", "unepTripStart", "unepTripEnd");
+    $usedTrip = false;
+    $unepPresenceKeys = array("unepPresenceId", "unepPresenceName");
+    $usedUnepPresence = false;
+    $tripOrgKeys = array("tripOrgName", "tripCity", "tripCountry", "tripLon", "tripLat");
+    $usedTripOrg = false;
+    $orgPresenceKeys = array("presenceOrgName", "orgCity", "orgCountry", "orgLon", "orgLat");
+    $usedOrgPresence = false;
+
     while ($row = $rows->fetchArray()) {
-        array_push($result, (object)$row);
+        $allKeys = $baseKeys;
+        if (!is_null($row['wishCity'])) {
+            $allKeys = array_merge($allKeys, $locConstraintKeys);
+            $usedLoc = true;
+        }
+        if (!is_null($row['unepTripId'])) {
+            $allKeys = array_merge($allKeys, $unepTripKeys);
+            $usedTrip = true;
+        }
+        if (!is_null($row['unepPresenceId'])) {
+            $allKeys = array_merge($allKeys, $unepPresenceKeys);
+            $usedUnepPresence = true;
+        }
+        if (!is_null($row['tripOrgName'])) {
+            $allKeys = array_merge($allKeys, $tripOrgKeys);
+            $usedTripOrg = true;
+        }
+        if (!is_null($row['presenceOrgName'])) {
+            $allKeys = array_merge($allKeys, $orgPresenceKeys);
+            $usedOrgPresence = true;
+        }
+
+        //Filter results
+        $newRow = array_intersect_key($row, array_flip($allKeys));
+
+        //Rename as appropriate
+        if($usedLoc){
+            $newRow['city'] = $newRow['wishCity'];
+            $newRow['country'] = $newRow['wishCountry'];
+            $newRow['lon'] = $newRow['wishLon'];
+            $newRow['lat'] = $newRow['wishLat'];
+
+            unset($newRow['wishCity']);
+            unset($newRow['wishCountry']);
+            unset($newRow['wishLon']);
+            unset($newRow['wishLat']);
+        }
+
+        if($usedTripOrg){
+            $newRow['city'] = $newRow['tripCity'];
+            $newRow['country'] = $newRow['tripCountry'];
+            $newRow['lon'] = $newRow['tripLon'];
+            $newRow['lat'] = $newRow['tripLat'];
+
+            unset($newRow['tripCity']);
+            unset($newRow['tripCountry']);
+            unset($newRow['tripLon']);
+            unset($newRow['tripLat']);
+        }
+
+        if($usedOrgPresence){
+            $newRow['city'] = $newRow['tripCity'];
+            $newRow['country'] = $newRow['tripCountry'];
+            $newRow['lon'] = $newRow['tripLon'];
+            $newRow['lat'] = $newRow['tripLat'];
+
+            unset($newRow['tripCity']);
+            unset($newRow['tripCountry']);
+            unset($newRow['tripLon']);
+            unset($newRow['tripLat']);
+        }
+
+        array_push($result, (object)$newRow);
     }
     return ($result);
 }
@@ -259,7 +428,7 @@ function createNewTravel($params)
     global $dbconn;
 
     $locId = getOrCreateLocation($params);
-    $rep_id = getUnepRepIdFromEmail($params->unep_rep);
+    $rep_id = getUnepRepIdFromEmail($params->email);
 
     $stmt = $dbconn->prepare("INSERT INTO trips (loc_id,startTime,endTime) VALUES(?,?,?)");
     $stmt->bindValue(1, $locId, SQLITE3_INTEGER);
@@ -273,22 +442,22 @@ function createNewTravel($params)
     $trip_id = sqlite_last_insert_rowid($dbconn);
 
     $stmt = $dbconn->prepare("INSERT INTO rep_trips(rep_id,trip_id) VALUES(?,?)");
-    $stmt->bindValue(1,$rep_id,SQLITE3_INTEGER);
-    $stmt->bindValue(2,$trip_id,SQLITE3_INTEGER);
+    $stmt->bindValue(1, $rep_id, SQLITE3_INTEGER);
+    $stmt->bindValue(2, $trip_id, SQLITE3_INTEGER);
     $stmt->execute();
     if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
 
-    if($params->org !== ""){
+    if ($params->org !== "") {
         $org_id = getOrganisationIdFromName($params->org);
         $stmt = $dbconn->prepare("INSERT INTO trip_org_presences(trip_id, org_id) VALUES(?,?)");
-        $stmt->bindValue(1,$trip_id,SQLITE3_INTEGER);
-        $stmt->bindValue(2,$org_id,SQLITE3_INTEGER);
+        $stmt->bindValue(1, $trip_id, SQLITE3_INTEGER);
+        $stmt->bindValue(2, $org_id, SQLITE3_INTEGER);
         $stmt->execute();
         if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
     }
 
 
-    return (object)array('outcome'=>'succeeded','inserted_id'=> $trip_id);
+    return (object)array('outcome' => 'succeeded', 'inserted_id' => $trip_id);
 }
 
 function deleteTravelFromId($params)
@@ -325,7 +494,7 @@ function createNewWish($rep_id, $time_constraints, $org_constraints, $loc_constr
         $startTime = $time_constraint->startTime;
         $endTime = $time_constraint->endTime;
 
-        if($endTime<$startTime){
+        if ($endTime < $startTime) {
             error("invalid time range (endTime<startTime");
         }
 
@@ -335,14 +504,14 @@ function createNewWish($rep_id, $time_constraints, $org_constraints, $loc_constr
         $rows = $stmt->execute();
     }
 
-    foreach ($org_constraints as $org_constraint){
+    foreach ($org_constraints as $org_constraint) {
         $stmt = $dbconn->prepare("INSERT INTO wish_constraints(type,org_id) VALUES ('ORGANISATION',?)");
         $org_id = getOrganisationIdFromName($org_constraint->name);
         $stmt->bindValue(1, org_id, SQLITE3_INTEGER);
         $rows = $stmt->execute();
     }
 
-    foreach ($loc_constraints as $loc_constraint){
+    foreach ($loc_constraints as $loc_constraint) {
         $stmt = $dbconn->prepare("INSERT INTO wish_constraints(type,loc_id) VALUES ('LOCATION',?)");
         $loc_id = getOrCreateLocation($loc_constraint);
         $stmt->bindValue(1, loc_id, SQLITE3_INTEGER);
@@ -350,7 +519,7 @@ function createNewWish($rep_id, $time_constraints, $org_constraints, $loc_constr
     }
 
     //TODO: similarly for org_constraints, loc_constraints. Content structure is specified in util.js
-    return (object)array('outcome'=>'succeeded','inserted_id'=> $wish_id);
+    return (object)array('outcome' => 'succeeded', 'inserted_id' => $wish_id);
 }
 
 function deleteWishFromId($params)
@@ -408,6 +577,11 @@ switch ($request->method) {
         answerJsonAndDie($result);
         break;
 
+    case 'getTravelFromId':
+        $result = getTravelFromId($request->params);
+        answerJsonAndDie($result);
+        break;
+
     case 'getAllTravelFromUser':
         $result = getAllTravelFromUser($request->params);
         answerJsonAndDie($result);
@@ -418,8 +592,13 @@ switch ($request->method) {
         answerJsonAndDie($result);
         break;
 
-    case 'getAllSuggestionsForTravel':
-        $result = getAllSuggestionsForTravel($request->params);
+//    case 'getAllSuggestionsForTravel':
+//        $result = getAllSuggestionsForTravel($request->params);
+//        answerJsonAndDie($result);
+//        break;
+
+    case 'getAllSuggestionsFromWish':
+        $result = getAllSuggestionsFromWish($request->params);
         answerJsonAndDie($result);
         break;
 
@@ -434,7 +613,7 @@ switch ($request->method) {
         break;
 
     case 'createNewWish':
-        $result = createNewWish($request->params->rep_id,$request->params->timeConstraints, $request->params->orgConstraints, $request->params->locConstraints);
+        $result = createNewWish($request->params->rep_id, $request->params->timeConstraints, $request->params->orgConstraints, $request->params->locConstraints);
         answerJsonAndDie($result);
         break;
 
@@ -443,6 +622,10 @@ switch ($request->method) {
         answerJsonAndDie($result);
         break;
 
+    case 'getOrganisationPresencesWithinTimeframe':
+        $result = getOrganisationPresencesWithinTimeframe($request->params);
+        answerJsonAndDie($result);
+        break;
 
     default:
         error('method: "' . $request->method . '" is not defined');
