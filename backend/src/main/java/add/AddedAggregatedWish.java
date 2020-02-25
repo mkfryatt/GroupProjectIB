@@ -28,7 +28,8 @@ public class AddedAggregatedWish {
 
 
     // 3: 1 or more org constraints, 1 location constraint
-    public static void add(int wishId) throws SQLException {
+    public static int add(int wishId) throws SQLException {
+        int generatedSuggestions = 0;
 
         ResultSet rsWish = Add.dbCon.executeQuery("SELECT * FROM wishes WHERE id = " + wishId);
         if(!rsWish.next()) {
@@ -89,10 +90,12 @@ public class AddedAggregatedWish {
                             UnepPresEndTime
                     );
                     Location matchLocation = AddedHelperFunctions.getLocationById(rsUnepPres.getInt("loc_id"));
-                    AddedHelperFunctions.insertWishSuggestion(
+                    if(AddedHelperFunctions.insertWishSuggestion(
                             wishId, unepPresType, unepPresTypeId, orgType, orgTypeId, orgLocation, matchLocation
                             , time_wasted
-                    );
+                    )) {
+                        generatedSuggestions ++;
+                    }
                 }
             }
 
@@ -103,6 +106,7 @@ public class AddedAggregatedWish {
                         "given");
             }
             ResultSet unepPres = Add.dbCon.executeQuery("SELECT * FROM aggregate_unep_presences");
+
             // Go through each unep_presence, calculate cost of unep_loc and wish_loc
             while (unepPres.next()) {
                 int unepPresLoc = unepPres.getInt("loc_id");
@@ -113,10 +117,13 @@ public class AddedAggregatedWish {
                 int unepPresId = unepPres.getInt("table_id");
                 int time_wasted = AddedHelperFunctions.smallestTimeDelta(timeConstraints, unepPresStartTime,
                         unepPresEndTime);
-                AddedHelperFunctions.insertWishSuggestion(
+                if(AddedHelperFunctions.insertWishSuggestion(
                         wishId, unepPresenceType, unepPresId, null,0,locationConstraint, matchLocation, time_wasted
-                );
+                )) {
+                    generatedSuggestions ++;
+                }
             }
         }
+        return generatedSuggestions;
     }
 }

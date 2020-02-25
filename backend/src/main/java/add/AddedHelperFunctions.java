@@ -144,13 +144,10 @@ public class AddedHelperFunctions {
             }
         }
         sql += ")";
-        System.out.println(sql);
         Add.dbCon.executeStatement(sql);
         return true;
     }
     public static void main(String[] args) throws SQLException{
-        ResultSet timeConstraints = Add.dbCon.executeQuery("SELECT * FROM wish_constraints WHERE type = 'TIME' AND " +
-                "wish_id = 3");
-        int time_wasted = smallestTimeDeltaFiltered(timeConstraints, 20, 30, 15, 30);
+
     }
 }
