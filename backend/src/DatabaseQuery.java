@@ -6,12 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class DatabaseQuery {
-    public static DatabaseConnector dbCon = new DatabaseConnector("C:\\Users\\keval\\Documents\\Cambridge\\Part " +
-            "1B\\Group Project\\Juliet\\backend\\database.db");
-
     public static int countEntriesInTable(String table) {
         int entries = 0;
-        ResultSet rs = dbCon.executeQuery("SELECT * FROM " + table);
+        ResultSet rs = Add.dbCon.executeQuery("SELECT * FROM " + table);
         try {
             while(rs.next()) {
                 entries += 1;
@@ -27,7 +24,7 @@ public class DatabaseQuery {
         try {
             int numberUnepRepsBefore = countEntriesInTable("unep_reps");
             String sql = "INSERT INTO unep_reps(firstName, lastName, email) VALUES(?,?,?)";
-            Connection conn = dbCon.getConn();
+            Connection conn = Add.dbCon.getConn();
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, firstName);
             pstmt.setString(2, lastName);
@@ -47,7 +44,7 @@ public class DatabaseQuery {
         try {
             int entriesBefore = countEntriesInTable("unep_presences");
             String sql = "INSERT INTO unep_presences(name, loc_id, startTime, endTime) VALUES(?,?,?,?)";
-            Connection conn = dbCon.getConn();
+            Connection conn = Add.dbCon.getConn();
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, name);
             pstmt.setInt(2, loc_id);
@@ -65,7 +62,9 @@ public class DatabaseQuery {
     public static void updatedSuggestions(String table, int key) throws SQLException{
         Add.add(table, key);
     }
+
+
     public static void main(String[] args) throws SQLException {
-        updatedSuggestions("unep_presences", 2);
+        updatedSuggestions("trips", 4);
     }
 }

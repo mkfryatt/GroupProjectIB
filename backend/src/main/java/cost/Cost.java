@@ -94,13 +94,7 @@ public class Cost {
         double TimeDiffScore = 0.0;
         double FlightEmissionScore = 0.0;
 
-        if (emission > baselineEmission) {
-            // indicates that flying from Cambridge is better than flying from this match location.
-            return 0.0;
-        } else {
-            // TODO DECIDE ON FUNCTION FOR THIS
-            FlightEmissionScore += (-0.0002 * emission) + 1;
-        }
+        FlightEmissionScore += (-0.0002 * emission) + 1;
 
         if (timeDiff < 3) {
             TimeDiffScore += 1.0 - (timeDiff / 60.0);

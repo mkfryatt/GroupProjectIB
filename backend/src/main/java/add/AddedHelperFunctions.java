@@ -8,6 +8,8 @@ import java.sql.SQLException;
 
 public class AddedHelperFunctions {
 
+    public static Location unepCambridgeLocation = new Location(0, "UNEP Cambridge Office", 0.091957, 52.21987);
+
     public static Location getLocationById(int loc_id) throws SQLException {
         ResultSet rs = Add.dbCon.executeQuery("SELECT * FROM locations WHERE id = " + loc_id);
         Location location = null;
@@ -80,13 +82,22 @@ public class AddedHelperFunctions {
     static boolean insertSuggestion(int wish_id, String unep_presence_type, int unep_table_id, String org_presence_type, int org_table_id, Location startLocation, Location endLocation, int time_wasted) {
         final int timeLimit = Integer.MAX_VALUE;
         if (time_wasted >= timeLimit) return false;
-        double emissions = Cost.calculateFlightEmissions(startLocation, endLocation);
+        double suggestionEmissions = Cost.calculateFlightEmissions(startLocation, endLocation);
+        double fromCamEmissions = Cost.calculateFlightEmissions(unepCambridgeLocation, endLocation);
+        double emissionsDelta = fromCamEmissions - suggestionEmissions;
         double score = Cost.calculateCost(time_wasted, endLocation, startLocation);
-        String sql = "INSERT INTO suggestions (wish_id,emissions,time_wasted,score,"+unep_presence_type+"__dep_id";
+        if(score == 0) {
+            return false;
+        }
+        String sql =
+                "INSERT INTO suggestions (wish_id,emissions,emmission_delta,time_wasted,score,"+unep_presence_type+
+                "__dep_id";
         if(org_presence_type!=null)sql+=","+org_presence_type+"__dep_id";
-        sql+=String.format(") VALUES (%d,%f,%d,%f,%d",wish_id,emissions,time_wasted,score,unep_table_id);
+        sql+=String.format(") VALUES (%d,%f,%f, %d,%f,%d",wish_id,suggestionEmissions,emissionsDelta, time_wasted,score,
+                unep_table_id);
         if(org_presence_type!=null)sql+=String.format(",%d",org_table_id);
         sql+=")";
+        System.out.println(sql);
         Add.dbCon.executeStatement(sql);
         return true;
     }
