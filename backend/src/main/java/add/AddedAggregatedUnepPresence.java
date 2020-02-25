@@ -10,22 +10,22 @@ public class AddedAggregatedUnepPresence {
     public static int add(String table, int key) throws SQLException {
         int generatedSuggestions = 0;
         ResultSet rsUnepPres = Add.dbCon.executeQuery("SELECT * FROM aggregate_unep_presences WHERE table_id = " + key + " AND type = '" + table + "'");
+        int entriesRsUnepPres = AddedHelperFunctions.countResultSet(rsUnepPres);
         if (!rsUnepPres.next())
             throw new InternalError("key " + key + ": does not exist in specified table (" + table + ")");
         int UPloc_id = rsUnepPres.getInt("loc_id");
         Location UPlocation = AddedHelperFunctions.getLocationById(UPloc_id);
-        System.out.println("here");
         int UPstartTime = rsUnepPres.getInt("startTime");
         int UPendTime = rsUnepPres.getInt("endTime");
         if (rsUnepPres.next())
             throw new InternalError("key " + key + ": identifies multiple entries in specified table (" + table + ")");
 
-        System.out.println("first part getting uneppres info done");
-
         ResultSet wishes = Add.dbCon.executeQuery("SELECT * FROM wishes");
+        int wishEntries = AddedHelperFunctions.countResultSet(wishes);
         //For each wish:
         while (wishes.next()) {
             int id = wishes.getInt("id");
+            System.out.println(id);
             //Fetch the single (possible) location constraint associated with the query
             Location locationConstraint = null;
             {
