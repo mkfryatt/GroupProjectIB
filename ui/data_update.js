@@ -113,7 +113,6 @@ function callbackSubmitWish(result) {
 function deleteWish(id) {
   $("#confirm-removal").remove();
   deleteWishFromId(id, callbackDeleteWish);
-  
 }
 
 function callbackDeleteWish(result) {
@@ -126,14 +125,20 @@ function callbackDeleteWish(result) {
 }
 
 function submitAdmin() {
+  var unep_project = $("#unep-check").is(':checked');
+
   //get org constraints
   if ($("#org-admin").val()=="") {
-    $("#warning-admin").text("Please enter an organisation.");
+    if (unep_project) {
+      $("#warning-admin").text("Please enter a project name.");
+    } else {
+      $("#warning-admin").text("Please enter an organisation.");
+    }
     $("#warning-admin").show();
     return;
   }
   $("#warning-admin").hide();
-  var org = $("#org-admin").val();
+  var org_project = $("#org-admin").val();
 
   //get time constraints
   var start = Math.round(document.getElementById("start-date-admin").valueAsDate/1000);
@@ -156,7 +161,11 @@ function submitAdmin() {
   var lon = selectionAdmin.location.longitude;
 
   //tell backend
-  createNewTravel(city, country, lat, lon, start, end, email, org, callbackSubmitAdmin);
+  if (unep_project) {
+    //createNewPresence(city, country, lat, lon, start, end, email, org, callbackSubmitAdmin);
+  } else {
+    //createNewPresence(city, country, lat, lon, start, end, email, org, callbackSubmitAdmin);
+  }
 }
 
 function callbackSubmitAdmin(result) {
@@ -167,6 +176,26 @@ function callbackSubmitAdmin(result) {
     $("#warning-admin").hide();
     clearForm("admin");
     updateMap();
+  }
+}
+
+function acceptMatch(match_id, wish_id) {
+  $("#confirm-removal").remove();
+  //tell backend that match has been accepted
+  //delete match
+
+  //acceptMatch(match_id, wish_id, completeWish);
+}
+
+function callbackAcceptMatch(result) {
+  if (result.hasOwnProperty("error")) {
+    //TODO: error
+  } else {
+    updateMap();
+    $("#match-previews").hide();
+    $("#wish-"+id).remove();
+    $("#wish-previews").show();
+    //TODO: update carbon counter
   }
 }
 

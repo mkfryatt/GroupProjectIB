@@ -3,6 +3,14 @@ var email = "";
 function init() {
   showLogin();
 
+  $('input[id="unep-check"]').change(function(){
+    if($(this).is(':checked')) {
+      $("#org-admin").attr("placeholder", "Project Name");
+    } else {
+      $("#org-admin").attr("placeholder", "Organisation");
+    }
+  });
+
   document.getElementById("start-date-map").valueAsDate = new Date();
   var date = new Date();
   date.setMonth(1 + date.getMonth());
@@ -171,6 +179,11 @@ function showMatches(id) {
     list.append(createLI("City", "???", ""));
     list.append(createLI("Dates", "???", ""));
 
+    var btn = document.createElement("button");
+    btn.setAttribute("class", "btn btn-success");
+    btn.setAttribute("onclick", "acceptMatchConfirmation("+element.id+", " + id+")");
+    btn.innerText = "Accept";
+
     card.append(cardHeader);
     card.append(list);
     div.append(card);
@@ -335,6 +348,16 @@ function removeWishConfirmation(id) {
   $("#confirm-removal").show();
 }
 
+function acceptMatchConfirmation(match_id, wish_id) {
+  var dialog = createDialog("confirm-removal", 
+    "Accept Match", 
+    "Would you like to accept this match? It will also permenantly delete the corresponding wish.", 
+    "acceptMatch("+match_id+", "+wish_id+")");
+
+  $("body").append(dialog);
+  $("#confirm-removal").show();
+}
+
 function createDialog(dialogID, dialogTitle, dialogQuestion, dialogOK) {
   var div1 = document.createElement("div");
   div1.setAttribute("class", "modal");
@@ -370,10 +393,10 @@ function createDialog(dialogID, dialogTitle, dialogQuestion, dialogOK) {
   var divFooter = document.createElement("div");
   divFooter.setAttribute("class", "modal-footer");
 
-  var btnDelete = document.createElement("button");
-  btnDelete.setAttribute("class", "btn btn-primary");
-  btnDelete.setAttribute("onclick", dialogOK);
-  btnDelete.innerText = "Delete";
+  var btnOK = document.createElement("button");
+  btnOK.setAttribute("class", "btn btn-primary");
+  btnOK.setAttribute("onclick", dialogOK);
+  btnOK.innerText = "OK";
 
   var btnCancel = document.createElement("button");
   btnCancel.setAttribute("class", "btn btn-secondary");
@@ -386,7 +409,7 @@ function createDialog(dialogID, dialogTitle, dialogQuestion, dialogOK) {
 
   divBody.append(p);
 
-  divFooter.append(btnDelete);
+  divFooter.append(btnOK);
   divFooter.append(btnCancel);
 
   divContent.append(divHeader);
