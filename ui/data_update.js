@@ -104,24 +104,24 @@ function callbackSubmitWish(result) {
   } else {
     $("#warning-wish").hide();
     updateMap();
-    showMatchPreviews();
+    showWishes();
     clearForm("wish");
     openTab("wish");
   }
 }
 
-function deleteMatch(id) {
+function deleteWish(id) {
   $("#confirm-removal").remove();
-  deleteWishFromId(id, callbackDeleteMatch);
+  deleteWishFromId(id, callbackDeleteWish);
   
 }
 
-function callbackDeleteMatch(result) {
+function callbackDeleteWish(result) {
   if (result.hasOwnProperty("error")) {
     //TODO: show error? or is the fact it wasn't deleted enough?
   } else {
     updateMap();
-    $("#card-"+id).remove();
+    $("#wish-"+id).remove();
   }
 }
 

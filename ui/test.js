@@ -73,20 +73,26 @@ function tryLogin() {
     email = $("#email").val();
     $("#login").remove();
 
-    showDefaultTravel();
-    showMatchPreviews();
+    getAllTravelFromUser(email, showDefaultTravel);
+    getAllWishesFromUser(email, showWishes);
     initMap();
   }
 }
 
-function showMatchPreviews() {
-  var matches = getMatchPreviews();
+function showWishes(wishes) {
+  if (wishes.hasOwnProperty("error")) {
+    //getAllWishesFromUser(email, showWishes);
+    return;
+  }
 
-  matches.forEach(element => {
+  wishes.forEach(element => {
+
+    //TODO: get number of matches for that wish
+    var num_matches = 0;
 
     var div = document.createElement("div");
     div.setAttribute("class", "col-sm-1");
-    div.setAttribute("id", "card-"+ element.id);
+    div.setAttribute("id", "wish-"+ element.id);
 
     var card = document.createElement("div");
     card.setAttribute("class", "card");
@@ -96,7 +102,7 @@ function showMatchPreviews() {
 
     var cardTitle = document.createElement("h5");
     cardTitle.setAttribute("class", "card-title");
-    cardTitle.innerHTML = "<span class=\"badge badge-success\">" + element.matches + "</span>";
+    cardTitle.innerHTML = "<span class=\"badge badge-success\">" + num_matches + "</span>";
     
     var cardText = document.createElement("p");
     cardText.setAttribute("class", "card-text");
@@ -107,12 +113,12 @@ function showMatchPreviews() {
 
     var view = document.createElement("button");
     view.innerHTML = "View";
-    view.setAttribute("onclick", "showMatch(" + element.id + ")");
+    view.setAttribute("onclick", "showMatches(" + element.id + ")");
     view.setAttribute("class", "btn btn-success");
 
     var remove = document.createElement("button");
     remove.innerHTML = "Remove";
-    remove.setAttribute("onclick", "removeMatchConfirmation(" + element.id + ")");
+    remove.setAttribute("onclick", "removeWishConfirmation(" + element.id + ")");
     remove.setAttribute("class", "btn btn-danger");
 
     cardBody.append(cardTitle);
@@ -122,29 +128,29 @@ function showMatchPreviews() {
     cardBody.append(btns);
     card.append(cardBody);
     div.append(card);
-    $("#match-previews").append(div);
+    $("#wish-previews").append(div);
 
   });
 
-  $("#match-title").text("View all matches");
-  $("#match-view").hide();
+  $("#match-title").text("View all wishes");
+  $("#match-previews").hide();
   $("#match-back-btn").hide();
-  $("#match-previews").show();
+  $("#wish-previews").show();
 }
 
-function hideMatch() {
-  $("#match-view").empty();
-  $("#match-back-btn").hide();
-  $("#match-view").hide();
-  $("#match-title").text("View all matches");
-  $("#match-previews").show();
+function hideMatches() {
+  $("#match-previews").empty();
+  $("#matches-back-btn").hide();
+  $("#match-previews").hide();
+  $("#match-title").text("View all wish");
+  $("#wish-previews").show();
 }
 
-function showMatch(id) {
+function showMatches(id) {
   var matches = getMatchDetails(id);
 
-  $("#match-title").text("View choices for match");
-  $("#match-back-btn").show();
+  $("#match-title").text("View all matches for your wish");
+  $("#matches-back-btn").show();
 
   matches.forEach(element => {
 
@@ -169,11 +175,11 @@ function showMatch(id) {
     card.append(list);
     div.append(card);
 
-    $("#match-view").append(div);
+    $("#match-previews").append(div);
   });
 
-  $("#match-previews").hide();
-  $("#match-view").show();
+  $("#wish-previews").hide();
+  $("#match-previews").show();
 }
 
 function showCarbonDetails() {
@@ -223,9 +229,8 @@ function showCarbonDetails() {
   $("#carbon-details").show();
 }
 
-function showDefaultTravel() {
+function showDefaultTravel(travels) {
   $("#travel-default").empty();
-  var travels = getAllTravel();
 
   var btnAdd = document.createElement("button");
   btnAdd.setAttribute("class", "btn btn-success");
@@ -320,11 +325,11 @@ function removeTravelConfirmation(id) {
   $("#confirm-removal").show();
 }
 
-function removeMatchConfirmation(id) {
+function removeWishConfirmation(id) {
   var dialog = createDialog("confirm-removal", 
     "Remove Wish", 
     "Would you like to permanently delete this wish?", 
-    "deleteMatch("+id+")");
+    "deleteWish("+id+")");
 
   $("body").append(dialog);
   $("#confirm-removal").show();
