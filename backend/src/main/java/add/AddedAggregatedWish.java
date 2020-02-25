@@ -2,6 +2,8 @@ package main.java.add;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import com.sun.net.httpserver.Authenticator;
 import main.java.cost.Cost;
 import main.java.data.Location;
 
@@ -26,15 +28,13 @@ public class AddedAggregatedWish {
 
 
     // 3: 1 or more org constraints, 1 location constraint
-    public static void add(String table, int key) throws SQLException {
-        ResultSet rsWish =
-                Add.dbCon.executeQuery("SELECT * FROM wishes WHERE wish_id = " + key + " AND type = '" + table + "'");
-        if (!rsWish.next()) {
-            throw new InternalError("key " + key + ": does not exists in specified table (" + table + ")");
+    public static void add(int wishId) throws SQLException {
+
+        ResultSet rsWish = Add.dbCon.executeQuery("SELECT * FROM wishes WHERE id = " + wishId);
+        if(!rsWish.next()) {
+            throw new InternalError("key " + wishId + ": does not exists in wishes");
         }
-        int wishId = rsWish.getInt("wish_id");
-        ResultSet timeConstraints = Add.dbCon.executeQuery("SELECT * FROM wish_constraints WHERE type = 'TIME' AND " +
-                "wish_id = " + wishId);
+        ResultSet timeConstraints = Add.dbCon.executeQuery("SELECT * FROM wish_constraints WHERE type = 'TIME' AND " + "wish_id = " + wishId);
 
         // get the 0 or 1 location constraints
         Location locationConstraint = null;
@@ -50,7 +50,8 @@ public class AddedAggregatedWish {
             }
         }
 
-        ResultSet orgConstraints = Add.dbCon.executeQuery("SELECT * FROM wish_constraints WHERE type = 'LOCATION' AND" +
+        ResultSet orgConstraints = Add.dbCon.executeQuery("SELECT * FROM wish_constraints WHERE type = 'ORGANISATION'" +
+                " AND" +
                 " wish_id = " + wishId);
 
         if (orgConstraints.next()) {
@@ -63,38 +64,35 @@ public class AddedAggregatedWish {
                 sqlMatchingOrgPresences += " AND loc_id = " + locationConstraint.getId();
             }
 
+
             ResultSet matchingOrgPresence = Add.dbCon.executeQuery(sqlMatchingOrgPresences);
 
             // if type = trip, then unep already there, so location is the same
             while (matchingOrgPresence.next()) {
-                String type = matchingOrgPresence.getString("type");
+                String orgType = matchingOrgPresence.getString("type");
+                int orgTypeId = matchingOrgPresence.getInt("table_id");
                 int matchingOrgStartTime = matchingOrgPresence.getInt("startTime");
                 int matchingOrgEndTime = matchingOrgPresence.getInt("endTime");
-                Location matchingOrgLocation = AddedHelperFunctions.getLocationById(matchingOrgPresence.getInt(
-                        "loc_id"));
-                if (type.equals("trip_org_presences")) {
-                    int timeDiff = AddedHelperFunctions.smallestTimeDelta(timeConstraints,
-                            matchingOrgStartTime, matchingOrgEndTime);
-                    double cost = Cost
-                        .calculateCost(timeDiff, matchingOrgLocation, matchingOrgLocation);
-                    // TODO add suggestiton to db if cost is high enough
-                } else {
-                    // type = "presence" which means HQ
-                    ResultSet rsUnepPres = Add.dbCon.executeQuery("SELECT * FROM aggregate_unep_presences");
-                    while (rsUnepPres.next()) {
-                        int UnepPresStartTime = rsUnepPres.getInt("startTime");
-                        int UnepPresEndTime = rsUnepPres.getInt("endTime");
-                        int timeDiff = AddedHelperFunctions.smallestTimeDeltaFiltered(
-                                timeConstraints,
-                                matchingOrgStartTime,
-                                matchingOrgEndTime,
-                                UnepPresStartTime,
-                                UnepPresEndTime
-                        );
-                        Location UnepPresLoc = AddedHelperFunctions.getLocationById(rsUnepPres.getInt("loc_id"));
-                        double cost = Cost.calculateCost(timeDiff, matchingOrgLocation, UnepPresLoc);
-                        // TODO add suggestion to db if cost is high enough
-                    }
+                int orgLocId = matchingOrgPresence.getInt("loc_id");
+                Location orgLocation = AddedHelperFunctions.getLocationById(orgLocId);
+                ResultSet rsUnepPres = Add.dbCon.executeQuery("SELECT * FROM aggregate_unep_presences");
+                while (rsUnepPres.next()) {
+                    int UnepPresStartTime = rsUnepPres.getInt("startTime");
+                    int UnepPresEndTime = rsUnepPres.getInt("endTime");
+                    String unepPresType = rsUnepPres.getString("type");
+                    int unepPresTypeId = rsUnepPres.getInt("table_id");
+                    int time_wasted = AddedHelperFunctions.smallestTimeDeltaFiltered(
+                            timeConstraints,
+                            matchingOrgStartTime,
+                            matchingOrgEndTime,
+                            UnepPresStartTime,
+                            UnepPresEndTime
+                    );
+                    Location matchLocation = AddedHelperFunctions.getLocationById(rsUnepPres.getInt("loc_id"));
+                    AddedHelperFunctions.insertWishSuggestion(
+                            wishId, unepPresType, unepPresTypeId, orgType, orgTypeId, orgLocation, matchLocation
+                            , time_wasted
+                    );
                 }
             }
 
@@ -108,15 +106,16 @@ public class AddedAggregatedWish {
             // Go through each unep_presence, calculate cost of unep_loc and wish_loc
             while (unepPres.next()) {
                 int unepPresLoc = unepPres.getInt("loc_id");
+                String unepPresenceType = unepPres.getString("type");
+                Location matchLocation = AddedHelperFunctions.getLocationById(unepPresLoc);
                 int unepPresStartTime = unepPres.getInt("startTime");
                 int unepPresEndTime = unepPres.getInt("endTime");
-                double cost = Cost.calculateCost(
-                        AddedHelperFunctions.smallestTimeDelta(timeConstraints, unepPresStartTime,
-                                unepPresEndTime),
-                        locationConstraint,
-                        AddedHelperFunctions.getLocationById(unepPresLoc)
+                int unepPresId = unepPres.getInt("table_id");
+                int time_wasted = AddedHelperFunctions.smallestTimeDelta(timeConstraints, unepPresStartTime,
+                        unepPresEndTime);
+                AddedHelperFunctions.insertWishSuggestion(
+                        wishId, unepPresenceType, unepPresId, null,0,locationConstraint, matchLocation, time_wasted
                 );
-                // TODO: check if match is reasonable and then add suggestion to db
             }
         }
     }

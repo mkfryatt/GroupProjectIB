@@ -65,6 +65,6 @@ public class DatabaseQuery {
 
 
     public static void main(String[] args) throws SQLException {
-        updatedSuggestions("trips", 4);
+        updatedSuggestions("wishes", 3);
     }
 }

@@ -21,8 +21,8 @@ public class Add {
                 // TODO add all cases that end up in here
                 AddedAggregatedOrgPresence.add(table, key);
                 break;
-            case "Wish":
-                AddedAggregatedWish.add(table, key);
+            case "wishes":
+                AddedAggregatedWish.add(key);
                 break;
 
         }

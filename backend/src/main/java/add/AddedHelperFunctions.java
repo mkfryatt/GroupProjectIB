@@ -102,7 +102,55 @@ public class AddedHelperFunctions {
         return true;
     }
 
+    static boolean insertWishSuggestion(int wish_id, String unepPresType, int unepPresId, String orgPresType,
+                                        int orgPresId, Location wish, Location match, int time_wasted) {
+        final int timeLimit = Integer.MAX_VALUE;
+        if (time_wasted >= timeLimit) return false;
+        double suggestionEmissions = Cost.calculateFlightEmissions(match, wish);
+        double fromCamEmissions = Cost.calculateFlightEmissions(unepCambridgeLocation, wish);
+        double emissionsDelta = fromCamEmissions - suggestionEmissions;
+        double score = Cost.calculateCost(time_wasted, wish, match);
+        if(score == 0) {
+            return false;
+        }
+        String sql;
+        if(unepPresType != null) {
+            String unepPresTypeId = unepPresType + "__dep_id";
+            if(orgPresType != null) {
+                String orgPresTypeId = orgPresType + "__dep_id";
+                // unep and org constraint
+                sql =
+                        "INSERT into suggestions (wish_id, emissions, emmission_delta, time_wasted, score, " + unepPresTypeId + ", " + orgPresTypeId + ")";
+                sql += String.format(" VALUES(%d, %f, %f, %d, %f, %d, %d", wish_id, suggestionEmissions,
+                        emissionsDelta, time_wasted, score, unepPresId, orgPresId);
+            } else {
+                // unep constraint
+                sql =
+                        "INSERT into suggestions (wish_id, emissions, emmission_delta, time_wasted, score, " + unepPresTypeId + ")";
+                sql += String.format(" VALUES(%d, %f, %f, %d, %f, %d", wish_id, suggestionEmissions,
+                        emissionsDelta, time_wasted, score, unepPresId);
+            }
+        } else {
+            // no unepPresType
+            if(orgPresType != null) {
+                // org constraint
+                String orgPresTypeId = orgPresType + "__dep_id";
+                sql =
+                        "INSERT into suggestions (wish_id, emissions, emmission_delta, time_wasted, score, " + orgPresTypeId + ")";
+                sql += String.format(" VALUES(%d, %f, %f, %d, %f, %d", wish_id, suggestionEmissions,
+                        emissionsDelta, time_wasted, score, orgPresId);
+            } else {
+                return false;
+            }
+        }
+        sql += ")";
+        System.out.println(sql);
+        Add.dbCon.executeStatement(sql);
+        return true;
+    }
     public static void main(String[] args) throws SQLException{
-
+        ResultSet timeConstraints = Add.dbCon.executeQuery("SELECT * FROM wish_constraints WHERE type = 'TIME' AND " +
+                "wish_id = 3");
+        int time_wasted = smallestTimeDeltaFiltered(timeConstraints, 20, 30, 15, 30);
     }
 }
