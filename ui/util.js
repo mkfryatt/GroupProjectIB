@@ -93,16 +93,6 @@ function getAllTravelFromUser(email, callbackFunction) {
     sendXmlHttpRequest(request,callbackFunction);
 }
 
-function getAllTravelFromUser(email, callbackFunction) {
-    let request = {
-        method: 'getAllTravelFromUser',
-        params: {
-            email: email
-        }
-    };
-    sendXmlHttpRequest(request,callbackFunction);
-}
-
 function getAllWishesFromUser(email, callbackFunction) {
     let request = {
         method: 'getAllWishesFromUser',
