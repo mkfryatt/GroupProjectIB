@@ -10,7 +10,6 @@ public class AddedAggregatedUnepPresence {
     public static int add(String table, int key) throws SQLException {
         int generatedSuggestions = 0;
         ResultSet rsUnepPres = Add.dbCon.executeQuery("SELECT * FROM aggregate_unep_presences WHERE table_id = " + key + " AND type = '" + table + "'");
-        int entriesRsUnepPres = AddedHelperFunctions.countResultSet(rsUnepPres);
         if (!rsUnepPres.next())
             throw new InternalError("key " + key + ": does not exist in specified table (" + table + ")");
         int UPloc_id = rsUnepPres.getInt("loc_id");
@@ -21,7 +20,6 @@ public class AddedAggregatedUnepPresence {
             throw new InternalError("key " + key + ": identifies multiple entries in specified table (" + table + ")");
 
         ResultSet wishes = Add.dbCon.executeQuery("SELECT * FROM wishes");
-        int wishEntries = AddedHelperFunctions.countResultSet(wishes);
         //For each wish:
         while (wishes.next()) {
             int id = wishes.getInt("id");
@@ -42,7 +40,8 @@ public class AddedAggregatedUnepPresence {
             ResultSet orgConstraints = Add.dbCon.executeQuery("SELECT * FROM wish_constraints WHERE type = 'ORGANISATION' AND wish_id = " + id);
             if (orgConstraints.next()) {
                 //Yes, it does.
-                String sqlMatchingOrgPresences = "SELECT * FROM aggregate_org_presences WHERE id IN (SELECT DISTINCT org_id FROM wish_constraints WHERE type = 'ORGANISATION' AND wish_id =" + id + ") ";
+                String sqlMatchingOrgPresences = "SELECT * FROM aggregate_org_presences WHERE id IN (SELECT DISTINCT" +
+                        " org_id FROM wish_constraints WHERE type = 'ORGANISATION' AND wish_id =" + id + ") ";
                 //There might also be a location constraint in this wish: if so, we should consider it.
                 if (locationConstraint != null)
                     sqlMatchingOrgPresences += " AND loc_id = " + locationConstraint.getId();
