@@ -1,9 +1,3 @@
-function deleteMatch(id) {
-  $("#confirm-removal").remove();
-  deleteWishFromId(id, updateMap);
-  $("#card-"+id).remove();
-}
-
 function submitTravelEdit(id) {
   deleteTravel(id);
   submitTravelNew();
@@ -36,19 +30,34 @@ function submitTravelNew() {
 
   //tell backend
   createNewTravel(city, country, lat, lon, start, end, email, org, updateMap);
-  clearForm("travel");
+}
 
-  // switch back to view of all travel
-  $("#travel-default").empty();
-  showDefaultTravel();
-  $("#travel-default").show();
-  $("#travel-add").hide();
+function callbackSubmitTravel(result) {
+  if (result.hasOwnProperty("error")) {
+    $("#warning-travel").text("Error: " + result.error);
+    $("#warning-travel").show();
+  } else {
+    clearForm("travel");
+    $("#warning-travel").hide();
+    updateMap();
+    showDefaultTravel();
+    $("#travel-default").hide();
+    $("#travel-add").show()
+  }
 }
 
 function deleteTravel(id) {
   $("#confirm-removal").remove();
-  deleteTravelFromId(id, updateMap);
-  $("#travel-"+id).remove();
+  deleteTravelFromId(id, callbackDeleteTravel);
+}
+
+function callbackDeleteTravel(result) {
+  if (result.hasOwnProperty("error")) {
+    //TODO: show error? or is the fact it wasn't deleted enough?
+  } else {
+    updateMap();
+    $("#travel-"+id).remove();
+  }
 }
 
 function submitWish() {
@@ -77,7 +86,6 @@ function submitWish() {
     $("#warning-wish").show();
     return;
   }
-  $("#warning-wish").hide();
   var lat, lon, city, country, loc;
   city = $("#searchbox-wish").val().split(",")[0];
   country = $("#searchbox-wish").val().split(" ")[1];
@@ -86,8 +94,35 @@ function submitWish() {
   loc = [{city: city, country: country, lat: lat, lon:lon}];
 
   //tell backend
-  createNewWish(email, time, org, loc, updateMap);
-  clearForm("wish");
+  createNewWish(email, time, org, loc, callbackSubmitWish);
+}
+
+function callbackSubmitWish(result) {
+  if (result.hasOwnProperty("error")) {
+    $("#warning-wish").text("Error: " + result.error);
+    $("#warning-wish").show();
+  } else {
+    $("#warning-wish").hide();
+    updateMap();
+    showMatchPreviews();
+    clearForm("wish");
+    openTab("wish");
+  }
+}
+
+function deleteMatch(id) {
+  $("#confirm-removal").remove();
+  deleteWishFromId(id, callbackDeleteMatch);
+  
+}
+
+function callbackDeleteMatch(result) {
+  if (result.hasOwnProperty("error")) {
+    //TODO: show error? or is the fact it wasn't deleted enough?
+  } else {
+    updateMap();
+    $("#card-"+id).remove();
+  }
 }
 
 function submitAdmin() {
@@ -132,7 +167,6 @@ function callbackSubmitAdmin(result) {
     $("#warning-admin").hide();
     clearForm("admin");
     updateMap();
-    //TODO other updates
   }
 }
 
