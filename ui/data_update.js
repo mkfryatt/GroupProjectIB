@@ -1,6 +1,6 @@
 function deleteMatch(id) {
   $("#confirm-removal").remove();
-  //TODO tell backend to delete it
+  deleteWishFromId(id, updateMap);
   $("#card-"+id).remove();
 }
 
@@ -13,7 +13,7 @@ function submitTravelNew() {
   //get org constraints
   var org = $("#org-travel").val();
 
-  //get time sonstraints
+  //get time constraints
   var start = Math.round(document.getElementById("start-date-travel").valueAsDate/1000);
   var end = Math.round(document.getElementById("end-date-travel").valueAsDate/1000);
   if (end==0 || start==0 || end < start) {
@@ -35,8 +35,7 @@ function submitTravelNew() {
   var lon = selectionTravel.location.longitude;
 
   //tell backend
-  //TODO tell them email + org
-  createNewTravel(city, country, lat, lon, start, end, updateMap);
+  createNewTravel(city, country, lat, lon, start, end, email, org, updateMap);
   clearForm("travel");
 
   // switch back to view of all travel
@@ -48,7 +47,6 @@ function submitTravelNew() {
 
 function deleteTravel(id) {
   $("#confirm-removal").remove();
-  //TODO change callback
   deleteTravelFromId(id, updateMap);
   $("#travel-"+id).remove();
 }
@@ -62,7 +60,7 @@ function submitWish() {
     org = [{org_name:$("#org-wish").val()}];
   }
 
-  //get time sonstraints
+  //get time constraints
   var start, end, time;
   start = Math.round(document.getElementById("start-date-wish").valueAsDate/1000);
   end = Math.round(document.getElementById("end-date-wish").valueAsDate/1000);
@@ -102,7 +100,7 @@ function submitAdmin() {
   $("#warning-admin").hide();
   var org = $("#org-admin").val();
 
-  //get time sonstraints
+  //get time constraints
   var start = Math.round(document.getElementById("start-date-admin").valueAsDate/1000);
   var end = Math.round(document.getElementById("end-date-admin").valueAsDate/1000);
   if (end==0 || start==0 || end < start) {
@@ -117,17 +115,25 @@ function submitAdmin() {
     $("#warning-admin").show();
     return;
   }
-  $("#warning-admin").hide();
   var city = $("#searchbox-admin").val().split(",")[0];
   var country = $("#searchbox-admin").val().split(" ")[1];
   var lat = selectionAdmin.location.latitude;
   var lon = selectionAdmin.location.longitude;
 
   //tell backend
-  //TODO change this function
-  createNewTravel(city, country, lat, lon, start, end, updateMap);
+  createNewTravel(city, country, lat, lon, start, end, email, org, callbackSubmitAdmin);
+}
 
-  clearForm("admin");
+function callbackSubmitAdmin(result) {
+  if (result.hasOwnProperty("error")) {
+    $("#warning-admin").text("Error: " + result.error);
+    $("#warning-admin").show();
+  } else {
+    $("#warning-admin").hide();
+    clearForm("admin");
+    updateMap();
+    //TODO other updates
+  }
 }
 
 function clearForm(type) {
