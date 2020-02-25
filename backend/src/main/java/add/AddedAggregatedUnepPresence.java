@@ -14,10 +14,14 @@ public class AddedAggregatedUnepPresence {
             throw new InternalError("key " + key + ": does not exist in specified table (" + table + ")");
         int UPloc_id = rsUnepPres.getInt("loc_id");
         Location UPlocation = AddedHelperFunctions.getLocationById(UPloc_id);
+        System.out.println("here");
         int UPstartTime = rsUnepPres.getInt("startTime");
         int UPendTime = rsUnepPres.getInt("endTime");
         if (rsUnepPres.next())
             throw new InternalError("key " + key + ": identifies multiple entries in specified table (" + table + ")");
+
+        System.out.println("first part getting uneppres info done");
+
         ResultSet wishes = Add.dbCon.executeQuery("SELECT * FROM wishes");
         //For each wish:
         while (wishes.next()) {

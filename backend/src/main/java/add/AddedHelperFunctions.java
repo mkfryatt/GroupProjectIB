@@ -10,9 +10,26 @@ public class AddedHelperFunctions {
 
     public static Location getLocationById(int loc_id) throws SQLException {
         ResultSet rs = Add.dbCon.executeQuery("SELECT * FROM locations WHERE id = " + loc_id);
-        if (!rs.next()) throw new InternalError("key " + loc_id + ": no such location");
-        if (rs.next()) throw new InternalError("key " + loc_id + ": identifies multiple locations");
-        return new Location(loc_id, rs.getString("name"), rs.getDouble("lon"), rs.getDouble("lat"));
+        Location location = null;
+        if(rs.next()) {
+            location = new Location(loc_id, rs.getString("city"), rs.getDouble("lon"), rs.getDouble("lat"));
+        }
+        if(rs.next()) {
+            throw new InternalError("key " + loc_id + " gives incorrect number of arguments");
+        }
+        return location;
+    }
+
+    public static int countResultSet(ResultSet rs) {
+        int entries = 0;
+        try {
+            while(rs.next()) {
+                entries += 1;
+            }
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+         return entries;
     }
 
     public static int intervalTimeDelta(int startTimeA, int endTimeA, int startTimeB, int endTimeB) {
@@ -75,5 +92,9 @@ public class AddedHelperFunctions {
                     , wish_id, unep_presence_type, unep_table_id, org_presence_type, org_table_id, emissions, time_wasted, score));
         }
         return true;
+    }
+
+    public static void main(String[] args) throws SQLException{
+
     }
 }
