@@ -16,6 +16,8 @@ var presenceIcon = L.icon({
 	iconAnchor: [16,32],
 });
 
+var selectionWish, selectionAdmin, selectionTravel;
+
 
 var map;
 
@@ -82,7 +84,8 @@ function loadMapScenarioAdmin() {
 		manager.attachAutosuggest('#searchbox-admin', '#searchbox-container-admin', passLatLong);
 	}
 	function passLatLong(selection) {
-	  console.log(selection.address.locality)
+	  console.log(selection.address.locality);
+	  selectionAdmin = selection;
 	}     
 }
 
@@ -96,7 +99,8 @@ function loadMapScenarioWish() {
       manager.attachAutosuggest('#searchbox-wish', '#searchbox-container-wish', passLatLong);
   }
   function passLatLong(selection) {
-    console.log(selection.address.locality)
+	console.log(selection.address.locality);
+	selectionWish = selection;
   }     
 }
 
@@ -110,7 +114,8 @@ function loadMapScenarioTravel() {
       manager.attachAutosuggest('#searchbox-travel', '#searchbox-container-travel', passLatLong);
   }
   function passLatLong(selection) {
-    console.log(selection.address.locality)
+	console.log(selection.address.locality);
+	selectionTravel = selection;
     /* City = selection.address.locality - UNDEFINED for country/continent/Seas
     /*City/Location = selection.formattedSuggestion
     Lat = selection.location.latitude

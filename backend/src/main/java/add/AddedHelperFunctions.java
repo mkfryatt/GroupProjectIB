@@ -82,15 +82,12 @@ public class AddedHelperFunctions {
         if (time_wasted >= timeLimit) return false;
         double emissions = Cost.calculateFlightEmissions(startLocation, endLocation);
         double score = Cost.calculateCost(time_wasted, endLocation, startLocation);
-        if (org_presence_type == null) {
-            Add.dbCon.executeStatement(String.format(
-                    "INSERT INTO suggestions (wish_id,unep_presence_type,unep_table_id,emissions,time_wasted,score) VALUES (%d,%s,%d,%f,%d,%f) "
-                    , wish_id, unep_presence_type, unep_table_id, emissions, time_wasted, score));
-        } else {
-            Add.dbCon.executeStatement(String.format(
-                    "INSERT INTO suggestions (wish_id,unep_presence_type,unep_table_id,org_presence_type,org_table_id,emissions,time_wasted,score) VALUES (%d,%s,%d,%s,%d,%f,%d,%f) "
-                    , wish_id, unep_presence_type, unep_table_id, org_presence_type, org_table_id, emissions, time_wasted, score));
-        }
+        String sql = "INSERT INTO suggestions (wish_id,emissions,time_wasted,score,"+unep_presence_type+"__dep_id";
+        if(org_presence_type!=null)sql+=","+org_presence_type+"__dep_id";
+        sql+=String.format(") VALUES (%d,%f,%d,%f,%d",wish_id,emissions,time_wasted,score,unep_table_id);
+        if(org_presence_type!=null)sql+=String.format(",%d",org_table_id);
+        sql+=")";
+        Add.dbCon.executeStatement(sql);
         return true;
     }
 
