@@ -64,7 +64,9 @@ public class DatabaseQuery {
     }
 
 
+
+
     public static void main(String[] args) throws SQLException {
-        updatedSuggestions("wishes", 3);
+        updatedSuggestions("unep_presences", 3);
     }
 }
