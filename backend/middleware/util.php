@@ -621,7 +621,15 @@ function getEmissionsSavedFromUser($params){
     $stmt->bindValue(1,$params->email,SQLITE3_TEXT);
     $row = $stmt->execute()->fetchArray();
 
-    return (object)$row;
+    $result = array();
+
+    if(is_null($row['SUM(emission_delta)'])){
+        $result['emissionsSaved'] = 0.0;
+    } else {
+        $result['emissionsSaved'] = $row['SUM(emission_delta)'];
+    }
+
+    return (object)$result;
 
 }
 
