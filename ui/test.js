@@ -127,11 +127,13 @@ function makeWishes(wishes) {
     
     var cardText = document.createElement("p");
     cardText.setAttribute("class", "card-text");
-    element.constraints.organisations.forEach(org => {
-      cardText.innerText += org.name;
-      console.log(org.name);
-    });
-
+    if (element.constraints.hasOwnProperty("organisations")) {
+      element.constraints.organisations.forEach(org => cardText.innerText += org.name);
+    } else {
+      //TODO: check what format loc is in
+      element.constraints.locations.forEach(loc => cardText.innerText += loc.name);
+    }
+    
     var btns = document.createElement("div");
     btns.setAttribute("class", "btn-group");
 
@@ -173,6 +175,7 @@ function showMatches(matches) {
     return;
   }
 
+  $("#match-previews").empty();
   $("#match-title").text("View all matches for your wish");
   $("#matches-back-btn").show();
 
@@ -193,9 +196,9 @@ function showMatches(matches) {
     
     var list = document.createElement("ul");
     list.setAttribute("class", "list-group list-group-flush");
+    list.append(createLI("Emissions", Math.round(element.emissions)));
 
     if (element.hasOwnProperty("unepPresenceId")) {
-      list.append(createLI("Emissions", element.emissions));
       list.append(createLI("Presence", element.unepPresenceName));
       list.append(createLI("Location", element.city + ", " + element.country));
     } else {
@@ -203,7 +206,6 @@ function showMatches(matches) {
       var start = (new Date(element.unepTripStart * 1000)).toLocaleDateString('en-GB', options);
       var end = (new Date(element.unepTripEnd * 1000)).toLocaleDateString('en-GB', options);
 
-      list.append(createLI("Emissions", element.emissions));
       list.append(createLI("Organisation", element.tripOrgName));
       list.append(createLI("Location", element.city + ", " + element.country));
       list.append(createLI("Dates", start + " - " + end));
@@ -286,7 +288,8 @@ function showDefaultTravel() {
 }
 
 function makeDefaultTravel(travels) {
-  console.log("Travels: \n"+ JSON.stringify(travels))
+  console.log(travels);
+  console.log("Travels: \n"+ JSON.stringify(travels));
   $("#travel-default").empty();
 
   var btnAdd = document.createElement("button");
@@ -316,7 +319,7 @@ function makeDefaultTravel(travels) {
 
     var btnEdit = document.createElement("button");
     btnEdit.setAttribute("class", "btn btn-primary");
-    btnEdit.setAttribute("onclick", "getTravelFromID("+element.id+", showEditTravel)");
+    btnEdit.setAttribute("onclick", "getTravelFromId("+element.id+", showEditTravel)");
     btnEdit.innerText = "Edit";
 
     var btnRemove = document.createElement("button");
@@ -328,8 +331,7 @@ function makeDefaultTravel(travels) {
     var start = (new Date(element.startTime * 1000)).toLocaleDateString('en-GB', options);
     var end = (new Date(element.endTime * 1000)).toLocaleDateString('en-GB', options);
 
-    list.append(createLI("City", element.city));
-    list.append(createLI("Country", element.country));
+    list.append(createLI("Location", element.city + ", " + element.country));
     list.append(createLI("Start", start));
     list.append(createLI("End", end));
 
@@ -352,6 +354,7 @@ function showAddTravel() {
 }
 
 function showEditTravel(travel) {
+  console.log("Travel: " + JSON.stringify(travel));
   $("#travel-default").hide();
   $("#travel-add").show();
 
@@ -362,7 +365,7 @@ function showEditTravel(travel) {
   }
 
   var dateAttrs = ["start", "end"];
-  var dateVals = [new Date(element.startTime * 1000), new Date(element.endTime * 1000)];
+  var dateVals = [new Date(travel.startTime * 1000), new Date(travel.endTime * 1000)];
   for (var i=0; i<2; i++) {
     $("#"+dateAttrs[i]+"-date-travel").val(dateVals[i]);
   }

@@ -41,7 +41,7 @@ function callbackSubmitTravel(result) {
     clearForm("travel");
     $("#warning-travel").hide();
     updateMap();
-    makeDefaultTravel();
+    getAllTravelFromUser(email, makeDefaultTravel);
   }
 }
 
@@ -65,7 +65,7 @@ function submitWish() {
   if ($("#org-wish").val()=="") {
     org = [];
   } else {
-    org = [{"org_name":$("#org-wish").val()}];
+    org = [{org_name:$("#org-wish").val()}];
   }
 
   //get time constraints
@@ -77,7 +77,7 @@ function submitWish() {
     $("#warning-wish").show();
     return;
   }
-  time = [{"startDate": start, "endDate": end}];
+  time = [{startDate: start, endDate: end}];
 
   //get position constraints
   if (selectionWish==null || $("#searchbox-wish").val()=="") {
@@ -90,7 +90,7 @@ function submitWish() {
   var country = selectionWish.address.countryRegion;
   lat = selectionWish.location.latitude;
   lon = selectionWish.location.longitude;
-  loc = [{"city": city, "country": country, "lat": lat, "lon":lon}];
+  loc = [{city: city, country: country, lat: lat, lon: lon}];
 
   //tell backend
   createNewWish(email, time, org, loc, callbackSubmitWish);
@@ -104,7 +104,7 @@ function callbackSubmitWish(result) {
   } else {
     $("#warning-wish").hide();
     updateMap();
-    makeWishes();
+    getAllWishesFromUser(email, makeWishes);
     clearForm("wish");
     openTab("wish");
   }
