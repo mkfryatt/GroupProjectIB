@@ -6,7 +6,7 @@
     <title>Interaction Test 2</title>
     <script type="text/javascript">
         function loadContent(){
-            getEmissionsSavedFromUser('banana@unep.com', function (result) {
+            createNewUnepPresence("testName", "Beijing", "China", 39.9075, 116.39726, 1, 42, function (result) {
                 document.getElementById('target').innerHTML+=JSON.stringify(result);
             })
         }
