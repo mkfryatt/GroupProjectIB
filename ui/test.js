@@ -90,6 +90,8 @@ function tryLogin() {
     $("#matches-back-btn").hide();
     $("#wish-previews").show();
 
+    getEmissionsSavedFromUser(email, updateCarbonCounter);
+
     initMap();
   }
 }
@@ -103,7 +105,6 @@ function makeWishes(wishes) {
 
   $("#wish-previews").empty();
   $("#match-title").text("View all wishes");
-  $("#matches-back-btn").hide();
 
   //TODO: check args for this function, currently needs id
   //wishesMapUpdate(id);
@@ -222,6 +223,11 @@ function showMatches(matches) {
 
   $("#wish-previews").hide();
   $("#match-previews").show();
+}
+
+function updateCarbonCounter(carbon) {
+  console.log("carbon: " + JSON.stringify(carbon));
+  $("#carbon-saved").val("Carbon Saved: ");
 }
 
 function showCarbonDetails() {
