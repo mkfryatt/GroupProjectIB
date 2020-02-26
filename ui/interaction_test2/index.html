@@ -6,7 +6,7 @@
     <title>Interaction Test 2</title>
     <script type="text/javascript">
         function loadContent(){
-            getAllSuggestionsFromWish(1,function (result) {
+            getEmissionsSavedFromUser('cherry@unep.com', function (result) {
                 document.getElementById('target').innerHTML+=JSON.stringify(result);
             })
         }
