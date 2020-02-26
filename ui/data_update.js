@@ -47,16 +47,14 @@ function callbackSubmitTravel(result) {
 
 function deleteTravel(id) {
   $("#confirm-removal").remove();
-  deleteTravelFromId(id, callbackDeleteTravel);
-}
-
-function callbackDeleteTravel(result) {
-  if (result.hasOwnProperty("error")) {
-    console.log("error deleting travel");
-  } else {
-    updateMap();
-    $("#travel-"+id).remove();
-  }
+  deleteTravelFromId(id, result => {
+    if (result.hasOwnProperty("error")) {
+      console.log("error deleting travel");
+    } else {
+      updateMap();
+      $("#travel-"+id).remove();
+    }
+  });
 }
 
 function submitWish() {
@@ -112,16 +110,15 @@ function callbackSubmitWish(result) {
 
 function deleteWish(id) {
   $("#confirm-removal").remove();
-  deleteWishFromId(id, callbackDeleteWish);
-}
 
-function callbackDeleteWish(result) {
-  if (result.hasOwnProperty("error")) {
-    console.log("error deleting wish");
-  } else {
-    updateMap();
-    $("#wish-"+id).remove();
-  }
+  deleteWishFromId(id, result => {
+    if (result.hasOwnProperty("error")) {
+      console.log("error deleting wish");
+    } else {
+      updateMap();
+      $("#wish-"+id).remove();
+    }
+  });
 }
 
 function submitAdmin() {
