@@ -256,6 +256,11 @@ function showCarbonDetails() {
   $("#carbon-details").show();
 }
 
+function showDefaultTravel() {
+  $("#travel-add").hide();
+  $("#travel-default").show();
+}
+
 function makeDefaultTravel(travels) {
   console.log("Travels: \n"+ JSON.stringify(travels))
   $("#travel-default").empty();

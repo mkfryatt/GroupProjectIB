@@ -116,7 +116,6 @@ function loadMapScenarioAdmin() {
 	}
 	function passLatLong(selection) {
 		selectionAdmin = selection;
-	  /*console.log(selection.address.locality) */
 	}     
 }
 
@@ -131,7 +130,6 @@ function loadMapScenarioWish() {
   }
   function passLatLong(selection) {
 	selectionWish = selection;
-    /*console.log(selection.address.locality)*/
   }     
 }
 
@@ -146,7 +144,6 @@ function loadMapScenarioTravel() {
   }
   function passLatLong(selection) {
 	selectionTravel = selection;
-    /*console.log(selection.address.locality)*/
     /* City = selection.address.locality - UNDEFINED for country/continent/Seas
     /*City/Location = selection.formattedSuggestion
     Lat = selection.location.latitude
