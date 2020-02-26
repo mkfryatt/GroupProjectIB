@@ -96,8 +96,8 @@ function tryLogin() {
 
 function makeWishes(wishes) {
   console.log("Wishes: \n"+ JSON.stringify(wishes));
-  if (wishes.hasOwnProperty("error")) {
-    //getAllWishesFromUser(email, showWishes);
+  if (wishes.length>0 && wishes[1].hasOwnProperty("error")) {
+    console.log("error getting wishes");
     return;
   }
 
@@ -136,7 +136,7 @@ function makeWishes(wishes) {
 
     var view = document.createElement("button");
     view.innerHTML = "View";
-    view.setAttribute("onclick", "showMatches(" + element.id + ")");
+    view.setAttribute("onclick", "getAllSuggestionsFromWish(" + element.id + ", showMatches)");
     view.setAttribute("class", "btn btn-success");
 
     var remove = document.createElement("button");
@@ -162,12 +162,15 @@ function hideMatches() {
   $("#match-title").text("View all wishes");
   $("#wish-previews").show();
 
-  //so map switches back to normal view
   updateMap();
 }
 
-function showMatches(id) {
-  var matches = getMatchDetails(id);
+function showMatches(matches) {
+  console.log("Matches: \n"+ JSON.stringify(matches));
+  if (matches.length>0 && matches[1].hasOwnProperty("error")) {
+    console.log("error getting matches");
+    return;
+  }
 
   $("#match-title").text("View all matches for your wish");
   $("#matches-back-btn").show();
@@ -284,7 +287,7 @@ function makeDefaultTravel(travels) {
 
     var btnEdit = document.createElement("button");
     btnEdit.setAttribute("class", "btn btn-primary");
-    btnEdit.setAttribute("onclick", "showEditTravel("+element.id+")");
+    btnEdit.setAttribute("onclick", "getTravelFromID("+element.id+", showEditTravel)");
     btnEdit.innerText = "Edit";
 
     var btnRemove = document.createElement("button");
@@ -318,12 +321,7 @@ function showAddTravel() {
   $("#travel-btn").attr("onclick", "submitTravelNew()");
 }
 
-function showEditTravel(id) {
-  //TODO: replace with actual version once backend have it
-  //getTravelByID(id, callbackShowEditTravel);
-}
-
-function callbackshowEditTravel(travel) {
+function showEditTravel(travel) {
   $("#travel-default").hide();
   $("#travel-add").show();
 
@@ -333,7 +331,6 @@ function callbackshowEditTravel(travel) {
     $("#"+textAttrs[i]+"-travel").val(textVals[i]);
   }
 
-  //TODO fix the date parsing part
   var dateAttrs = ["start", "end"];
   var dateVals = [new Date(element.startTime * 1000), new Date(element.endTime * 1000)];
   for (var i=0; i<2; i++) {

@@ -23,8 +23,8 @@ function submitTravelNew() {
     return;
   }
   $("#warning-travel").hide();
-  var city = $("#searchbox-travel").val().split(",")[0];
-  var country = $("#searchbox-travel").val().split(" ")[1];
+  var city = selectionTravel.address.locality;
+  var country = selectionTravel.address.countryRegion;
   var lat = selectionTravel.location.latitude;
   var lon = selectionTravel.location.longitude;
 
@@ -34,6 +34,7 @@ function submitTravelNew() {
 
 function callbackSubmitTravel(result) {
   if (result.hasOwnProperty("error")) {
+    console.log("error submitting travel");
     $("#warning-travel").text("Error: " + result.error);
     $("#warning-travel").show();
   } else {
@@ -51,7 +52,7 @@ function deleteTravel(id) {
 
 function callbackDeleteTravel(result) {
   if (result.hasOwnProperty("error")) {
-    //TODO: show error? or is the fact it wasn't deleted enough?
+    console.log("error deleting travel");
   } else {
     updateMap();
     $("#travel-"+id).remove();
@@ -85,8 +86,8 @@ function submitWish() {
     return;
   }
   var lat, lon, city, country, loc;
-  city = $("#searchbox-wish").val().split(",")[0];
-  country = $("#searchbox-wish").val().split(" ")[1];
+  var city = selectionTravel.address.locality;
+  var country = selectionTravel.address.countryRegion;
   lat = selectionWish.location.latitude;
   lon = selectionWish.location.longitude;
   loc = [{city: city, country: country, lat: lat, lon:lon}];
@@ -97,6 +98,7 @@ function submitWish() {
 
 function callbackSubmitWish(result) {
   if (result.hasOwnProperty("error")) {
+    console.log("error submitting wish");
     $("#warning-wish").text("Error: " + result.error);
     $("#warning-wish").show();
   } else {
@@ -115,7 +117,7 @@ function deleteWish(id) {
 
 function callbackDeleteWish(result) {
   if (result.hasOwnProperty("error")) {
-    //TODO: show error? or is the fact it wasn't deleted enough?
+    console.log("error deleting wish");
   } else {
     updateMap();
     $("#wish-"+id).remove();
@@ -153,21 +155,22 @@ function submitAdmin() {
     $("#warning-admin").show();
     return;
   }
-  var city = $("#searchbox-admin").val().split(",")[0];
-  var country = $("#searchbox-admin").val().split(" ")[1];
+  var city = selectionTravel.address.locality;
+  var country = selectionTravel.address.countryRegion;
   var lat = selectionAdmin.location.latitude;
   var lon = selectionAdmin.location.longitude;
 
   //tell backend
   if (unep_project) {
-    //createNewPresence(city, country, lat, lon, start, end, email, org, callbackSubmitAdmin);
+    createNewUnepPresence(org_project, city, country, lon, lat, start, end, callbackSubmitAdmin);
   } else {
-    //createNewPresence(city, country, lat, lon, start, end, email, org, callbackSubmitAdmin);
+    createNewOrganisationPresence(org_project, city, country, lon, lat, start, end, callbackSubmitAdmin);
   }
 }
 
 function callbackSubmitAdmin(result) {
   if (result.hasOwnProperty("error")) {
+    console.log("error submitting admin");
     $("#warning-admin").text("Error: " + result.error);
     $("#warning-admin").show();
   } else {
@@ -182,12 +185,12 @@ function acceptMatch(match_id, wish_id) {
   //tell backend that match has been accepted
   //delete match
 
-  //acceptMatch(match_id, wish_id, completeWish);
+  //acceptMatch(match_id, completeWish);
 }
 
 function callbackAcceptMatch(result) {
   if (result.hasOwnProperty("error")) {
-    //TODO: error
+    console.log("error accepting match");
   } else {
     updateMap();
     $("#match-previews").hide();
