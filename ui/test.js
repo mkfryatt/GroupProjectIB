@@ -96,7 +96,7 @@ function tryLogin() {
 
 function makeWishes(wishes) {
   console.log("Wishes: \n"+ JSON.stringify(wishes));
-  if (wishes.length>0 && wishes[1].hasOwnProperty("error")) {
+  if (wishes.length>0 && wishes[0].hasOwnProperty("error")) {
     console.log("error getting wishes");
     return;
   }
@@ -129,7 +129,10 @@ function makeWishes(wishes) {
     
     var cardText = document.createElement("p");
     cardText.setAttribute("class", "card-text");
-    cardText.innerHTML = element.reason;
+    element.constraints.organisations.forEach(org => {
+      cardText.innerText += org.name;
+      console.log(org.name);
+    });
 
     var btns = document.createElement("div");
     btns.setAttribute("class", "btn-group");
@@ -167,7 +170,7 @@ function hideMatches() {
 
 function showMatches(matches) {
   console.log("Matches: \n"+ JSON.stringify(matches));
-  if (matches.length>0 && matches[1].hasOwnProperty("error")) {
+  if (matches.length>0 && matches[0].hasOwnProperty("error")) {
     console.log("error getting matches");
     return;
   }
@@ -185,18 +188,31 @@ function showMatches(matches) {
 
     var cardHeader = document.createElement("div");
     cardHeader.setAttribute("class", "card-header");
-    cardHeader.innerHTML = element.person;
+    cardHeader.innerText = element.wisher_id; //TODO: get name of the person who can satisfy the wish
     
     var list = document.createElement("ul");
     list.setAttribute("class", "list-group list-group-flush");
 
-    list.append(createLI("Carbon Saving", "???", ""));
-    list.append(createLI("City", "???", ""));
-    list.append(createLI("Dates", "???", ""));
+    if (element.hasOwnProperty("unepPresenceId")) {
+      list.append(createLI("Emissions", element.emissions));
+      list.append(createLI("UNEP Presence", element.unepPresenceName));
+      list.append(createLI("Location", element.city + ", " + element.country));
+    } else {
+      var options = {year: 'numeric', month: 'long', day: 'numeric' };
+      var start = (new Date(element.unepTripStart * 1000)).toLocaleDateString('en-GB', options);
+      var end = (new Date(element.unepTripEnd * 1000)).toLocaleDateString('en-GB', options);
+
+      list.append(createLI("Emissions", element.emissions));
+      list.append(createLI("Organisation", element.tripOrgName));
+      list.append(createLI("Location", element.city + ", " + element.country));
+      list.append(createLI("Dates", start + " - " + end));
+    }
+
+    
 
     var btn = document.createElement("button");
     btn.setAttribute("class", "btn btn-success");
-    btn.setAttribute("onclick", "acceptMatchConfirmation("+element.id+", " + id+")");
+    btn.setAttribute("onclick", "acceptMatchConfirmation("+element.id+")");
     btn.innerText = "Accept";
 
     card.append(cardHeader);
@@ -300,13 +316,14 @@ function makeDefaultTravel(travels) {
     btnRemove.setAttribute("onclick", "removeTravelConfirmation("+element.id+")");
     btnRemove.innerText = "Remove";
 
-    var start = new Date(element.startTime * 1000);
-    var end = new Date(element.endTime * 1000);
+    var options = {year: 'numeric', month: 'long', day: 'numeric' };
+    var start = (new Date(element.startTime * 1000)).toLocaleDateString('en-GB', options);
+    var end = (new Date(element.endTime * 1000)).toLocaleDateString('en-GB', options);
 
     list.append(createLI("City", element.city));
     list.append(createLI("Country", element.country));
-    list.append(createLI("Start", start.toDateString()));
-    list.append(createLI("End", end.toDateString()));
+    list.append(createLI("Start", start));
+    list.append(createLI("End", end));
 
     btnGroup.append(btnEdit);
     btnGroup.append(btnRemove);
@@ -365,11 +382,11 @@ function removeWishConfirmation(id) {
   $("#confirm-removal").show();
 }
 
-function acceptMatchConfirmation(match_id, wish_id) {
+function acceptMatchConfirmation(match_id) {
   var dialog = createDialog("confirm-removal", 
     "Accept Match", 
     "Would you like to accept this match? It will also permenantly delete the corresponding wish.", 
-    "acceptMatch("+match_id+", "+wish_id+")");
+    "acceptMatch("+match_id+")");
 
   $("body").append(dialog);
   $("#confirm-removal").show();
