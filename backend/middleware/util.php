@@ -474,14 +474,16 @@ function deleteTravelFromId($params)
     return ($result);
 }
 
-function createNewWish($rep_id, $time_constraints, $org_constraints, $loc_constraints)
+function createNewWish($email, $time_constraints, $org_constraints, $loc_constraints)
 {
     global $dbconn;
 
     //TODO: insert new wish for that rep_id
 
+    $wisher_id = getUnepRepIdFromEmail($email);
+
     $stmt = $dbconn->prepare("INSERT INTO wishes(wisher_id) VALUES (?)");
-    $stmt->bindValue(1, $rep_id->id, SQLITE3_INTEGER);
+    $stmt->bindValue(1, $wisher_id, SQLITE3_INTEGER);
     $rows = $stmt->execute();
 
     $wish_id = $dbconn->lastInsertRowID();
@@ -710,7 +712,7 @@ switch ($request->method) {
         break;
 
     case 'createNewWish':
-        $result = createNewWish($request->params->rep_id, $request->params->timeConstraints, $request->params->orgConstraints, $request->params->locConstraints);
+        $result = createNewWish($request->params->email, $request->params->timeConstraints, $request->params->orgConstraints, $request->params->locConstraints);
         answerJsonAndDie($result);
         break;
 

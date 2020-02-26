@@ -133,7 +133,7 @@ function getAllSuggestionsFromWish(wish_id, callbackFunction) {
     sendXmlHttpRequest(request,callbackFunction);
 }
 
-function createNewTravel(city, country, lat, lon, startTime, endTime, unep_rep, org, callbackFunction) {
+function createNewTravel(city, country, lat, lon, startTime, endTime, email, org, callbackFunction) {
     let request = {
         method: 'createNewTravel',
         params: {
@@ -143,7 +143,7 @@ function createNewTravel(city, country, lat, lon, startTime, endTime, unep_rep, 
             lon: lon,
             startTime: startTime,
             endTime: endTime,
-            unep_rep: unep_rep,
+            email: email,
             org: org
         }
     };
