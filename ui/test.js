@@ -75,7 +75,6 @@ function showLogin() {
 
 function tryLogin() {
   if ($("#email").val()=="") {
-    //TODO better email validation
     $("#warning").show();
   } else {
     email = $("#email").val();
@@ -105,14 +104,11 @@ function makeWishes(wishes) {
 
   $("#wish-previews").empty();
   $("#match-title").text("View all wishes");
-
-  //TODO: check args for this function, currently needs id
-  //wishesMapUpdate(id);
+  wishesMapUpdate(email);
 
   wishes.forEach(element => {
 
-    //TODO: get number of matches for that wish
-    var num_matches = 0;
+    getAllSuggestionsFromWish(element.id, matches => showNumMatches(matches, element.id));
 
     var div = document.createElement("div");
     div.setAttribute("class", "col-sm-1");
@@ -126,7 +122,7 @@ function makeWishes(wishes) {
 
     var cardTitle = document.createElement("h5");
     cardTitle.setAttribute("class", "card-title");
-    cardTitle.innerHTML = "<span class=\"badge badge-success\">" + num_matches + "</span>";
+    cardTitle.innerHTML = "<span class='badge badge-success' id='num-matches-"+element.id+"'></span>";
     
     var cardText = document.createElement("p");
     cardText.setAttribute("class", "card-text");
@@ -159,6 +155,10 @@ function makeWishes(wishes) {
   });
 }
 
+function showNumMatches(matches, id) {
+  $("#num-matches-"+id).text(matches.length);
+}
+
 function hideMatches() {
   $("#match-previews").empty();
   $("#matches-back-btn").hide();
@@ -179,6 +179,9 @@ function showMatches(matches) {
   $("#match-title").text("View all matches for your wish");
   $("#matches-back-btn").show();
 
+  //sorts by score, highest to lowest
+  matches.sort((a, b) => b.score - a.score);
+
   matches.forEach(element => {
 
     var div = document.createElement("div");
@@ -196,7 +199,7 @@ function showMatches(matches) {
 
     if (element.hasOwnProperty("unepPresenceId")) {
       list.append(createLI("Emissions", element.emissions));
-      list.append(createLI("UNEP Presence", element.unepPresenceName));
+      list.append(createLI("Presence", element.unepPresenceName));
       list.append(createLI("Location", element.city + ", " + element.country));
     } else {
       var options = {year: 'numeric', month: 'long', day: 'numeric' };
