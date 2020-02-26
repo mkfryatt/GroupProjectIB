@@ -29,20 +29,18 @@ function submitTravelNew() {
   var lon = selectionTravel.location.longitude;
 
   //tell backend
-  createNewTravel(city, country, lat, lon, start, end, email, org, callbackSubmitTravel);
-}
-
-function callbackSubmitTravel(result) {
-  if (result.hasOwnProperty("error")) {
-    console.log("error submitting travel");
-    $("#warning-travel").text("Error: " + result.error);
-    $("#warning-travel").show();
-  } else {
-    clearForm("travel");
-    $("#warning-travel").hide();
-    updateMap();
-    getAllTravelFromUser(email, makeDefaultTravel);
-  }
+  createNewTravel(city, country, lat, lon, start, end, email, org, result => {
+    if (result.hasOwnProperty("error")) {
+      console.log("error submitting travel");
+      $("#warning-travel").text("Error: " + result.error);
+      $("#warning-travel").show();
+    } else {
+      clearForm("travel");
+      $("#warning-travel").hide();
+      updateMap();
+      getAllTravelFromUser(email, makeDefaultTravel);
+    }
+  });
 }
 
 function deleteTravel(id) {
@@ -64,6 +62,7 @@ function submitWish() {
     org = [];
   } else {
     org = [{org_name:$("#org-wish").val()}];
+    //get org_id
   }
 
   //get time constraints
@@ -75,7 +74,7 @@ function submitWish() {
     $("#warning-wish").show();
     return;
   }
-  time = [{startDate: start, endDate: end}];
+  time = [{startTime: start, endTime: end}];
 
   //get position constraints
   if (selectionWish==null || $("#searchbox-wish").val()=="") {
@@ -91,21 +90,19 @@ function submitWish() {
   loc = [{city: city, country: country, lat: lat, lon: lon}];
 
   //tell backend
-  createNewWish(email, time, org, loc, callbackSubmitWish);
-}
-
-function callbackSubmitWish(result) {
-  if (result.hasOwnProperty("error")) {
-    console.log("error submitting wish");
-    $("#warning-wish").text("Error: " + result.error);
-    $("#warning-wish").show();
-  } else {
-    $("#warning-wish").hide();
-    updateMap();
-    getAllWishesFromUser(email, makeWishes);
-    clearForm("wish");
-    openTab("wish");
-  }
+  createNewWish(email, time, org, loc, result => {
+    if (result.hasOwnProperty("error")) {
+      console.log("error submitting wish");
+      $("#warning-wish").text("Error: " + result.error);
+      $("#warning-wish").show();
+    } else {
+      $("#warning-wish").hide();
+      updateMap();
+      getAllWishesFromUser(email, makeWishes);
+      clearForm("wish");
+      openTab("wish");
+    }
+  });
 }
 
 function deleteWish(id) {
@@ -163,41 +160,37 @@ function submitAdmin() {
   } else {
     createNewOrganisationPresence(org_project, city, country, lon, lat, start, end, callbackSubmitAdmin);
   }
-}
 
-function callbackSubmitAdmin(result) {
-  if (result.hasOwnProperty("error")) {
-    console.log("error submitting admin");
-    $("#warning-admin").text("Error: " + result.error);
-    $("#warning-admin").show();
-  } else {
-    $("#warning-admin").hide();
-    clearForm("admin");
-    updateMap();
+  function callbackSubmitAdmin(result) {
+    if (result.hasOwnProperty("error")) {
+      console.log("error submitting admin");
+      $("#warning-admin").text("Error: " + result.error);
+      $("#warning-admin").show();
+    } else {
+      $("#warning-admin").hide();
+      clearForm("admin");
+      updateMap();
+    }
   }
 }
 
 function acceptMatch(match_id) {
   $("#confirm-removal").remove();
-  acceptSuggestion(match_id, callbackAcceptMatch);
-}
-
-function callbackAcceptMatch(result) {
-  if (result.hasOwnProperty("error")) {
-    console.log("error accepting match");
-  } else {
-    updateMap();
-    getAllWishesFromUser(email, makeWishes);
-    $("#match-previews").hide();
-    $("#matches-back-btn").hide();
-    $("#wish-previews").show();
-    getEmissionsSavedFromUser(email, updateCarbonCounter);
-  }
+  acceptSuggestion(match_id, result => {
+    if (result.hasOwnProperty("error")) {
+      console.log("error accepting match");
+    } else {
+      updateMap();
+      getAllWishesFromUser(email, makeWishes);
+      $("#match-previews").hide();
+      $("#matches-back-btn").hide();
+      $("#wish-previews").show();
+      getEmissionsSavedFromUser(email, updateCarbonCounter);
+    }
+  });
 }
 
 function clearForm(type) {
   var attrs = ["org", "searchbox", "start-date", "end-date"];
-  attrs.forEach(element => {
-    $("#"+element+"-"+type).val("");
-  });
+  attrs.forEach(element => $("#"+element+"-"+type).val(""));
 }
