@@ -208,12 +208,11 @@ function showMatches(matches) {
       list.append(createLI("Dates", start + " - " + end));
     }
 
-    
-
     var btn = document.createElement("button");
     btn.setAttribute("class", "btn btn-success");
     btn.setAttribute("onclick", "acceptMatchConfirmation("+element.id+")");
     btn.innerText = "Accept";
+    list.append(btn);
 
     card.append(cardHeader);
     card.append(list);
