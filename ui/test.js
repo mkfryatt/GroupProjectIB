@@ -95,6 +95,7 @@ function tryLogin() {
 }
 
 function makeWishes(wishes) {
+  console.log("Wishes: \n"+ JSON.stringify(wishes));
   if (wishes.hasOwnProperty("error")) {
     //getAllWishesFromUser(email, showWishes);
     return;
@@ -103,6 +104,9 @@ function makeWishes(wishes) {
   $("#wish-previews").empty();
   $("#match-title").text("View all wishes");
   $("#matches-back-btn").hide();
+
+  //TODO: check args for this function, currently needs id
+  //wishesMapUpdate(id);
 
   wishes.forEach(element => {
 
@@ -157,6 +161,9 @@ function hideMatches() {
   $("#match-previews").hide();
   $("#match-title").text("View all wishes");
   $("#wish-previews").show();
+
+  //so map switches back to normal view
+  updateMap();
 }
 
 function showMatches(id) {
@@ -247,6 +254,7 @@ function showCarbonDetails() {
 }
 
 function makeDefaultTravel(travels) {
+  console.log("Travels: \n"+ JSON.stringify(travels))
   $("#travel-default").empty();
 
   var btnAdd = document.createElement("button");
@@ -284,10 +292,13 @@ function makeDefaultTravel(travels) {
     btnRemove.setAttribute("onclick", "removeTravelConfirmation("+element.id+")");
     btnRemove.innerText = "Remove";
 
-    list.append(createLI("City", element.city, element.id));
-    list.append(createLI("Country", element.country, element.id));
-    list.append(createLI("Start", element.startDate, element.id));
-    list.append(createLI("End", element.endDate, element.id));
+    var start = new Date(element.startTime * 1000);
+    var end = new Date(element.endTime * 1000);
+
+    list.append(createLI("City", element.city));
+    list.append(createLI("Country", element.country));
+    list.append(createLI("Start", start.toDateString()));
+    list.append(createLI("End", end.toDateString()));
 
     btnGroup.append(btnEdit);
     btnGroup.append(btnRemove);
@@ -308,8 +319,11 @@ function showAddTravel() {
 }
 
 function showEditTravel(id) {
-  var travel = getTravelByID(id);
+  //TODO: replace with actual version once backend have it
+  //getTravelByID(id, callbackShowEditTravel);
+}
 
+function callbackshowEditTravel(travel) {
   $("#travel-default").hide();
   $("#travel-add").show();
 
@@ -321,7 +335,7 @@ function showEditTravel(id) {
 
   //TODO fix the date parsing part
   var dateAttrs = ["start", "end"];
-  var dateVals = [travel.startDate, travel.endDate];
+  var dateVals = [new Date(element.startTime * 1000), new Date(element.endTime * 1000)];
   for (var i=0; i<2; i++) {
     $("#"+dateAttrs[i]+"-date-travel").val(dateVals[i]);
   }
@@ -423,7 +437,7 @@ function createDialog(dialogID, dialogTitle, dialogQuestion, dialogOK) {
   return div1;
 }
 
-function createLI(title, value, id) {
+function createLI(title, value) {
   var li = document.createElement("li");
   li.setAttribute("class", "list-group-item");
   li.innerText = title + ": \n" + value;

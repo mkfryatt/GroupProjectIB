@@ -39,7 +39,7 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 	var end = document.getElementById("end-date-map").valueAsDate;
 
 	getTravelWithinTimeframe(start,end,function (result) {
-		console.log(JSON.stringify(result));
+		//console.log(JSON.stringify(result));
 	})
 	//Read in everyone's travel, your own wishes, and all presences.
 	//iteratively call displayPin
