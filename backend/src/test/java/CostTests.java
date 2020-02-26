@@ -6,8 +6,7 @@ import main.java.cost.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static main.java.cost.Cost.calculateCost;
-import static main.java.cost.Cost.calculateCost;
+import static main.java.cost.Cost.*;
 
 public class CostTests {
     public static Location nairobiWish = new Location(0, "nairobi", 36.8219, 1.2921);
@@ -15,6 +14,7 @@ public class CostTests {
     public static Location kampala = new Location(0, "kampala", 32.5825, 0.3476);
     public static Location rome = new Location(0, "rome", 12.4964, 41.9028);
     public static Location shanghai = new Location(0, "shanghai", 121.4737, 31.2304);
+    public static Location nearShangai = new Location(0,"wuxi",120.3119,31.4912);
 
     @Test
     public static void testHowTimeDifferenceAffectsRankings() {
@@ -68,6 +68,31 @@ public class CostTests {
 
         Assertions.assertTrue(rome5Ranking > capeTown10Ranking, "Show that to fulfil a wish in Nairobi, flying from " +
                 "Rome with timeDiff of 5 is ranked higher than flying from Cape Town with time diff of 10 days");
+
+    }
+
+    @Test
+    public static void testHowManyDaysAreAcceptable(){
+        Location target = shanghai;
+        Location start = nearShangai;
+        Location startAlt = rome;
+
+        double emission = calculateFlightEmissions(start,target);
+        int time = 86400 * 3;
+        double score = calculateCost(time,emission,0);
+
+        double emissionAlt = calculateFlightEmissions(startAlt,target);
+        int timeAlt=0;
+        double scoreAlt;
+        {
+            int l = 0,r=Integer.MAX_VALUE;
+            while(l<r){
+                timeAlt = (int)((((long)l)+r)/2);
+                scoreAlt = calculateCost(timeAlt,emissionAlt,0);
+                if(scoreAlt<score)r=timeAlt; else l=timeAlt;
+            }
+        }
+        System.out.println("Flying from "+start.name+" to "+target.name+" wasting "+(time/86400)+" days is ranked similarly to flying from "+startAlt.name+" to "+target.name+" wasting "+(timeAlt/86400)+"days");
 
     }
 
