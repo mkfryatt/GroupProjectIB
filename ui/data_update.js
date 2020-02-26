@@ -65,7 +65,7 @@ function submitWish() {
   if ($("#org-wish").val()=="") {
     org = [];
   } else {
-    org = [{org_name:$("#org-wish").val()}];
+    org = [{"org_name":$("#org-wish").val()}];
   }
 
   //get time constraints
@@ -77,7 +77,7 @@ function submitWish() {
     $("#warning-wish").show();
     return;
   }
-  time = [{startDate: start, endDate: end}];
+  time = [{"startDate": start, "endDate": end}];
 
   //get position constraints
   if (selectionWish==null || $("#searchbox-wish").val()=="") {
@@ -86,11 +86,11 @@ function submitWish() {
     return;
   }
   var lat, lon, city, country, loc;
-  var city = selectionTravel.address.locality;
-  var country = selectionTravel.address.countryRegion;
+  var city = selectionWish.address.locality;
+  var country = selectionWish.address.countryRegion;
   lat = selectionWish.location.latitude;
   lon = selectionWish.location.longitude;
-  loc = [{city: city, country: country, lat: lat, lon:lon}];
+  loc = [{"city": city, "country": country, "lat": lat, "lon":lon}];
 
   //tell backend
   createNewWish(email, time, org, loc, callbackSubmitWish);
@@ -155,8 +155,8 @@ function submitAdmin() {
     $("#warning-admin").show();
     return;
   }
-  var city = selectionTravel.address.locality;
-  var country = selectionTravel.address.countryRegion;
+  var city = selectionAdmin.address.locality;
+  var country = selectionAdmin.address.countryRegion;
   var lat = selectionAdmin.location.latitude;
   var lon = selectionAdmin.location.longitude;
 

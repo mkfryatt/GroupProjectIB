@@ -108,7 +108,7 @@ function makeWishes(wishes) {
 
   wishes.forEach(element => {
 
-    getAllSuggestionsFromWish(element.id, matches => showNumMatches(matches, element.id));
+    getAllSuggestionsFromWish(element.id, matches => $("#num-matches-"+element.id).text(matches.length));
 
     var div = document.createElement("div");
     div.setAttribute("class", "col-sm-1");
@@ -153,10 +153,6 @@ function makeWishes(wishes) {
     div.append(card);
     $("#wish-previews").append(div);
   });
-}
-
-function showNumMatches(matches, id) {
-  $("#num-matches-"+id).text(matches.length);
 }
 
 function hideMatches() {
