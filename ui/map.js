@@ -51,18 +51,15 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 	getTravelWithinTimeframe(start,end,function (result) {
 		//If time distinguish users travel from all travel
 
-		console.log(result);
 	})
 
 	getAllWishesFromUser(email,function (result){
-		console.log(result);
 
 	});
 
 	/*getOrganisationPresencesWithinTimeframe() */
 
-	getUnepPresencesWithinTimeframe(1,10, function (result){
-		console.log(result);
+	getUnepPresencesWithinTimeframe(1,10, function (result) {
 	})
 
 
