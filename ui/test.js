@@ -78,6 +78,7 @@ function tryLogin() {
     $("#warning").show();
   } else {
     email = $("#email").val();
+    $("#current-user").text(email);
     $("#login").remove();
 
     getAllTravelFromUser(email, makeDefaultTravel);
