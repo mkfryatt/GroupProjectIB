@@ -180,7 +180,7 @@ function callbackSubmitAdmin(result) {
   }
 }
 
-function acceptMatch(match_id, wish_id) {
+function acceptMatch(match_id) {
   $("#confirm-removal").remove();
   //tell backend that match has been accepted
   //delete match
