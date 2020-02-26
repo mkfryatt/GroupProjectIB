@@ -182,10 +182,7 @@ function callbackSubmitAdmin(result) {
 
 function acceptMatch(match_id) {
   $("#confirm-removal").remove();
-  //tell backend that match has been accepted
-  //delete match
-
-  //acceptMatch(match_id, completeWish);
+  acceptSuggestion(match_id, callbackAcceptMatch);
 }
 
 function callbackAcceptMatch(result) {
@@ -193,10 +190,11 @@ function callbackAcceptMatch(result) {
     console.log("error accepting match");
   } else {
     updateMap();
+    getAllWishesFromUser(email, makeWishes);
     $("#match-previews").hide();
-    $("#wish-"+id).remove();
+    $("#matches-back-btn").hide();
     $("#wish-previews").show();
-    //TODO: update carbon counter
+    getEmissionsSavedFromUser(email, updateCarbonCounter);
   }
 }
 
