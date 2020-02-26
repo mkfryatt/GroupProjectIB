@@ -29,7 +29,7 @@ function submitTravelNew() {
   var lon = selectionTravel.location.longitude;
 
   //tell backend
-  createNewTravel(city, country, lat, lon, start, end, email, org, updateMap);
+  createNewTravel(city, country, lat, lon, start, end, email, org, callbackSubmitTravel);
 }
 
 function callbackSubmitTravel(result) {
@@ -104,7 +104,7 @@ function callbackSubmitWish(result) {
   } else {
     $("#warning-wish").hide();
     updateMap();
-    showWishes();
+    makeWishes();
     clearForm("wish");
     openTab("wish");
   }
