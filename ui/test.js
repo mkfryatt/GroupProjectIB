@@ -227,7 +227,11 @@ function showMatches(matches) {
 
 function updateCarbonCounter(carbon) {
   console.log("carbon: " + JSON.stringify(carbon));
-  $("#carbon-saved").val("Carbon Saved: ");
+  if (carbon.hasOwnProperty("error")) {
+    console.log("error getting carbon saved");
+    return;
+  }
+  $("#carbon-saved").text("Carbon Saved: " + Math.round(carbon.emissionsSaved));
 }
 
 function showCarbonDetails() {
