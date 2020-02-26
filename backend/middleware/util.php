@@ -241,7 +241,7 @@ function getAllConstraintsFromWish($wishId)
                     break;
                 case 'LOCATION':
                     $locEntry = getLocationFromId($row['loc_id']);
-                    $result["organisations"][] = $locEntry;
+                    $result["locations"][] = $locEntry;
                     break;
                 default:
                     error("Invalid type while getting constraints. Type:" . $row['type']);
