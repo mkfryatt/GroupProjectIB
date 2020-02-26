@@ -408,19 +408,19 @@ function getOrCreateLocation($data)
     $locStmt->bindValue(1, $data->city);
     $locStmt->bindValue(2, $data->country);
     $rows = $locStmt->execute();
-    if ($rows->rowCount() == 0) {
-        $newLocStmt = $dbconn->prepare("INSERT INTO locations(lat,lon,city,country) VALUES(?,?,?,?)");
-        $newLocStmt->bindValue(1, $data->lat, SQLITE3_FLOAT);
-        $newLocStmt->bindValue(2, $data->lon, SQLITE3_FLOAT);
-        $newLocStmt->bindValue(3, $data->city, SQLITE3_TEXT);
-        $newLocStmt->bindValue(4, $data->country, SQLITE3_TEXT);
-        $newLocStmt->execute();
-        return $dbconn->lastInsertRowID();
-    } else {
-        while ($row = $rows->fetchArray()) {
-            return $row['id'];
-        }
+
+    while ($row = $rows->fetchArray()) {
+        return $row['id'];
     }
+
+    $newLocStmt = $dbconn->prepare("INSERT INTO locations(lat,lon,city,country) VALUES(?,?,?,?)");
+    $newLocStmt->bindValue(1, $data->lat, SQLITE3_FLOAT);
+    $newLocStmt->bindValue(2, $data->lon, SQLITE3_FLOAT);
+    $newLocStmt->bindValue(3, $data->city, SQLITE3_TEXT);
+    $newLocStmt->bindValue(4, $data->country, SQLITE3_TEXT);
+    $newLocStmt->execute();
+    return $dbconn->lastInsertRowID();
+
 }
 
 function createNewTravel($params)
@@ -543,7 +543,7 @@ function createNewUnepPresence($params)
     $locId = getOrCreateLocation($params);
 
     $stmt = $dbconn->prepare("INSERT INTO unep_presences (name, loc_id,startTime,endTime) VALUES(?,?,?,?)");
-    $stmt->bindValue(1, $params->name, SQLITE3_INTEGER);
+    $stmt->bindValue(1, $params->name, SQLITE3_TEXT);
     $stmt->bindValue(2, $locId, SQLITE3_INTEGER);
     $stmt->bindValue(3, $params->startTime, SQLITE3_INTEGER);
     $stmt->bindValue(4, $params->endTime, SQLITE3_INTEGER);
