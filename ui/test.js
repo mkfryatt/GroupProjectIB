@@ -234,8 +234,7 @@ function updateCarbonCounter(carbon) {
   $("#carbon-saved").text("Carbon Saved: " + Math.round(carbon.emissionsSaved));
 }
 
-function showCarbonDetails() {
-  var details = getCarbonDetails();
+function showCarbonDetails(details) {
 
   var div1 = document.createElement("div");
   div1.setAttribute("class", "modal");
