@@ -415,7 +415,7 @@ function getOrCreateLocation($data)
         $newLocStmt->bindValue(3, $data->city, SQLITE3_TEXT);
         $newLocStmt->bindValue(4, $data->country, SQLITE3_TEXT);
         $newLocStmt->execute();
-        return sqlite_last_insert_rowid($dbconn);
+        return $dbconn->lastInsertRowID();
     } else {
         while ($row = $rows->fetchArray()) {
             return $row['id'];
@@ -439,7 +439,7 @@ function createNewTravel($params)
     $rows = $stmt->execute();
     if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
 
-    $trip_id = sqlite_last_insert_rowid($dbconn);
+    $trip_id = $dbconn->lastInsertRowID();
 
     $stmt = $dbconn->prepare("INSERT INTO rep_trips(rep_id,trip_id) VALUES(?,?)");
     $stmt->bindValue(1, $rep_id, SQLITE3_INTEGER);
@@ -484,7 +484,7 @@ function createNewWish($rep_id, $time_constraints, $org_constraints, $loc_constr
     $stmt->bindValue(1, $rep_id->id, SQLITE3_INTEGER);
     $rows = $stmt->execute();
 
-    $wish_id = sqlite_last_insert_rowid();;
+    $wish_id = $dbconn->lastInsertRowID();
     //TIP: LAST_INSERT_ROWID() returns last inserted id in the DB.
     //it's determined on a per-connection basis so no need to worry about concurrency.
     foreach ($time_constraints as $time_constraint) {
@@ -552,7 +552,7 @@ function createNewUnepPresence($params)
     $rows = $stmt->execute();
     if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
 
-    $unep_presence_id = sqlite_last_insert_rowid($dbconn);
+    $unep_presence_id = $dbconn->lastInsertRowID();
 
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $unep_presence_id);
 }
@@ -574,9 +574,55 @@ function createNewOrganisationPresence($params)
     $rows = $stmt->execute();
     if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
 
-    $unep_presence_id = sqlite_last_insert_rowid($dbconn);
+    $unep_presence_id = $dbconn->lastInsertRowID();
 
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $unep_presence_id);
+}
+
+function acceptSuggestion($params){
+    global $dbconn;
+    $stmt = $dbconn->prepare("SELECT * from suggestions s JOIN wishes w on s.wish_id = w.id WHERE s.id = ?");
+    $stmt->bindValue(1,$params->suggestion_id,SQLITE3_INTEGER);
+    $rows = $stmt->execute();
+    if(!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
+
+    $row = $rows->fetchArray();
+
+    $stmt = $dbconn->prepare("INSERT INTO acceptedSuggestions(wisher_id, emissions, emission_delta) VALUES(?,?,?)");
+    $stmt->bindValue(1,$row['wisher_id'], SQLITE3_INTEGER);
+    $stmt->bindValue(2,$row['emissions'], SQLITE3_FLOAT);
+    $stmt->bindValue(3,$row['emmission_delta'], SQLITE3_FLOAT);
+
+    $stmt->execute();
+
+    if(!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
+
+    $entry_id = $dbconn->lastInsertRowID();
+
+    return (object)$row;
+//    return (object)array('outcome' => 'succeeded', 'inserted_id' => $entry_id);
+}
+
+function getTotalEmissionsSaved($params){
+    global $dbconn;
+
+    $stmt = $dbconn->prepare("SELECT SUM(emission_delta) FROM acceptedSuggestions");
+    $row = $stmt->execute()->fetchArray();
+
+    return (object)array('totalEmissionsSaved' => $row['SUM(emission_delta)']);
+}
+
+function getEmissionsSavedFromUser($params){
+    global $dbconn;
+
+    $stmt = $dbconn->prepare("SELECT SUM(emission_delta) 
+    FROM acceptedSuggestions 
+    JOIN unep_reps ur on acceptedSuggestions.wisher_id = ur.id WHERE ur.email=?");
+    $stmt->bindValue(1,$params->email,SQLITE3_TEXT);
+    $row = $stmt->execute()->fetchArray();
+
+    return (object)$row;
+
 }
 
 $request = json_decode($_GET['q']);
@@ -679,6 +725,22 @@ switch ($request->method) {
         $result = createNewOrganisationPresence($request->params);
         answerJsonAndDie($result);
         break;
+
+    case 'acceptSuggestion':
+        $result = acceptSuggestion($request->params);
+        answerJsonAndDie($result);
+        break;
+
+    case 'getTotalEmissionsSaved':
+        $result = getTotalEmissionsSaved($request->params);
+        answerJsonAndDie($result);
+        break;
+
+    case 'getEmissionsSavedFromUser':
+        $result = getEmissionsSavedFromUser($request->params);
+        answerJsonAndDie($result);
+        break;
+
     default:
         error('method: "' . $request->method . '" is not defined');
 }

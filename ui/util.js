@@ -234,3 +234,32 @@ function createNewUnepPresence(name, city, country, lon, lat, startTime, endTime
     sendXmlHttpRequest(request,callbackFunction);
 }
 
+function acceptSuggestion(suggestion_id, callbackFunction) {
+    let request = {
+        method: 'acceptSuggestion',
+        params: {
+            suggestion_id: suggestion_id
+        }
+    };
+    sendXmlHttpRequest(request,callbackFunction);
+}
+
+function getTotalEmissionsSaved(callbackFunction) {
+    let request = {
+        method: 'getTotalEmissionsSaved',
+        params: {
+        }
+    };
+    sendXmlHttpRequest(request,callbackFunction);
+}
+
+function getEmissionsSavedFromUser(email, callbackFunction) {
+    let request = {
+        method: 'getEmissionsSavedFromUser',
+        params: {
+            email: email
+        }
+    };
+    sendXmlHttpRequest(request,callbackFunction);
+}
+
