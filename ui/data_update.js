@@ -41,22 +41,20 @@ function callbackSubmitTravel(result) {
     clearForm("travel");
     $("#warning-travel").hide();
     updateMap();
-    makeDefaultTravel();
+    getAllTravelFromUser(email, makeDefaultTravel);
   }
 }
 
 function deleteTravel(id) {
   $("#confirm-removal").remove();
-  deleteTravelFromId(id, callbackDeleteTravel);
-}
-
-function callbackDeleteTravel(result) {
-  if (result.hasOwnProperty("error")) {
-    console.log("error deleting travel");
-  } else {
-    updateMap();
-    $("#travel-"+id).remove();
-  }
+  deleteTravelFromId(id, result => {
+    if (result.hasOwnProperty("error")) {
+      console.log("error deleting travel");
+    } else {
+      updateMap();
+      $("#travel-"+id).remove();
+    }
+  });
 }
 
 function submitWish() {
@@ -65,7 +63,7 @@ function submitWish() {
   if ($("#org-wish").val()=="") {
     org = [];
   } else {
-    org = [{"org_name":$("#org-wish").val()}];
+    org = [{org_name:$("#org-wish").val()}];
   }
 
   //get time constraints
@@ -77,7 +75,7 @@ function submitWish() {
     $("#warning-wish").show();
     return;
   }
-  time = [{"startDate": start, "endDate": end}];
+  time = [{startDate: start, endDate: end}];
 
   //get position constraints
   if (selectionWish==null || $("#searchbox-wish").val()=="") {
@@ -90,7 +88,7 @@ function submitWish() {
   var country = selectionWish.address.countryRegion;
   lat = selectionWish.location.latitude;
   lon = selectionWish.location.longitude;
-  loc = [{"city": city, "country": country, "lat": lat, "lon":lon}];
+  loc = [{city: city, country: country, lat: lat, lon: lon}];
 
   //tell backend
   createNewWish(email, time, org, loc, callbackSubmitWish);
@@ -104,7 +102,7 @@ function callbackSubmitWish(result) {
   } else {
     $("#warning-wish").hide();
     updateMap();
-    makeWishes();
+    getAllWishesFromUser(email, makeWishes);
     clearForm("wish");
     openTab("wish");
   }
@@ -112,16 +110,15 @@ function callbackSubmitWish(result) {
 
 function deleteWish(id) {
   $("#confirm-removal").remove();
-  deleteWishFromId(id, callbackDeleteWish);
-}
 
-function callbackDeleteWish(result) {
-  if (result.hasOwnProperty("error")) {
-    console.log("error deleting wish");
-  } else {
-    updateMap();
-    $("#wish-"+id).remove();
-  }
+  deleteWishFromId(id, result => {
+    if (result.hasOwnProperty("error")) {
+      console.log("error deleting wish");
+    } else {
+      updateMap();
+      $("#wish-"+id).remove();
+    }
+  });
 }
 
 function submitAdmin() {
