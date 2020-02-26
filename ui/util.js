@@ -133,10 +133,11 @@ function getAllSuggestionsFromWish(wish_id, callbackFunction) {
     sendXmlHttpRequest(request,callbackFunction);
 }
 
-function createNewTravel(city, country, lat, lon, startTime, endTime, email, org, callbackFunction) {
+function createNewTravel(name, city, country, lat, lon, startTime, endTime, email, org, callbackFunction) {
     let request = {
         method: 'createNewTravel',
         params: {
+            name: name,
             city: city,
             country: country,
             lat: lat,
@@ -263,3 +264,22 @@ function getEmissionsSavedFromUser(email, callbackFunction) {
     sendXmlHttpRequest(request,callbackFunction);
 }
 
+function userExists(email, callbackFunction) {
+  let request = {
+    method: 'userExists',
+    params: {
+      email: email
+    }
+  };
+  sendXmlHttpRequest(request,callbackFunction);
+}
+
+function createNewUser(email, firstName, lastName, callbackFunction) {
+  let request = {
+    method: 'createNewUser',
+    params: {
+      email: email
+    }
+  };
+  sendXmlHttpRequest(request,callbackFunction);
+}
