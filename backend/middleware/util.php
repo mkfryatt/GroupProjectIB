@@ -522,7 +522,7 @@ function createNewWish($name, $email, $time_constraints, $org_constraints, $loc_
     foreach ($org_constraints as $org_constraint) {
         $stmt = $dbconn->prepare("INSERT INTO wish_constraints(type,org_id) VALUES ('ORGANISATION',?)");
         $org_id = getOrganisationIdFromName($org_constraint->name);
-        $stmt->bindValue(1, org_id, SQLITE3_INTEGER);
+        $stmt->bindValue(1, $org_id, SQLITE3_INTEGER);
         $rows = $stmt->execute();
     }
 
