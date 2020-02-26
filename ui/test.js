@@ -264,7 +264,7 @@ function showCarbonDetails(details) {
   var divBody = document.createElement("div");
   divBody.setAttribute("class", "modal-body");
 
-  //TODO add stuff to div body
+  //TODO add carbon details
 
   btnX.append(span);
   divHeader.append(title);
