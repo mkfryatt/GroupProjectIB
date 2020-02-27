@@ -17,7 +17,7 @@ function init() {
   document.getElementById("end-date-map").valueAsDate = date;
 
   var tabs = ["travel", "wish", "admin"];
-  tabs.forEach(e => {$("#warning-"+e).hide();});
+  tabs.forEach(e => $("#warning-"+e).hide());
 
   openTab("cal");
 }
@@ -289,7 +289,6 @@ function showDefaultTravel() {
 }
 
 function makeDefaultTravel(travels) {
-  console.log(travels);
   console.log("Travels: \n"+ JSON.stringify(travels));
   $("#travel-default").empty();
 
@@ -361,10 +360,7 @@ function showEditTravel(travel) {
 
   $("#org-travel").val(travel.name);
 
-  getLocationFromId(travel.loc_id, loc => {
-    console.log(JSON.stringify(loc));
-    $("#searchbox-travel").val(loc.city + ", "+ loc.country);
-  })
+  getLocationFromId(travel.loc_id, loc => $("#searchbox-travel").val(loc.city + ", "+ loc.country));
 
   document.getElementById("start-date-travel").valueAsDate = new Date(travel.startTime * 1000);
   document.getElementById("end-date-travel").valueAsDate = new Date(travel.endTime * 1000);

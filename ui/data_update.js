@@ -61,8 +61,7 @@ function submitWish() {
   if ($("#org-wish").val()=="") {
     org = [];
   } else {
-    org = [{org_name:$("#org-wish").val()}];
-    //get org_id
+    org = [{name:$("#org-wish").val()}];
   }
 
   //get time constraints
