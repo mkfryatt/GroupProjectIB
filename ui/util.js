@@ -163,7 +163,8 @@ function deleteTravelFromId(id, callbackFunction) {
 
 /*
 params:
-- rep_id : number,  the id of the unep person expressing the wish
+- name : name of the wish
+- email : email of the "wisher"
 - timeConstraints : array of Objects with fields startTime,endTime (unix timestamp format)
 - orgConstraint : array of Objects with field name
 - locConstraint : array of positions (with city, country, lon, lat as usual)
@@ -172,6 +173,7 @@ function createNewWish(email, timeConstraints, orgConstraints, locConstraints, c
     let request = {
         method: 'createNewWish',
         params: {
+            name: name,
             email: email,
             timeConstraints: timeConstraints,
             orgConstraints: orgConstraints,
