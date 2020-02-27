@@ -17,6 +17,11 @@ $result = $statement->execute();
 ?>
  */
 
+function runJava($table_name, $id){
+    //do stuff;
+//    system("java -jar JAR.jar " . $table_name . " " . strval($id));
+}
+
 function answerJsonAndDie($obj)
 {
     header('Content-Type: application/json');
@@ -594,6 +599,48 @@ function createNewOrganisationPresence($params)
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $unep_presence_id);
 }
 
+function getLocationsOfSuggestion($suggestion_id){
+    global $dbconn;
+
+    $stmt = $dbconn->prepare("SELECT s.id, t.loc_id AS trip_source_id, up.loc_id AS unep_presence_loc_id, wc.loc_id AS wish_loc_id, p.loc_id as org_loc_id, t2.loc_id as trip_dest_id
+from suggestions s
+JOIN wishes w ON s.wish_id = w.id
+LEFT JOIN wish_constraints wc ON wc.wish_id = w.id AND wc.type = 'LOCATION'
+LEFT JOIN trips t on s.trips__dep_id = t.id
+LEFT JOIN unep_presences up ON s.unep_presences__dep_id = up.id
+LEFT JOIN presences p ON s.presences__dep_id = p.id
+LEFT JOIN trip_org_presences top ON s.trip_org_presences__dep_id = top.id
+LEFT JOIN trips t2 ON top.trip_id = t2.id
+where s.id = ?");
+
+    $stmt->bindValue(1,$suggestion_id,SQLITE3_INTEGER);
+    $rows = $stmt->execute();
+    if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
+    $row = $rows->fetchArray();
+
+    $result = array();
+
+    if(!is_null($row['trip_source_id'])){
+        $result['src'] = $row['trip_source_id'];
+    } else if (!is_null($row['unep_presence_loc_id'])){
+        $result['src'] = $row['unep_presence_loc_id'];
+    } else{
+        error("src : Corrupt suggestion or suggestion acceptance logic is flawed. Blame Daniel.");
+    }
+
+    if(!is_null($row['wish_loc_id'])){
+        $result['dest'] = $row['wish_loc_id'];
+    } else if(!is_null($row['org_loc_id'])){
+        $result['dest'] = $row['org_loc_id'];
+    } else if(!is_null($row['trip_dest_id'])){
+        $result['dest'] = $row['trip_dest_id'];
+    } else{
+        error("dest : Corrupt suggestion or suggestion acceptance logic is flawed. Blame Daniel.");
+    }
+
+    return $result;
+}
+
 function acceptSuggestion($params)
 {
     global $dbconn;
@@ -604,22 +651,35 @@ function acceptSuggestion($params)
 
     $row = $rows->fetchArray();
 
+    $wish_id = $row['wish_id'];
+
     //TODO: add match_loc_id (where we're coming from) and wish_loc_id(where we're going to go)
     //this means that technically this is only relevant when were getting matches that are not on a trip
 
-    $stmt = $dbconn->prepare("INSERT INTO acceptedSuggestions(wisher_id, emissions, emission_delta) VALUES(?,?,?)");
+    $locs = getLocationsOfSuggestion($params->suggestion_id);
+
+    $stmt = $dbconn->prepare("INSERT INTO acceptedSuggestions(wisher_id, emissions, emission_delta, time_accepted,src_loc_id, dest_loc_id) VALUES(?,?,?,?,?,?)");
     $stmt->bindValue(1, $row['wisher_id'], SQLITE3_INTEGER);
     $stmt->bindValue(2, $row['emissions'], SQLITE3_FLOAT);
     $stmt->bindValue(3, $row['emmission_delta'], SQLITE3_FLOAT);
+    $stmt->bindValue(4, time(), SQLITE3_INTEGER);
+    $stmt->bindValue(5, $locs['src'], SQLITE3_INTEGER);
+    $stmt->bindValue(6, $locs['dest'], SQLITE3_INTEGER);
 
     $stmt->execute();
 
     if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
 
+//    $stmt = $dbconn->prepare("DELETE FROM wishes WHERE id = ?");
+//    $stmt->bindValue(1,$wish_id,SQLITE3_INTEGER);
+//    $rows = $stmt->execute();
+    
     $entry_id = $dbconn->lastInsertRowID();
 
-    return (object)$row;
-//    return (object)array('outcome' => 'succeeded', 'inserted_id' => $entry_id);
+
+
+   // return (object)$row;
+    return (object)array('outcome' => 'succeeded', 'inserted_id' => $entry_id);
 }
 
 function getTotalEmissionsSaved($params)
@@ -687,6 +747,14 @@ function createNewUser($params)
     $unep_rep_id = $dbconn->lastInsertRowID();
 
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $unep_rep_id);
+}
+
+function removeOldTravel($params)
+{
+    global $dbconn;
+    $stmt = $dbconn->prepare("DELETE FROM trips WHERE endTime<?");
+    $stmt->bindValue(1,time(),SQLITE3_INTEGER);
+    $stmt->execute();
 }
 
 $request = json_decode($_GET['q']);
