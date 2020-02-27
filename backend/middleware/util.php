@@ -231,7 +231,7 @@ function getAllConstraintsFromWish($wishId)
     global $dbconn;
 
     $result = array();
-    $result["orgs"] = array();
+    $result["organisations"] = array();
     $result["times"] = array();
     $result["locations"] = array();
 
@@ -716,17 +716,17 @@ switch ($request->method) {
         break;
 
     case 'getLocationFromId':
-        $result = getLocationFromId($request->params);
+        $result = getLocationFromId($request->params->loc_id);
         answerJsonAndDie($result);
         break;
 
     case 'getOrganisationFromId':
-        $result = getOrganisationFromId($request->params);
+        $result = getOrganisationFromId($request->params->org_id);
         answerJsonAndDie($result);
         break;
 
     case 'getUnepRepFromId':
-        $result = getUnepRepFromId($request->params);
+        $result = getUnepRepFromId($request->params->rep_id);
         answerJsonAndDie($result);
         break;
 
