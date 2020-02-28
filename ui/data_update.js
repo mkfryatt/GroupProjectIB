@@ -1,9 +1,7 @@
-function submitTravelEdit(id) {
-  deleteTravel(id);
-  submitTravelNew();
-}
+//if id=-1, then this is a whole new travel item
+function submitTravel(id) {
+  console.log("submit travel new");
 
-function submitTravelNew() {
   //get org constraints
   var org_name = $("#org-travel").val();
 
@@ -28,9 +26,14 @@ function submitTravelNew() {
   var lat = selectionTravel.location.latitude;
   var lon = selectionTravel.location.longitude;
 
-  //tell backend
-  //TODO ask daniel what name is supposed to be
+  //i it is an edited travel item, delete the original
+  if (id!=-1) {
+    deleteTravel(id);
+  }
+
+  //submit new travel item
   createNewTravel(org_name, city, country, lat, lon, start, end, email, "", result => {
+    console.log("Submit travel: "+ JSON.stringify(result));
     if (result.hasOwnProperty("error")) {
       console.log("error submitting travel");
       $("#warning-travel").text("Error: " + result.error);
@@ -46,8 +49,10 @@ function submitTravelNew() {
 }
 
 function deleteTravel(id) {
+  console.log("delete travel: "+ id);
   $("#confirm-removal").remove();
   deleteTravelFromId(id, result => {
+    console.log(JSON.stringify("Delete travel: " +result));
     if (result.hasOwnProperty("error")) {
       console.log("error deleting travel");
     } else {
@@ -58,6 +63,7 @@ function deleteTravel(id) {
 }
 
 function submitWish() {
+  console.log("submit wish");
   //get org constraints
   var org;
   if ($("#org-wish").val()=="") {
@@ -92,6 +98,7 @@ function submitWish() {
 
   //tell backend
   createNewWish(email, time, org, loc, result => {
+    console.log("Submit wish: "+ JSON.stringify(result));
     if (result.hasOwnProperty("error")) {
       console.log("error submitting wish");
       $("#warning-wish").text("Error: " + result.error);
@@ -108,9 +115,11 @@ function submitWish() {
 }
 
 function deleteWish(id) {
+  console.log("delete wish: "+ id);
   $("#confirm-removal").remove();
 
   deleteWishFromId(id, result => {
+    console.log("Delete wish: "+ JSON.stringify(result));
     if (result.hasOwnProperty("error")) {
       console.log("error deleting wish");
     } else {
@@ -121,6 +130,7 @@ function deleteWish(id) {
 }
 
 function submitAdmin() {
+  console.log("submit admin");
   var unep_project = $("#unep-check").is(':checked');
 
   //get org constraints
@@ -156,14 +166,8 @@ function submitAdmin() {
   var lat = selectionAdmin.location.latitude;
   var lon = selectionAdmin.location.longitude;
 
-  //tell backend
-  if (unep_project) {
-    createNewUnepPresence(org_project, city, country, lon, lat, start, end, callbackSubmitAdmin);
-  } else {
-    createNewOrganisationPresence(org_project, city, country, lon, lat, start, end, callbackSubmitAdmin);
-  }
-
-  function callbackSubmitAdmin(result) {
+  function callback(result) {
+    console.log("Submit admin: "+ JSON.stringify(result));
     if (result.hasOwnProperty("error")) {
       console.log("error submitting admin");
       $("#warning-admin").text("Error: " + result.error);
@@ -175,11 +179,20 @@ function submitAdmin() {
       selectionAdmin = null;
     }
   }
+
+  //tell backend
+  if (unep_project) {
+    createNewUnepPresence(org_project, city, country, lon, lat, start, end, callback);
+  } else {
+    createNewOrganisationPresence(org_project, city, country, lon, lat, start, end, callback);
+  }
 }
 
-function acceptMatch(match_id) {
+function acceptMatch(id) {
+  console.log("accept match: "+ id);
   $("#confirm-removal").remove();
-  acceptSuggestion(match_id, result => {
+  acceptSuggestion(id, result => {
+    console.log("Accept match: "+ JSON.stringify(result));
     if (result.hasOwnProperty("error")) {
       console.log("error accepting match");
     } else {

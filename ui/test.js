@@ -287,8 +287,9 @@ function showCarbonDetails(details) {
 
 function showDefaultTravel() {
   $("#travel-add").hide();
-  $("#travel-default").show();
+  $("#travel-warning").hide();
   clearForm("travel");
+  $("#travel-default").show();
 }
 
 function makeDefaultTravel(travels) {
@@ -353,7 +354,7 @@ function makeDefaultTravel(travels) {
 function showAddTravel() {
   $("#travel-default").hide();
   $("#travel-add").show();
-  $("#travel-btn").attr("onclick", "submitTravelNew()");
+  $("#travel-btn").attr("onclick", "submitTravel(-1)");
 }
 
 function showEditTravel(travel) {
@@ -371,7 +372,7 @@ function showEditTravel(travel) {
   document.getElementById("start-date-travel").valueAsDate = new Date(travel.startTime * 1000);
   document.getElementById("end-date-travel").valueAsDate = new Date(travel.endTime * 1000);
 
-  $("#travel-btn").attr("onclick", "submitTravelEdit("+travel.id+")");
+  $("#travel-btn").attr("onclick", "submitTravel("+travel.id+")");
 }
 
 function removeTravelConfirmation(id) {
