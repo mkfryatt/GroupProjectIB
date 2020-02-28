@@ -64,6 +64,16 @@ function deleteTravel(id) {
 
 function submitWish() {
   console.log("submit wish");
+
+  //get tag
+  var tag;
+  if ($("#tag-wish").val()=="") {
+    $("#warning-wish").text("Please enter a tag or name for your wish before submitting.");
+    $("#warning-wish").show();
+    return;
+  }
+  tag = $("#tag-wish").val();
+
   //get org constraints
   var org;
   if ($("#org-wish").val()=="") {
@@ -71,6 +81,8 @@ function submitWish() {
   } else {
     org = [{name:$("#org-wish").val()}];
   }
+
+  console.log(JSON.stringify(org));
 
   //get time constraints
   var start, end, time;
@@ -97,7 +109,7 @@ function submitWish() {
   loc = [{city: city, country: country, lat: lat, lon: lon}];
 
   //tell backend
-  createNewWish(email, time, org, loc, result => {
+  createNewWish(tag, email, time, org, loc, result => {
     console.log("Submit wish: "+ JSON.stringify(result));
     if (result.hasOwnProperty("error")) {
       console.log("error submitting wish");
@@ -207,6 +219,6 @@ function acceptMatch(id) {
 }
 
 function clearForm(type) {
-  var attrs = ["org", "searchbox", "start-date", "end-date"];
+  var attrs = ["org", "searchbox", "start-date", "end-date", "tag"];
   attrs.forEach(element => $("#"+element+"-"+type).val(""));
 }

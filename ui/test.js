@@ -1,8 +1,12 @@
 var email = "";
+var firstUser = true;
 
+//this is called once (when the page loads)
 function init() {
+
   showLogin();
 
+  //add listener to checkbox on admin tab
   $('input[id="unep-check"]').change(function(){
     if($(this).is(':checked')) {
       $("#org-admin").attr("placeholder", "Project Name");
@@ -11,25 +15,44 @@ function init() {
     }
   });
 
+  //default timeframe for map is one month (from today)
   document.getElementById("start-date-map").valueAsDate = new Date();
   var date = new Date();
   date.setMonth(1 + date.getMonth());
   document.getElementById("end-date-map").valueAsDate = date;
 
+  //open correct tab
   var tabs = ["travel", "wish", "admin"];
-  tabs.forEach(e => {
-    $("#warning-"+e).hide();
-    clearForm(e);
-  });
-
+  tabs.forEach(e => $("#warning-"+e).hide());
   openTab("cal");
+
+  firstUser = false;
 }
 
+//type is "cal", "wish", "match",  or "admin"
 function openTab(type) {
   $(".tabcontent").hide();
   $(".tab button").css("background-color", "");
   $("#"+type+"-btn").css("background-color", "#f4f4f4");
   $("#"+type).show();
+}
+
+function switchUser() {
+  //reset timeframe
+  document.getElementById("start-date-map").valueAsDate = new Date();
+  var date = new Date();
+  date.setMonth(1 + date.getMonth());
+  document.getElementById("end-date-map").valueAsDate = date;
+
+  //reset tabs
+  var tabs = ["travel", "wish", "admin"];
+  tabs.forEach(e => {
+    $("#warning-"+e).hide();
+    clearForm(e);
+  });
+  openTab("cal");
+
+  showLogin();
 }
 
 function showLogin() {
@@ -77,41 +100,101 @@ function showLogin() {
 }
 
 function tryLogin() {
+  //email can't be empty string
   if ($("#email").val()=="") {
     $("#warning").show();
   } else {
+
     email = $("#email").val();
-    $("#current-user").text(email);
-    $("#login").remove();
-
-    getAllTravelFromUser(email, makeDefaultTravel);
-    $("#travel-add").hide();
-    $("#travel-default").show();
-
-    getAllWishesFromUser(email, makeWishes);
-    $("#match-previews").hide();
-    $("#matches-back-btn").hide();
-    $("#wish-previews").show();
-
-    getEmissionsSavedFromUser(email, updateCarbonCounter);
-
-    initMap();
+    userExists(email, result => {
+      if (result.exists==false) {
+        doLogin();
+      } else {
+        showNewUser();
+      }
+    });
   }
 }
 
+//bring up dialog to create a new user
+function showNewUser() {
+  var div = document.createElement("div");
+  div.setAttribute("class", "form-group");
+  var firstName = document.createElement("input");
+  firstName.setAttribute("type", "text");
+  firstName.setAttribute("class", "form-control");
+  firstName.setAttribute("id", "first-name");
+  firstName.setAttribute("placeholder", "First Name");
+  var secondName = document.createElement("input");
+  secondName.setAttribute("type", "text");
+  secondName.setAttribute("class", "form-control");
+  secondName.setAttribute("id", "second-name");
+  secondName.setAttribute("placeholder", "Second Name");
+  div.append(firstName);
+  div.append(secondName);
+
+  var dialog = createDialog("new-user",
+  "Create New User",
+  "The email "+ email + " is unrecognised. Please submit your details.",
+  "makeNewUser()",
+  div);
+
+  $("body").append(dialog);
+  $("#new-user").show();
+}
+
+function makeNewUser() {
+  var first = $("#first-name").val();
+  var second = $("#second-name").val();
+  if (first!="" && second!="") {
+    createNewUser(email, first, secondU, 
+      result => {
+        console.log(JSON.stringify(result));
+        doLogin();
+      });
+      $("#new-user").remove();
+  }
+}
+
+function doLogin() {
+  $("#current-user").text(email);
+  $("#login").remove();
+
+  getAllTravelFromUser(email, makeDefaultTravel);
+  $("#travel-add").hide();
+  $("#travel-default").show();
+
+  getAllWishesFromUser(email, makeWishes);
+  $("#match-previews").hide();
+  $("#matches-back-btn").hide();
+  $("#wish-previews").show();
+
+  getEmissionsSavedFromUser(email, updateCarbonCounter);
+
+  //can only call initMap once, so if this is't the first user, just updateMap
+  if (firstUser) {
+    initMap();
+  } else {
+    updateMap();
+  }
+}
+
+//makes the wishes tab, doesn't show it
+//callback function for getAllWishesFromUser
 function makeWishes(wishes) {
   console.log("Wishes: \n"+ JSON.stringify(wishes));
   if (wishes.length>0 && wishes[0].hasOwnProperty("error")) {
-    console.log("error getting wishes");
+    console.log("Error: "+ JSON.stringify(wishes));
     return;
   }
 
+  //update to the wish view
+  wishesMapUpdate(email);
   $("#wish-previews").empty();
   $("#match-title").text("View all wishes");
-  wishesMapUpdate(email);
 
   wishes.forEach(element => {
-
+    //get the number of matches for that wish
     getAllSuggestionsFromWish(element.id, matches => $("#num-matches-"+element.id).text(matches.length));
 
     var div = document.createElement("div");
@@ -130,12 +213,12 @@ function makeWishes(wishes) {
     
     var cardText = document.createElement("p");
     cardText.setAttribute("class", "card-text");
+
+    cardText.innerHTML = "<b>" + element.name + "</b><br>";
     if (element.constraints.hasOwnProperty("organisations")) {
-      element.constraints.organisations.forEach(org => cardText.innerText += org.name);
-    } else {
-      //TODO: check what format loc is in
-      element.constraints.locations.forEach(loc => cardText.innerText += loc.name);
+      element.constraints.organisations.forEach(org => cardText.innerHTML += org.name + "<br>");
     }
+    element.constraints.locations.forEach(loc => cardText.innerHTML += loc.city + ", " + loc.country);
     
     var btns = document.createElement("div");
     btns.setAttribute("class", "btn-group");
@@ -389,23 +472,25 @@ function removeWishConfirmation(id) {
   var dialog = createDialog("confirm-removal", 
     "Remove Wish", 
     "Would you like to permanently delete this wish?", 
-    "deleteWish("+id+")");
+    "deleteWish("+id+")",
+    null);
 
   $("body").append(dialog);
   $("#confirm-removal").show();
 }
 
-function acceptMatchConfirmation(match_id) {
+function acceptMatchConfirmation(id) {
   var dialog = createDialog("confirm-removal", 
     "Accept Match", 
     "Would you like to accept this match? It will also permenantly delete the corresponding wish.", 
-    "acceptMatch("+match_id+")");
+    "acceptMatch("+id+")",
+    null);
 
   $("body").append(dialog);
   $("#confirm-removal").show();
 }
 
-function createDialog(dialogID, dialogTitle, dialogQuestion, dialogOK) {
+function createDialog(dialogID, dialogTitle, dialogQuestion, dialogOK, fields) {
   var div1 = document.createElement("div");
   div1.setAttribute("class", "modal");
   div1.setAttribute("id", dialogID);
@@ -455,6 +540,9 @@ function createDialog(dialogID, dialogTitle, dialogQuestion, dialogOK) {
   divHeader.append(btnX);
 
   divBody.append(p);
+  if (fields != null) {
+    divBody.append(fields);
+  }
 
   divFooter.append(btnOK);
   divFooter.append(btnCancel);

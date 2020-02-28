@@ -290,7 +290,9 @@ function createNewUser(email, firstName, lastName, callbackFunction) {
   let request = {
     method: 'createNewUser',
     params: {
-      email: email
+      email: email,
+      firstName: firstName,
+      lastName: lastName
     }
   };
   sendXmlHttpRequest(request,callbackFunction);
