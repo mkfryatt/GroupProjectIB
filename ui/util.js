@@ -20,6 +20,15 @@ function getAllTables(callbackFunction) {
     sendXmlHttpRequest(request,callbackFunction);
 }
 
+function getAllOrganisationNames(callbackFunction){
+    let request = {
+        method: 'getAllOrganisationNames',
+        params: {
+        }
+    };
+    sendXmlHttpRequest(request, callbackFunction);
+}
+
 function getWishesWithinTimeframe(startTime, endTime, callbackFunction) {
     let request = {
         method: 'getWishesWithinTimeframe',
@@ -52,6 +61,8 @@ function getUnepPresencesWithinTimeframe(startTime, endTime, callbackFunction) {
     };
     sendXmlHttpRequest(request,callbackFunction);
 }
+
+
 
 function getOrganisationFromId(org_id, callbackFunction) {
     let request = {
