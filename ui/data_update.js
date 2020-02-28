@@ -2,8 +2,14 @@
 function submitTravel(id) {
   console.log("submit travel new");
 
-  //get org constraints
-  var org_name = $("#org-travel").val();
+  //get name constraints
+  var name = $("#tag-travel").val();
+  if ($("#tag-travel").val()=="") {
+    $("#warning-travel").text("Please enter a travel name before submitting.");
+    $("#warning-travel").show();
+    return;
+  }
+  $("#warning-travel").hide();
 
   //get time constraints
   var start = Math.round(document.getElementById("start-date-travel").valueAsDate/1000);
@@ -26,27 +32,43 @@ function submitTravel(id) {
   var lat = selectionTravel.location.latitude;
   var lon = selectionTravel.location.longitude;
 
-  //i it is an edited travel item, delete the original
-  if (id!=-1) {
-    deleteTravel(id);
+  //get org constraints
+  var org = $("#org-travel").val();
+  if ($("#org-travel").attr("class")=="form-control is-invalid" && org!="") {
+    var dialog = createDialog("new-org", 
+    "New Organisation", 
+    "Would you like to create a new organisation called '"+org+"'?",
+    "createNewOrganisation('"+org+"',"+
+    "result => {createNewTravel('"+
+    name+"', '"+city+"', '"+country+"', "+lat+", "+lon+", "+start+", "+end+", '"+email+"', '"+org+"',"+
+    "e => submitTravelCallback(e,"+id+"));"+
+    "$('#new-org').hide()})",
+    null);
+    $("body").append(dialog);
+    $("#new-org").show();
+  } else {
+    createNewTravel(name, city, country, lat, lon, start, end, email, org, e => submitTravelCallback(e, id));
   }
+}
 
-  //submit new travel item
-  createNewTravel(org_name, city, country, lat, lon, start, end, email, "", result => {
-    console.log("Submit travel: "+ JSON.stringify(result));
-    if (result.hasOwnProperty("error")) {
-      console.log("error submitting travel");
-      $("#warning-travel").text("Error: " + result.error);
-      $("#warning-travel").show();
-    } else {
-      clearForm("travel");
-      $("#warning-travel").hide();
-      //TODO
-      //updateMap();
-      getAllTravelFromUser(email, makeDefaultTravel);
-      selectionTravel = null;
+function submitTravelCallback(result, id) {
+  console.log("Submit travel: "+ JSON.stringify(result));
+  if (result.hasOwnProperty("error")) {
+    console.log("error submitting travel");
+    $("#warning-travel").text("Error: " + result.error);
+    $("#warning-travel").show();
+  } else {
+    clearForm("travel");
+    $("#warning-travel").hide();
+    //if it is an edited travel item, delete the original
+    if (id!=-1) {
+      deleteTravel(id);
     }
-  });
+    //TODO
+    //updateMap();
+    getAllTravelFromUser(email, makeDefaultTravel);
+    selectionTravel = null;
+  }
 }
 
 function deleteTravel(id) {
@@ -225,4 +247,5 @@ function acceptMatch(id) {
 function clearForm(type) {
   var attrs = ["org", "searchbox", "start-date", "end-date", "tag"];
   attrs.forEach(element => $("#"+element+"-"+type).val(""));
+  $("org-"+type).attr("class", "form-control");
 }

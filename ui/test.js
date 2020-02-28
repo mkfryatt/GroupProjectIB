@@ -7,11 +7,20 @@ function init() {
   showLogin();
 
   //add listener to checkbox on admin tab
-  $('input[id="unep-check"]').change(function(){
+  $("#unep-check").change(function(){
     if($(this).is(':checked')) {
       $("#org-admin").attr("placeholder", "Project Name");
+      //get rid of warning for org name
+      $("#org-admin").attr("class", "form-control");
     } else {
       $("#org-admin").attr("placeholder", "Organisation");
+      organisationExists($("#org-admin").val(), result => {
+        if (!result.exists) {
+          $("#org-admin").attr("class", "form-control is-invalid");
+        } else {
+          $("#org-admin").attr("class", "form-control");
+        }
+      });
     }
   });
 
@@ -26,19 +35,17 @@ function init() {
   tabs.forEach(type => {
     $("#warning-"+type).hide();
     //add listener to org fields so that it detect when new orgs are typed in
-    $("#org-"+type).focusout(e => getAllOrganisationNames(orgs => {
-      checkOrganisation(orgs, type);
+    $("#org-"+type).focusout(e => organisationExists($("#org-"+type).val(), result => {
+      if ($("#org-"+type).val()!="" && !result.exists && (type!="admin" || !$("#unep-check").is(':checked'))) {
+        $("#org-"+type).attr("class", "form-control is-invalid");
+      } else {
+        $("#org-"+type).attr("class", "form-control");
+      }
     }));
   });
   openTab("cal");
 
   firstUser = false;
-}
-
-function checkOrganisation(orgs, type) {
-  if (!orgs.includes($("#org-"+type).val())) {
-    console.log("unknown org");
-  }
 }
 
 //type is "cal", "wish", "match",  or "admin"
@@ -119,7 +126,7 @@ function tryLogin() {
 
     email = $("#email").val();
     userExists(email, result => {
-      if (result.exists==true) {
+      if (result.exists) {
         doLogin();
       } else {
         showNewUser();
@@ -462,7 +469,7 @@ function showEditTravel(travel) {
   $("#travel-default").hide();
   $("#travel-add").show();
 
-  $("#org-travel").val(travel.name);
+  $("#tag-travel").val(travel.name);
 
   getLocationFromId(travel.loc_id, loc => {
     $("#searchbox-travel").val(loc.city + ", "+ loc.country);
