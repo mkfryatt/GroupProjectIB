@@ -84,8 +84,6 @@ function submitWish() {
     org = [{name:$("#org-wish").val()}];
   }
 
-  console.log(JSON.stringify(org));
-
   //get time constraints
   var start, end, time;
   start = Math.round(document.getElementById("start-date-wish").valueAsDate/1000);

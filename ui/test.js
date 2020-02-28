@@ -119,7 +119,7 @@ function tryLogin() {
 
     email = $("#email").val();
     userExists(email, result => {
-      if (result.exists==false) {
+      if (result.exists==true) {
         doLogin();
       } else {
         showNewUser();
