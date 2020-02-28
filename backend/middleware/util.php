@@ -1,6 +1,6 @@
 <?php
 
-$javaPath = '../../cost/artifacts/Juliet_jar/Juliet.jar';
+$javaPath = '/../cost/artifacts/Juliet_jar/Juliet.jar';
 
 try {
     $dbconn = new SQLite3('../database.db');
@@ -21,8 +21,9 @@ $result = $statement->execute();
 
 function runJava($table_name, $id)
 {
+    global $javaPath;
     //do stuff;
-//    system("java -jar JAR.jar " . $table_name . " " . strval($id));
+    system("java -jar " . getcwd().$javaPath . " " . $table_name . " " . strval($id));
 }
 
 function answerJsonAndDie($obj)
@@ -59,6 +60,17 @@ function getAllTables($params)
         array_push($result, (object)$row);
     }
     return ($result);
+}
+
+function getAllOrganisationNames($params){
+    global $dbconn;
+    $stmt = $dbconn->prepare("SELECT name FROM organisations");
+    $rows = $stmt->execute();
+    $result = array();
+    while($row = $rows->fetchArray()){
+        $result[] = $row['name'];
+    }
+    return $result;
 }
 
 function getWishesWithinTimeframe($params)
@@ -750,9 +762,9 @@ function userExists($params)
 
     $result = array();
     if ($rows->fetchArray()) {
-        $result['exists'] = false;
-    } else {
         $result['exists'] = true;
+    } else {
+        $result['exists'] = false;
     }
 
     return (object)$result;
@@ -791,6 +803,11 @@ switch ($request->method) {
 
     case 'getAllTables':
         $result = getAllTables($request->params);
+        answerJsonAndDie($result);
+        break;
+
+    case 'getAllOrganisationNames':
+        $result = getAllOrganisationNames($request->params);
         answerJsonAndDie($result);
         break;
 
