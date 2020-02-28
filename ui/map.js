@@ -2,6 +2,7 @@
 //todo: handle multiple pins in a location
 //todo wishes tab display.
 //dateformatter still a bit broken
+//listeners for date fields
 
 var travelIcon = L.icon({
 	iconUrl: '../images/travel.png',
@@ -178,8 +179,13 @@ function displayPin(eventType, eventName, eventX, eventY, organisation, eventLoc
 	/*marker.bindPopup("<p>" + eventName.bold() + "<br />" + organisation + "<br />" + eventLocationName +"<br />" + eventPerson + "<br />" + eventStart + " to " + eventEnd +"</p>");*/
 }
 
-function wishesMapUpdate(wishid, email){
+function wishesMapUpdate(wishid){
 	layerGroup.clearLayers();
+
+	//get wishbyid and display it
+	
+
+	getAllSuggestionsFromWish
 
 	//Need wish id passed in to query?
 
