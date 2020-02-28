@@ -179,7 +179,7 @@ params:
 - orgConstraint : array of Objects with field name
 - locConstraint : array of positions (with city, country, lon, lat as usual)
 */
-function createNewWish(email, timeConstraints, orgConstraints, locConstraints, callbackFunction) {
+function createNewWish(name, email, timeConstraints, orgConstraints, locConstraints, callbackFunction) {
     let request = {
         method: 'createNewWish',
         params: {
