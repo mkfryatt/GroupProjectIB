@@ -779,6 +779,27 @@ function userExists($params)
     return (object)$result;
 }
 
+function createNewUser($params)
+{
+    global $dbconn;
+
+    if (userExists($params)->exists === true) {
+        $outcome = "exists";
+        $unep_rep_id = getUnepRepIdFromEmail($params->email);
+    } else {
+        $stmt = $dbconn->prepare("INSERT INTO unep_reps(email,firstName,lastName) VALUES(?,?,?)");
+        $stmt->bindValue(1, $params->email, SQLITE3_TEXT);
+        $stmt->bindValue(2, $params->firstName, SQLITE3_TEXT);
+        $stmt->bindValue(3, $params->lastName, SQLITE3_TEXT);
+        $rows = $stmt->execute();
+        if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
+        $unep_rep_id = $dbconn->lastInsertRowID();
+        $outcome = "succeeded";
+    }
+
+    return (object)array('outcome' => $outcome, 'inserted_id' => $unep_rep_id);
+}
+
 function organisationExists($params)
 {
     global $dbconn;
@@ -801,15 +822,19 @@ function createNewOrganisation($params)
 {
     global $dbconn;
 
-    $stmt = $dbconn->prepare("INSERT INTO organisations(name) VALUES (?)");
-    $stmt->bindValue(1, $params->name, SQLITE3_TEXT);
+    if (organisationExists($params)->exists === true) {
+        $outcome = "exists";
+        $org_id = getOrganisationIdFromName($params->name);
+    } else {
+        $stmt = $dbconn->prepare("INSERT INTO organisations(name) VALUES (?)");
+        $stmt->bindValue(1, $params->name, SQLITE3_TEXT);
+        $rows = $stmt->execute();
+        if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
+        $org_id = $dbconn->lastInsertRowID();
+        $outcome = "succeeded";
+    }
 
-    $rows = $stmt->execute();
-    if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
-
-    $org_id = $dbconn->lastInsertRowID();
-
-    return (object)array('outcome' => 'succeeded', 'inserted_id' => $org_id);
+    return (object)array('outcome' => $outcome, 'inserted_id' => $org_id);
 }
 
 function removeOldTravel($params)
