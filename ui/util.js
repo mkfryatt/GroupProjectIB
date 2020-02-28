@@ -113,6 +113,16 @@ function getAllWishesFromUser(email, callbackFunction) {
     sendXmlHttpRequest(request,callbackFunction);
 }
 
+function getWishFromId(wish_id, callbackFunction) {
+    let request = {
+        method: 'getWishFromId',
+        params: {
+            wish_id: wish_id
+        }
+    };
+    sendXmlHttpRequest(request,callbackFunction);
+}
+
 // function getAllSuggestionsForTravel(trip_id, callbackFunction) {
 //     let request = {
 //         method: 'getAllSuggestionsForTravel',
