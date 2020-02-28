@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import main.java.data.*;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -91,23 +92,17 @@ public class Cost {
 
     public static Double calculateCost(int timeDiff, double emission, double baselineEmission) {
 
-        double TimeDiffScore = 0.0;
-        double FlightEmissionScore = 0.0;
+        double days = (double) timeDiff / 86400;
+        return -costFunction7(days, emission);
+    }
 
-        FlightEmissionScore += (-0.0002 * emission) + 1;
-
-        if (timeDiff < 3) {
-            TimeDiffScore += 1.0 - (timeDiff / 60.0);
-        } else {
-            TimeDiffScore += 57.0 / (timeDiff + 57.0);
-        }
-        return (0.5 * TimeDiffScore) + (0.5 * FlightEmissionScore);
-
+    public static double costFunction7(double days, double emission) {
+        return Math.log(emission + 100.0) + 0.05 * days * days;
     }
 
 
     public static Double calculateCost(int timeDiff, Location wish, Location trip) {
-        return calculateCost(timeDiff,calculateFlightEmissions(trip, wish),calculateFlightEmissions(unepCambridgeLocation, wish));
+        return calculateCost(timeDiff, calculateFlightEmissions(trip, wish), 0);
     }
 
     public static void main(String[] args) {
