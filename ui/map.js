@@ -1,5 +1,7 @@
 //todo: organisations needs fixing....
 //todo: handle multiple pins in a location
+//todo unep and other presences
+//todo wishes tab display.
 
 var travelIcon = L.icon({
 	iconUrl: '../images/travel.png',
@@ -86,10 +88,10 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 	getAllWishesFromUser(email,function (wishes){
 		console.log(wishes)
 		console.log("Wishes: \n"+ JSON.stringify(wishes));
-		/*if (wishes.length>0 && wishes[0].hasOwnProperty("error")) {
+		if (wishes.length>0 && wishes[0].hasOwnProperty("error")) {
 		  console.log("error getting wishes");
-		} */
-		/*else*/{
+		} 
+		else{
 			console.log("displays")
 			wishes.forEach(element=>{
 				var locationPrint = "";
@@ -121,21 +123,29 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 	
 	});
 
-	/*getOrganisationPresencesWithinTimeframe() */
-
-	getUnepPresencesWithinTimeframe(1,10, function (result){
+	getOrganisationPresencesWithinTimeframe(start,end, function(result){
 		console.log(result);
+		result.forEach(pres=>{
+			
+
+		})
+
+	});
+
+	getUnepPresencesWithinTimeframe(start,end, function (result){
+		result.forEach(hq=>{
+
+			var period = null;
+			if (hq.startTime != 0){ //if not headquarters
+				period = dateFormatter(startTime) + " to " + dateFormatter(endTime);
+			}
+
+			displayPin(homeIcon, hq.name, hq.lat, hq.lon, null, hq.city + ", " + hq.country, null, period)
+		})
 	})
 
 
 	//Read in everyone's travel, your own wishes, and all presences (Unep, and external)
-	//iteratively call displayPin
-
-	//Filter by date from db file and display pins
-	console.log("displaying");
-	/*displayPin(travelIcon,"Goldfish conference", "Btec", 38.72, -9.14, "Lisbon", "Mark Smith", "1/04/20", "3/04/20");
-	displayPin(wishIcon,"Lemon meeting", "Atec" , 51.547, 0, "London", "Mark Smith", "1/04/20", "3/04/20");
- */
 }
 
 
