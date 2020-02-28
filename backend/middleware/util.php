@@ -93,7 +93,7 @@ FROM trips JOIN locations on trips.loc_id = locations.id WHERE endTime >= ? OR s
         $resultRow = $row;
         //Get all involved organisations
         $stmt = $dbconn->prepare("SELECT o.name from trip_org_presences JOIN organisations o on trip_org_presences.org_id = o.id WHERE trip_org_presences.trip_id = ?");
-        $stmt->bindValue(1, $row['id'], SQLITE3_INTEGER);
+        $stmt->bindValue(1, $row['travel_id'], SQLITE3_INTEGER);
         $orgrows = $stmt->execute();
         if (!$orgrows) error('Query failed ' . $dbconn->lastErrorMsg());
         $orgs = array();
@@ -104,7 +104,7 @@ FROM trips JOIN locations on trips.loc_id = locations.id WHERE endTime >= ? OR s
 
         //Get all involved unep_reps
         $stmt = $dbconn->prepare("SELECT r.email, r.firstName, r.lastName FROM rep_trips rt JOIN unep_reps r on rt.rep_id = r.id where rt.trip_id = ?");
-        $stmt->bindValue(1, $row['id'], SQLITE3_INTEGER);
+        $stmt->bindValue(1, $row['travel_id'], SQLITE3_INTEGER);
         $reprows = $stmt->execute();
         if (!$reprows) error('Query failed ' . $dbconn->lastErrorMsg());
         $reps = array();
@@ -280,6 +280,24 @@ function getAllWishesFromUser($params)
 JOIN unep_reps ON wishes.wisher_id = unep_reps.id
 WHERE unep_reps.email = ?");
     $stmt->bindValue(1, $params->email, SQLITE3_TEXT);
+    $rows = $stmt->execute();
+    if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
+    $result = array();
+    while ($row = $rows->fetchArray()) {
+        $row = removeNumericKeys($row);
+        $rowTemp = $row;
+        $rowTemp['constraints'] = getAllConstraintsFromWish($row['id']);
+        array_push($result, (object)$rowTemp);
+    }
+    return ($result);
+}
+
+function getWishFromId($wish_id){
+    global $dbconn;
+    $stmt = $dbconn->prepare("SELECT wishes.id, wishes.name, unep_reps.email FROM wishes
+JOIN unep_reps ON wishes.wisher_id = unep_reps.id
+WHERE wishes.id = ?");
+    $stmt->bindValue(1, $wish_id, SQLITE3_TEXT);
     $rows = $stmt->execute();
     if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
     $result = array();
@@ -811,6 +829,11 @@ switch ($request->method) {
 
     case 'getAllWishesFromUser':
         $result = getAllWishesFromUser($request->params);
+        answerJsonAndDie($result);
+        break;
+
+    case 'getWishFromId':
+        $result = getWishFromId($request->params->wish_id);
         answerJsonAndDie($result);
         break;
 

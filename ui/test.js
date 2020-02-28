@@ -17,7 +17,10 @@ function init() {
   document.getElementById("end-date-map").valueAsDate = date;
 
   var tabs = ["travel", "wish", "admin"];
-  tabs.forEach(e => {$("#warning-"+e).hide();});
+  tabs.forEach(e => {
+    $("#warning-"+e).hide();
+    clearForm(e);
+  });
 
   openTab("cal");
 }
@@ -285,10 +288,10 @@ function showCarbonDetails(details) {
 function showDefaultTravel() {
   $("#travel-add").hide();
   $("#travel-default").show();
+  clearForm("travel");
 }
 
 function makeDefaultTravel(travels) {
-  console.log(travels);
   console.log("Travels: \n"+ JSON.stringify(travels));
   $("#travel-default").empty();
 
@@ -303,7 +306,7 @@ function makeDefaultTravel(travels) {
 
     var div = document.createElement("div");
     div.setAttribute("class", "col-sm-1");
-    div.setAttribute("id", "travel-"+element.id);
+    div.setAttribute("id", "travel-"+element.travel_id);
 
     var card = document.createElement("div");
     card.setAttribute("class", "card");
@@ -319,21 +322,21 @@ function makeDefaultTravel(travels) {
 
     var btnEdit = document.createElement("button");
     btnEdit.setAttribute("class", "btn btn-primary");
-    btnEdit.setAttribute("onclick", "getTravelFromId("+element.id+", showEditTravel)");
+    btnEdit.setAttribute("onclick", "getTravelFromId("+element.travel_id+", showEditTravel)");
     btnEdit.innerText = "Edit";
 
     var btnRemove = document.createElement("button");
     btnRemove.setAttribute("class", "btn btn-danger");
-    btnRemove.setAttribute("onclick", "removeTravelConfirmation("+element.id+")");
+    btnRemove.setAttribute("onclick", "removeTravelConfirmation("+element.travel_id+")");
     btnRemove.innerText = "Remove";
 
     var options = {year: 'numeric', month: 'long', day: 'numeric' };
     var start = (new Date(element.startTime * 1000)).toLocaleDateString('en-GB', options);
     var end = (new Date(element.endTime * 1000)).toLocaleDateString('en-GB', options);
 
+    list.append(createLI("Trip", element.travel_name));
     list.append(createLI("Location", element.city + ", " + element.country));
-    list.append(createLI("Start", start));
-    list.append(createLI("End", end));
+    list.append(createLI("Times", start + "\n" + end));
 
     btnGroup.append(btnEdit);
     btnGroup.append(btnRemove);
@@ -358,19 +361,17 @@ function showEditTravel(travel) {
   $("#travel-default").hide();
   $("#travel-add").show();
 
-  var textAttrs = ["org", "searchbox"];
-  var textVals = [travel.org, travel.city + ", "+ travel.country];
-  for (var i=0; i<2; i++) {
-    $("#"+textAttrs[i]+"-travel").val(textVals[i]);
-  }
+  $("#org-travel").val(travel.name);
 
-  var dateAttrs = ["start", "end"];
-  var dateVals = [new Date(travel.startTime * 1000), new Date(travel.endTime * 1000)];
-  for (var i=0; i<2; i++) {
-    $("#"+dateAttrs[i]+"-date-travel").val(dateVals[i]);
-  }
+  getLocationFromId(travel.loc_id, loc => {
+    $("#searchbox-travel").val(loc.city + ", "+ loc.country);
+    console.log("Loc: "+JSON.stringify(loc))
+  });
 
-  $("#travel-btn").attr("onclick", "submitTravelEdit("+id+")");
+  document.getElementById("start-date-travel").valueAsDate = new Date(travel.startTime * 1000);
+  document.getElementById("end-date-travel").valueAsDate = new Date(travel.endTime * 1000);
+
+  $("#travel-btn").attr("onclick", "submitTravelEdit("+travel.id+")");
 }
 
 function removeTravelConfirmation(id) {
