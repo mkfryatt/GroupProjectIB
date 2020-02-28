@@ -17,7 +17,8 @@ $result = $statement->execute();
 ?>
  */
 
-function runJava($table_name, $id){
+function runJava($table_name, $id)
+{
     //do stuff;
 //    system("java -jar JAR.jar " . $table_name . " " . strval($id));
 }
@@ -599,7 +600,8 @@ function createNewOrganisationPresence($params)
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $unep_presence_id);
 }
 
-function getLocationsOfSuggestion($suggestion_id){
+function getLocationsOfSuggestion($suggestion_id)
+{
     global $dbconn;
 
     $stmt = $dbconn->prepare("SELECT s.id, t.loc_id AS trip_source_id, up.loc_id AS unep_presence_loc_id, wc.loc_id AS wish_loc_id, p.loc_id as org_loc_id, t2.loc_id as trip_dest_id
@@ -613,28 +615,28 @@ LEFT JOIN trip_org_presences top ON s.trip_org_presences__dep_id = top.id
 LEFT JOIN trips t2 ON top.trip_id = t2.id
 where s.id = ?");
 
-    $stmt->bindValue(1,$suggestion_id,SQLITE3_INTEGER);
+    $stmt->bindValue(1, $suggestion_id, SQLITE3_INTEGER);
     $rows = $stmt->execute();
     if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
     $row = $rows->fetchArray();
 
     $result = array();
 
-    if(!is_null($row['trip_source_id'])){
+    if (!is_null($row['trip_source_id'])) {
         $result['src'] = $row['trip_source_id'];
-    } else if (!is_null($row['unep_presence_loc_id'])){
+    } else if (!is_null($row['unep_presence_loc_id'])) {
         $result['src'] = $row['unep_presence_loc_id'];
-    } else{
+    } else {
         error("src : Corrupt suggestion or suggestion acceptance logic is flawed. Blame Daniel.");
     }
 
-    if(!is_null($row['wish_loc_id'])){
+    if (!is_null($row['wish_loc_id'])) {
         $result['dest'] = $row['wish_loc_id'];
-    } else if(!is_null($row['org_loc_id'])){
+    } else if (!is_null($row['org_loc_id'])) {
         $result['dest'] = $row['org_loc_id'];
-    } else if(!is_null($row['trip_dest_id'])){
+    } else if (!is_null($row['trip_dest_id'])) {
         $result['dest'] = $row['trip_dest_id'];
-    } else{
+    } else {
         error("dest : Corrupt suggestion or suggestion acceptance logic is flawed. Blame Daniel.");
     }
 
@@ -673,12 +675,11 @@ function acceptSuggestion($params)
 //    $stmt = $dbconn->prepare("DELETE FROM wishes WHERE id = ?");
 //    $stmt->bindValue(1,$wish_id,SQLITE3_INTEGER);
 //    $rows = $stmt->execute();
-    
+
     $entry_id = $dbconn->lastInsertRowID();
 
 
-
-   // return (object)$row;
+    // return (object)$row;
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $entry_id);
 }
 
@@ -753,7 +754,7 @@ function removeOldTravel($params)
 {
     global $dbconn;
     $stmt = $dbconn->prepare("DELETE FROM trips WHERE endTime<?");
-    $stmt->bindValue(1,time(),SQLITE3_INTEGER);
+    $stmt->bindValue(1, time(), SQLITE3_INTEGER);
     $stmt->execute();
 }
 
@@ -834,7 +835,7 @@ switch ($request->method) {
         break;
 
     case 'createNewWish':
-        $result = createNewWish($request->params->name,$request->params->email, $request->params->timeConstraints, $request->params->orgConstraints, $request->params->locConstraints);
+        $result = createNewWish($request->params->name, $request->params->email, $request->params->timeConstraints, $request->params->orgConstraints, $request->params->locConstraints);
         answerJsonAndDie($result);
         break;
 
