@@ -147,7 +147,4 @@ public class AddedHelperFunctions {
         Add.dbCon.executeStatement(sql);
         return true;
     }
-    public static void main(String[] args) throws SQLException{
-
-    }
 }
