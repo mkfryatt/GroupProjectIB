@@ -1,3 +1,6 @@
+//todo: organisations needs fixing....
+//todo: handle multiple pins in a location
+
 var travelIcon = L.icon({
 	iconUrl: '../images/travel.png',
 	iconSize: [32, 32],
@@ -36,10 +39,15 @@ function initMap() {
 		id: 'mapbox/streets-v11',
 		tileSize: 512,
 		zoomOffset: -1,
-		accessToken: 'pk.eyJ1IjoiamdjNDYiLCJhIjoiY2s2N3N0N3czMGIwaDNtb2RxNHZzazgwNSJ9.1OQ8CCRVLbUBbycUpn4T5Q'}).addTo(map);
+		accessToken: 'pk.eyJ1IjoiamdjNDYiLCJhIjoiY2s2N3N0N3czMGIwaDNtb2RxNHZzazgwNSJ9.1OQ8CCRVLbUBbycUpn4T5Q'}).addTo(map);	
 
-		layerGroup = L.layerGroup().addTo(map);
-		updateMap(); 
+	layerGroup = L.layerGroup().addTo(map);
+	updateMap(); 
+}
+
+function dateFormatter(unixIn){
+	var DTform = new Date(unixIn);
+	return (DTform.getDate() + '/' + (DTform.getMonth()+1) + '/' + DTform.getFullYear())
 }
 
 function updateMap(){ /* Core map display, all wishes and travel within date-range */
@@ -47,19 +55,76 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 
 	var start = Math.round(document.getElementById("start-date-map").valueAsDate/1000);
 	var end = Math.round(document.getElementById("end-date-map").valueAsDate/1000);
-	
-	getTravelWithinTimeframe(start,end,function (result) {
+
+	getTravelWithinTimeframe(start,end,function (travel) {
+		console.log("Travel: \n"+ JSON.stringify(travel));
+		if (travel.length>0 && travel[1].hasOwnProperty("error")) {
+		  console.log("error getting travel");
+		}
+		else{
+			travel.forEach(element=>{
+				var attendees = "";
+				var orgs = "";
+				element.unep_reps.forEach(person=>{attendees = attendees.concat(person.firstName," ", person.lastName) });
+				/*element.organisation.forEach(org=>{orgs += org.firstName}); */
+				displayPin(travelIcon,
+					element.travel_name,
+					element.lat,
+					element.lon,
+					null, //No organisation specifically sometimes, handle later
+					element.city + ", " + element.country,
+					attendees,
+					dateFormatter(element.startTime) + " to " + dateFormatter(element.endTime)
+					)
+				}
+			)
+		}
 		//If time distinguish users travel from all travel
 
-	})
+	}); 
 
-	getAllWishesFromUser(email,function (result){
-
+	getAllWishesFromUser(email,function (wishes){
+		console.log(wishes)
+		console.log("Wishes: \n"+ JSON.stringify(wishes));
+		/*if (wishes.length>0 && wishes[0].hasOwnProperty("error")) {
+		  console.log("error getting wishes");
+		} */
+		/*else*/{
+			console.log("displays")
+			wishes.forEach(element=>{
+				var locationPrint = "";
+				var locationlat;
+				var locationlon;
+				if (element.constraints.locations.length ==0){
+					locationPrint = null;
+					locationlat = null;
+					locationlon = null;
+				}
+				else{
+					locationPrint = locationPrint.concat(element.constraints.locations[0].city, ", ", element.constraints.locations[0].country);
+					locationlat = element.constraints.locations[0].lat;
+					locationlon = element.constraints.locations[0].lon;
+				}
+				var location = "";
+				displayPin(wishIcon,
+					"Event name", //Needs including in db
+					locationlat,
+					locationlon,
+					null, //No organisation specifically sometimes, handle later
+					locationPrint,
+					null,
+					dateFormatter(element.startTime) + " to "+dateFormatter(element.endTime)
+					)
+				}
+			)
+		}
+	
 	});
 
 	/*getOrganisationPresencesWithinTimeframe() */
 
-	getUnepPresencesWithinTimeframe(1,10, function (result) {
+	getUnepPresencesWithinTimeframe(1,10, function (result){
+		console.log(result);
 	})
 
 
@@ -67,21 +132,28 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 	//iteratively call displayPin
 
 	//Filter by date from db file and display pins
-	displayPin(travelIcon,"Goldfish conference", "Btec", 38.72, -9.14, "Lisbon", "Mark Smith", "1/04/20", "3/04/20");
+	console.log("displaying");
+	/*displayPin(travelIcon,"Goldfish conference", "Btec", 38.72, -9.14, "Lisbon", "Mark Smith", "1/04/20", "3/04/20");
 	displayPin(wishIcon,"Lemon meeting", "Atec" , 51.547, 0, "London", "Mark Smith", "1/04/20", "3/04/20");
-	/*layerGroup.clearLayers();  */
+ */
 }
 
 
-function displayPin(eventType, eventName, organisation, eventX, eventY, eventLocationName, eventPerson, eventStart, eventEnd) {
-	//Event name & Institution 
-	//Location (need Co-ords and city name)
-	//Person -> unep_rep & name
-	//Time
+function displayPin(eventType, eventName, eventX, eventY, organisation, eventLocationName, eventPerson, eventRange) {
+	
+	var popupString = "";
+
+	for (var i=4; i<arguments.length; i++){
+		if (arguments[i]!=null){
+			popupString+=arguments[i];
+			popupString+="<br />";
+		}
+	}
 
 	var marker = L.marker([eventX,eventY], {icon: eventType}).addTo(layerGroup);
-	marker.bindPopup("<p>" + eventName.bold() + "<br />" + organisation + "<br />" + eventLocationName +"<br />" + eventPerson + "<br />" + eventStart + " to " + eventEnd +"</p>");
-	
+	marker.bindPopup("<p>" + eventName.bold() + "<br />" + popupString + "</p>");
+	console.log("lo");
+	/*marker.bindPopup("<p>" + eventName.bold() + "<br />" + organisation + "<br />" + eventLocationName +"<br />" + eventPerson + "<br />" + eventStart + " to " + eventEnd +"</p>");*/
 }
 
 function wishesMapUpdate(email){
