@@ -1,10 +1,13 @@
 <?php
 
+$javaPath = '../../cost/artifacts/Juliet_jar/Juliet.jar';
+$databasePath = '../database.db';
+
 try {
     $dbconn = new SQLite3('../database.db');
 } catch (Exception $e) {
     //TODO: fix this
-    die("Couldn't connect to DB.");
+    error("Couldn't connect to DB.");
 }
 
 
@@ -19,8 +22,9 @@ $result = $statement->execute();
 
 function runJava($table_name, $id)
 {
+    global $javaPath, $databasePath;
     //do stuff;
-//    system("java -jar JAR.jar " . $table_name . " " . strval($id));
+    exec("java -jar " . getcwd()."/".$javaPath . " " . getcwd()."/".$databasePath . " " . $table_name . " " . strval($id));
 }
 
 function answerJsonAndDie($obj)
@@ -59,6 +63,17 @@ function getAllTables($params)
     return ($result);
 }
 
+function getAllOrganisationNames($params){
+    global $dbconn;
+    $stmt = $dbconn->prepare("SELECT name FROM organisations");
+    $rows = $stmt->execute();
+    $result = array();
+    while($row = $rows->fetchArray()){
+        $result[] = $row['name'];
+    }
+    return $result;
+}
+
 function getWishesWithinTimeframe($params)
 {
     global $dbconn;
@@ -77,10 +92,42 @@ WHERE wc.type = 'TIME' AND endTime>=? AND startTime<=?");
     return ($result);
 }
 
+function getAllOrgsAndRepsForTravel($row)
+{
+    global $dbconn;
+    $resultRow = $row;
+    //Get all involved organisations
+    $stmt = $dbconn->prepare("SELECT o.name from trip_org_presences JOIN organisations o on trip_org_presences.org_id = o.id WHERE trip_org_presences.trip_id = ?");
+    $stmt->bindValue(1, $row['travel_id'], SQLITE3_INTEGER);
+    $orgrows = $stmt->execute();
+    if (!$orgrows) error('Query failed ' . $dbconn->lastErrorMsg());
+    $orgs = array();
+    while ($org = $orgrows->fetchArray()) {
+        $org = removeNumericKeys($org);
+        $orgs[] = $org;
+    }
+    $resultRow['organisations'] = $orgs;
+
+    //Get all involved unep_reps
+    $stmt = $dbconn->prepare("SELECT r.email, r.firstName, r.lastName FROM rep_trips rt JOIN unep_reps r on rt.rep_id = r.id where rt.trip_id = ?");
+    $stmt->bindValue(1, $row['travel_id'], SQLITE3_INTEGER);
+    $reprows = $stmt->execute();
+    if (!$reprows) error('Query failed ' . $dbconn->lastErrorMsg());
+    $reps = array();
+    while ($rep = $reprows->fetchArray()) {
+        $rep = removeNumericKeys($rep);
+        $reps[] = $rep;
+    }
+    $resultRow['unep_reps'] = $reps;
+    return $resultRow;
+}
+
+
+
 function getTravelWithinTimeframe($params)
 {
     global $dbconn;
-    $stmt = $dbconn->prepare("SELECT trips.id AS travel_id, trips.name AS travel_name, trips.startTime, trips.endTime, locations.city, locations.country, locations.lat, locations.lon
+    $stmt = $dbconn->prepare("SELECT trips.id AS travel_id, trips.name AS travel_name, locations.city, locations.country, locations.lat, locations.lon, trips.startTime, trips.endTime
 FROM trips JOIN locations on trips.loc_id = locations.id WHERE endTime >= ? OR startTime <= ?
 ");
     $stmt->bindValue(1, $params->startTime, SQLITE3_INTEGER);
@@ -90,32 +137,12 @@ FROM trips JOIN locations on trips.loc_id = locations.id WHERE endTime >= ? OR s
     $result = array();
     while ($row = $rows->fetchArray()) {
         $row = removeNumericKeys($row);
-        $resultRow = $row;
-        //Get all involved organisations
-        $stmt = $dbconn->prepare("SELECT o.name from trip_org_presences JOIN organisations o on trip_org_presences.org_id = o.id WHERE trip_org_presences.trip_id = ?");
-        $stmt->bindValue(1, $row['travel_id'], SQLITE3_INTEGER);
-        $orgrows = $stmt->execute();
-        if (!$orgrows) error('Query failed ' . $dbconn->lastErrorMsg());
-        $orgs = array();
-        while ($org = $orgrows->fetchArray()) {
-            $orgs[] = $org;
-        }
-        $resultRow['organisations'] = $orgs;
-
-        //Get all involved unep_reps
-        $stmt = $dbconn->prepare("SELECT r.email, r.firstName, r.lastName FROM rep_trips rt JOIN unep_reps r on rt.rep_id = r.id where rt.trip_id = ?");
-        $stmt->bindValue(1, $row['travel_id'], SQLITE3_INTEGER);
-        $reprows = $stmt->execute();
-        if (!$reprows) error('Query failed ' . $dbconn->lastErrorMsg());
-        $reps = array();
-        while ($rep = $reprows->fetchArray()) {
-            $reps[] = $rep;
-        }
-        $resultRow['unep_reps'] = $reps;
+        $resultRow = getAllOrgsAndRepsForTravel($row);
         array_push($result, (object)$resultRow);
     }
     return ($result);
 }
+
 
 function getUnepPresencesWithinTimeframe($params)
 {
@@ -170,7 +197,8 @@ WHERE unep_reps.email = ?");
     $result = array();
     while ($row = $rows->fetchArray()) {
         $row = removeNumericKeys($row);
-        array_push($result, (object)$row);
+        $resultRow = getAllOrgsAndRepsForTravel($row);
+        array_push($result, (object)$resultRow);
     }
     return ($result);
 }
@@ -218,7 +246,8 @@ function getTravelFromId($params)
     $stmt = $dbconn->prepare("SELECT * from trips where id = ?");
     $stmt->bindValue(1, $params->travel_id, SQLITE3_INTEGER);
     $rows = $stmt->execute();
-    return removeNumericKeys($rows->fetchArray());
+    $resultRow = getAllOrgsAndRepsForTravel($rows->fetchArray());
+    return $resultRow;
 }
 
 function getUnepRepIdFromEmail($email)
@@ -500,6 +529,8 @@ function createNewTravel($params)
     }
 
 
+//    runJava("trips", $trip_id);
+
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $trip_id);
 }
 
@@ -537,25 +568,30 @@ function createNewWish($name, $email, $time_constraints, $org_constraints, $loc_
             error("invalid time range (endTime<startTime");
         }
 
-        $stmt = $dbconn->prepare("INSERT INTO wish_constraints(type,startTime,endTime) VALUES ('TIME',?,?)");
-        $stmt->bindValue(1, $startTime, SQLITE3_INTEGER);
-        $stmt->bindValue(2, $endTime, SQLITE3_INTEGER);
+        $stmt = $dbconn->prepare("INSERT INTO wish_constraints(wish_id,type,startTime,endTime) VALUES (?,'TIME',?,?)");
+        $stmt->bindValue(1, $wish_id, SQLITE3_INTEGER);
+        $stmt->bindValue(2, $startTime, SQLITE3_INTEGER);
+        $stmt->bindValue(3, $endTime, SQLITE3_INTEGER);
         $rows = $stmt->execute();
     }
 
     foreach ($org_constraints as $org_constraint) {
-        $stmt = $dbconn->prepare("INSERT INTO wish_constraints(type,org_id) VALUES ('ORGANISATION',?)");
+        $stmt = $dbconn->prepare("INSERT INTO wish_constraints(wish_id,type,org_id) VALUES (?,'ORGANISATION',?)");
         $org_id = getOrganisationIdFromName($org_constraint->name);
-        $stmt->bindValue(1, $org_id, SQLITE3_INTEGER);
+        $stmt->bindValue(1, $wish_id, SQLITE3_INTEGER);
+        $stmt->bindValue(2, $org_id, SQLITE3_INTEGER);
         $rows = $stmt->execute();
     }
 
     foreach ($loc_constraints as $loc_constraint) {
-        $stmt = $dbconn->prepare("INSERT INTO wish_constraints(type,loc_id) VALUES ('LOCATION',?)");
+        $stmt = $dbconn->prepare("INSERT INTO wish_constraints(wish_id,type,loc_id) VALUES (?,'LOCATION',?)");
         $loc_id = getOrCreateLocation($loc_constraint);
-        $stmt->bindValue(1, loc_id, SQLITE3_INTEGER);
+        $stmt->bindValue(1, $wish_id, SQLITE3_INTEGER);
+        $stmt->bindValue(2, $loc_id, SQLITE3_INTEGER);
         $rows = $stmt->execute();
     }
+
+//    runJava("wishes", $wish_id);
 
     //TODO: similarly for org_constraints, loc_constraints. Content structure is specified in util.js
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $wish_id);
@@ -593,6 +629,8 @@ function createNewUnepPresence($params)
 
     $unep_presence_id = $dbconn->lastInsertRowID();
 
+//    runJava("unep_presences", $unep_presence_id);
+
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $unep_presence_id);
 }
 
@@ -613,9 +651,11 @@ function createNewOrganisationPresence($params)
     $rows = $stmt->execute();
     if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
 
-    $unep_presence_id = $dbconn->lastInsertRowID();
+    $org_presence_id = $dbconn->lastInsertRowID();
 
-    return (object)array('outcome' => 'succeeded', 'inserted_id' => $unep_presence_id);
+//    runJava("presences", $org_presence_id);
+
+    return (object)array('outcome' => 'succeeded', 'inserted_id' => $org_presence_id);
 }
 
 function getLocationsOfSuggestion($suggestion_id)
@@ -743,9 +783,9 @@ function userExists($params)
 
     $result = array();
     if ($rows->fetchArray()) {
-        $result['exists'] = false;
-    } else {
         $result['exists'] = true;
+    } else {
+        $result['exists'] = false;
     }
 
     return (object)$result;
@@ -755,17 +795,58 @@ function createNewUser($params)
 {
     global $dbconn;
 
-    $stmt = $dbconn->prepare("INSERT INTO unep_reps(email,firstName,lastName) VALUES(?,?,?)");
-    $stmt->bindValue(1, $params->email, SQLITE3_TEXT);
-    $stmt->bindValue(2, $params->firstName, SQLITE3_TEXT);
-    $stmt->bindValue(3, $params->lastName, SQLITE3_TEXT);
+    if (userExists($params)->exists === true) {
+        $outcome = "exists";
+        $unep_rep_id = getUnepRepIdFromEmail($params->email);
+    } else {
+        $stmt = $dbconn->prepare("INSERT INTO unep_reps(email,firstName,lastName) VALUES(?,?,?)");
+        $stmt->bindValue(1, $params->email, SQLITE3_TEXT);
+        $stmt->bindValue(2, $params->firstName, SQLITE3_TEXT);
+        $stmt->bindValue(3, $params->lastName, SQLITE3_TEXT);
+        $rows = $stmt->execute();
+        if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
+        $unep_rep_id = $dbconn->lastInsertRowID();
+        $outcome = "succeeded";
+    }
 
+    return (object)array('outcome' => $outcome, 'inserted_id' => $unep_rep_id);
+}
+
+function organisationExists($params)
+{
+    global $dbconn;
+
+    $stmt = $dbconn->prepare("SELECT * from organisations where name = ?");
+    $stmt->bindValue(1, $params->name, SQLITE3_TEXT);
     $rows = $stmt->execute();
-    if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
 
-    $unep_rep_id = $dbconn->lastInsertRowID();
+    $result = array();
+    if ($rows->fetchArray()) {
+        $result['exists'] = true;
+    } else {
+        $result['exists'] = false;
+    }
 
-    return (object)array('outcome' => 'succeeded', 'inserted_id' => $unep_rep_id);
+    return (object)$result;
+}
+
+function createNewOrganisation($params)
+{
+    global $dbconn;
+
+    if (organisationExists($params)->exists === true) {
+        $outcome = "exists";
+        $org_id = getOrganisationIdFromName($params->name);
+    } else {
+        $stmt = $dbconn->prepare("INSERT INTO organisations(name) VALUES (?)");
+        $stmt->bindValue(1, $params->name, SQLITE3_TEXT);
+        $rows = $stmt->execute();
+        if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
+        $org_id = $dbconn->lastInsertRowID();
+        $outcome = "succeeded";
+    }
+
+    return (object)array('outcome' => $outcome, 'inserted_id' => $org_id);
 }
 
 function removeOldTravel($params)
@@ -778,12 +859,19 @@ function removeOldTravel($params)
 
 $request = json_decode($_GET['q']);
 
+runJava("unep_presences", 4);
+
 switch ($request->method) {
     case 'stub':
         break;
 
     case 'getAllTables':
         $result = getAllTables($request->params);
+        answerJsonAndDie($result);
+        break;
+
+    case 'getAllOrganisationNames':
+        $result = getAllOrganisationNames($request->params);
         answerJsonAndDie($result);
         break;
 
@@ -904,6 +992,16 @@ switch ($request->method) {
 
     case 'createNewUser':
         $result = createNewUser($request->params);
+        answerJsonAndDie($result);
+        break;
+
+    case 'organisationExists':
+        $result = organisationExists($request->params);
+        answerJsonAndDie($result);
+        break;
+
+    case 'createNewOrganisation':
+        $result = createNewOrganisation($request->params);
         answerJsonAndDie($result);
         break;
 

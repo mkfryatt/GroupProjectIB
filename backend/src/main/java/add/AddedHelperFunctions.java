@@ -97,7 +97,6 @@ public class AddedHelperFunctions {
                 unep_table_id);
         if(org_presence_type!=null)sql+=String.format(",%d",org_table_id);
         sql+=")";
-        System.out.println(sql);
         Add.dbCon.executeStatement(sql);
         return true;
     }

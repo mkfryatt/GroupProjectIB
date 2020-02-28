@@ -15,6 +15,10 @@ public class CostTests {
     public static Location rome = new Location(0, "rome", 12.4964, 41.9028);
     public static Location shanghai = new Location(0, "shanghai", 121.4737, 31.2304);
     public static Location nearShangai = new Location(0,"wuxi",120.3119,31.4912);
+    public static Location tokyo = new Location(0, "tokyo", 139.6503, 35.6762);
+    public static Location london = new Location(0, "london",  0.1278, 51.5074);
+    public static Location milan = new Location(0, "milan", 9.1900, 45.4642);
+
 
     @Test
     public static void testHowTimeDifferenceAffectsRankings() {
@@ -41,13 +45,9 @@ public class CostTests {
         Double capeTownRanking = calculateCost(3, nairobiWish, capeTown);
         Double kampalaRanking = calculateCost(3, nairobiWish, kampala);
         Double romeRanking = calculateCost(3, nairobiWish, rome);
-        Double shanghaiRanking = calculateCost(3, nairobiWish, shanghai);
 
         Assertions.assertTrue(kampalaRanking > capeTownRanking, "Show that Kamapala has a better ranking than Cape " +
                 "Town to fulfil a Nairobi Wish");
-
-        Assertions.assertEquals(0.0, shanghaiRanking, "Show that Shanghai is not considered a match, as flying from " +
-                "Cambridge would be better than flying from Shanghai");
 
         Assertions.assertTrue(kampalaRanking > capeTownRanking, "Show that Kamapala has a better ranking than Cape " +
                 "Town to fulfil a Nairobi Wish");
@@ -59,9 +59,9 @@ public class CostTests {
 
     @Test
     public static void testHowFlightAndTimeDiffAffectRankings() {
-        Double kampala30Ranking = calculateCost(30, nairobiWish, kampala);
-        Double capeTown10Ranking = calculateCost(10, nairobiWish, capeTown);
-        Double rome5Ranking = calculateCost(5, nairobiWish, rome);
+        Double kampala30Ranking = calculateCost(30*86400, nairobiWish, kampala);
+        Double capeTown10Ranking = calculateCost(10*86400, nairobiWish, capeTown);
+        Double rome5Ranking = calculateCost(5*86400, nairobiWish, rome);
 
         Assertions.assertTrue(capeTown10Ranking > kampala30Ranking, "Show that to fulfil a wish in Nairobi, timeDiff " +
                 "of 30 days in Kampala is ranked lower than 10 days in Cape Town");
@@ -73,27 +73,33 @@ public class CostTests {
 
     @Test
     public static void testHowManyDaysAreAcceptable(){
-        Location target = shanghai;
-        Location start = nearShangai;
-        Location startAlt = rome;
+        Location target = rome;
+        Location start = london;
+        Location startAlt = milan;
 
         double emission = calculateFlightEmissions(start,target);
-        int time = 86400 * 3;
-        double score = calculateCost(time,emission,0);
+        int time = 86400 * 0;
+        double score = calculateCost(time,emission);
 
         double emissionAlt = calculateFlightEmissions(startAlt,target);
         int timeAlt=0;
         double scoreAlt;
         {
-            int l = 0,r=Integer.MAX_VALUE;
-            while(l<r){
+            long l = 0,r=Integer.MAX_VALUE;
+            while(l<r-5){
                 timeAlt = (int)((((long)l)+r)/2);
-                scoreAlt = calculateCost(timeAlt,emissionAlt,0);
+                scoreAlt = calculateCost(timeAlt,emissionAlt);
                 if(scoreAlt<score)r=timeAlt; else l=timeAlt;
             }
         }
         System.out.println("Flying from "+start.name+" to "+target.name+" wasting "+(time/86400)+" days is ranked similarly to flying from "+startAlt.name+" to "+target.name+" wasting "+(timeAlt/86400)+"days");
+    }
 
+    public static void printScore(int days, Location start, Location end) {
+        int timeAlt = 86400 * days;
+        double emissions = calculateFlightEmissions(start, end);
+        double score = calculateCost(timeAlt, emissions);
+        System.out.println(start.getName() + " to " + end.getName() + " and " + days + " days wasted: " + score);
     }
 
     public static void main(String[] args) {

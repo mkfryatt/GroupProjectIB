@@ -4,7 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import main.java.data.*;
+import main.java.data.Location;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -13,7 +14,6 @@ import java.net.URLConnection;
 import java.util.Base64;
 
 public class Cost {
-    public static Location unepCambridgeLocation = new Location(0, "UNEP Cambridge Office", 0.091957, 52.21987);
 
     public static Double calculateFlightEmissions(Location source, Location destination) {
 
@@ -61,54 +61,30 @@ public class Cost {
         return totalDirectEmissions;
     }
 
-    public static boolean checkTimeframeOverlap(Timeframe a, Timeframe b) {
-        // check if there is any overlap in the timeframes of Events A
-
-//        boolean bIna = ((a.getStartTime() <= b.getStartTime()) && (a.getEndTime() >= b.getEndTime()));
-//        boolean aInb = ((b.getStartTime() <= a.getStartTime()) && (b.getEndTime() >= a.getEndTime()));
-//        boolean bLefta = (b.getStartTime() < a.getStartTime()) && (b.getEndTime() < a.getEndTime());
-//        boolean bRighta = (a.getStartTime() < b.getStartTime()) && (a.getEndTime() < b.getEndTime());
-//        return (bLefta || bRighta || bIna || aInb);
-
-        return (a.getStartTime() < b.getEndTime() && b.getStartTime() < a.getEndTime());
-
-    }
-
-    public static boolean checkTimeframeBefore(Timeframe a, Timeframe b) {
-        // return true if Event a happened before Event b
-        return ((a.getStartTime() < b.getStartTime()) && (a.getEndTime() < b.getEndTime()));
-    }
-
-    public static int calculateTimeDiff(Timeframe a, Timeframe b) {
-        if (checkTimeframeOverlap(a, b)) {
-            return 0;
-        } else if (checkTimeframeBefore(a, b)) {
-            return (b.getStartTime() - a.getEndTime());
-        } else {
-            return (a.getStartTime() - b.getEndTime());
-        }
-    }
-
-    public static Double calculateCost(int timeDiff, double emission, double baselineEmission) {
-
-        double TimeDiffScore = 0.0;
-        double FlightEmissionScore = 0.0;
-
-        FlightEmissionScore += (-0.0002 * emission) + 1;
-
-        if (timeDiff < 3) {
-            TimeDiffScore += 1.0 - (timeDiff / 60.0);
-        } else {
-            TimeDiffScore += 57.0 / (timeDiff + 57.0);
-        }
-        return (0.5 * TimeDiffScore) + (0.5 * FlightEmissionScore);
-
-    }
-
 
     public static Double calculateCost(int timeDiff, Location wish, Location trip) {
-        return calculateCost(timeDiff,calculateFlightEmissions(trip, wish),calculateFlightEmissions(unepCambridgeLocation, wish));
+        return calculateCost(timeDiff, calculateFlightEmissions(trip, wish));
     }
+
+    public static Double calculateCost(int timeDiff, double emission) {
+
+        double days = (double) timeDiff / 86400;
+        return -costFunction9(days, emission);
+    }
+
+    public static double costFunction9(double days, double emission) {
+        final double a = 8, b = 9, c = 300, d = 25;
+        return emission - a * Math.sin((b + c) / (days + c)) * Math.exp(-days / d);
+    }
+
+    //    public static double costFunction7(double days, double emission) {
+//        return Math.log(emission + 100.0) + 0.05 * days * days;
+//    }
+//
+//    public static double costFunction8(double days, double emission) {
+//        final double a = 8, b = 9, c = 300;
+//        return emission - a * Math.sin((b + c) / (days + c));
+//    }
 
     public static void main(String[] args) {
         System.out.println("works");

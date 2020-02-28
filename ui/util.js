@@ -20,6 +20,15 @@ function getAllTables(callbackFunction) {
     sendXmlHttpRequest(request,callbackFunction);
 }
 
+function getAllOrganisationNames(callbackFunction){
+    let request = {
+        method: 'getAllOrganisationNames',
+        params: {
+        }
+    };
+    sendXmlHttpRequest(request,callbackFunction);
+}
+
 function getWishesWithinTimeframe(startTime, endTime, callbackFunction) {
     let request = {
         method: 'getWishesWithinTimeframe',
@@ -52,6 +61,8 @@ function getUnepPresencesWithinTimeframe(startTime, endTime, callbackFunction) {
     };
     sendXmlHttpRequest(request,callbackFunction);
 }
+
+
 
 function getOrganisationFromId(org_id, callbackFunction) {
     let request = {
@@ -179,7 +190,7 @@ params:
 - orgConstraint : array of Objects with field name
 - locConstraint : array of positions (with city, country, lon, lat as usual)
 */
-function createNewWish(email, timeConstraints, orgConstraints, locConstraints, callbackFunction) {
+function createNewWish(name, email, timeConstraints, orgConstraints, locConstraints, callbackFunction) {
     let request = {
         method: 'createNewWish',
         params: {
@@ -290,8 +301,30 @@ function createNewUser(email, firstName, lastName, callbackFunction) {
   let request = {
     method: 'createNewUser',
     params: {
-      email: email
+      email: email,
+      firstName: firstName,
+      lastName: lastName
     }
   };
   sendXmlHttpRequest(request,callbackFunction);
+}
+
+function organisationExists(name, callbackFunction) {
+    let request = {
+        method: 'organisationExists',
+        params: {
+            name:name
+        }
+    };
+    sendXmlHttpRequest(request,callbackFunction);
+}
+
+function createNewOrganisation(name, callbackFunction) {
+    let request = {
+        method: 'createNewOrganisation',
+        params: {
+            name:name
+        }
+    };
+    sendXmlHttpRequest(request,callbackFunction);
 }

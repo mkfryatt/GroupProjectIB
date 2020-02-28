@@ -59,7 +59,7 @@
       </style>
     <!-- Timeframe -->
     <div id="timeframe">
-      <button class="btn btn-secondary btn-sm" style="width: 100%" onclick="init()">Logout</button>
+      <button class="btn btn-secondary btn-sm" style="width: 100%" onclick="switchUser()">Logout</button>
       <p id="current-user" class="text-muted"></p>
       <div class="card" style="width: 100%; margin-bottom: 2rem;">
         <div class="card-body">
@@ -95,13 +95,16 @@
         <!-- General Info -->
         <div class="form-row">
           <div class="col">
-            <input type="text" id="org-travel" placeholder="Organisation / Event Name [optional]" class="form-control">
+            <input type="text" id="org-travel" placeholder="Organisation [optional]" class="form-control">
+          </div>
+          <div class="col">
+            <input type="text" id="tag-travel" placeholder="Event Name [optional]" class="form-control">
           </div>
         </div>
         <!-- Location Info -->
         <div class="form-row">
-          <div class="col" id='searchbox-container-travel'>
-            <input type='text' class ="form-control"  placeholder="Location - Choosing country selects its capital." id= 'searchbox-travel'/>
+          <div class="col" id="searchbox-container-travel">
+            <input type="text" class ="form-control"  placeholder="Location - Choosing country selects its capital." id= "searchbox-travel"/>
           </div>
         </div>
         <!-- Time Info -->
@@ -131,13 +134,16 @@
         <!-- General Info -->
         <div class="form-row">
           <div class="col">
+            <input type="text" id="tag-wish" placeholder="Tag" class="form-control">
+          </div>
+          <div class="col">
             <input type="text" id="org-wish" placeholder="Organisation / Event Name [optional]" class="form-control">
           </div>
         </div>
         <!-- Location Info -->
         <div class="form-row">
-          <div class="col" id='searchbox-container-wish'>
-            <input type='text' class ="form-control"  placeholder="Location - Choosing country selects its capital." id= 'searchbox-wish'/>
+          <div class="col" id="searchbox-container-wish">
+            <input type="text" class="form-control"  placeholder="Location - Choosing country selects its capital." id="searchbox-wish"/>
           </div>
         </div>
         <!-- Time Info -->
@@ -181,8 +187,8 @@
         </div>
         <!-- Location Info -->
         <div class="form-row">
-          <div class="col" id='searchbox-container-admin'>
-            <input type= 'text' class ="form-control"  placeholder="Location - Choosing country selects its capital." id= 'searchbox-admin'/>
+          <div class="col" id="searchbox-container-admin">
+            <input type="text" class ="form-control"  placeholder="Location - Choosing country selects its capital." id="searchbox-admin"/>
           </div>
         </div>
         <!-- Time Info -->
