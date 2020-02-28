@@ -23,10 +23,22 @@ function init() {
 
   //open correct tab
   var tabs = ["travel", "wish", "admin"];
-  tabs.forEach(e => $("#warning-"+e).hide());
+  tabs.forEach(type => {
+    $("#warning-"+type).hide();
+    //add listener to org fields so that it detect when new orgs are typed in
+    $("#org-"+type).focusout(e => getAllOrganisationNames(orgs => {
+      checkOrganisation(orgs, type);
+    }));
+  });
   openTab("cal");
 
   firstUser = false;
+}
+
+function checkOrganisation(orgs, type) {
+  if (!orgs.includes($("#org-"+type).val())) {
+    console.log("unknown org");
+  }
 }
 
 //type is "cal", "wish", "match",  or "admin"
@@ -147,12 +159,15 @@ function makeNewUser() {
   var first = $("#first-name").val();
   var second = $("#second-name").val();
   if (first!="" && second!="") {
-    createNewUser(email, first, secondU, 
+    createNewUser(email, first, second, 
       result => {
-        console.log(JSON.stringify(result));
-        doLogin();
+        if (result.hasOwnProperty("error")) {
+          showNewUser();
+        } else {
+          $("#new-user").remove();
+          doLogin();
+        }
       });
-      $("#new-user").remove();
   }
 }
 
@@ -172,10 +187,10 @@ function doLogin() {
   getEmissionsSavedFromUser(email, updateCarbonCounter);
 
   //can only call initMap once, so if this is't the first user, just updateMap
-  if (firstUser) {
-    initMap();
+  if (firstUser) { //TODO
+    //initMap();
   } else {
-    updateMap();
+    //updateMap();
   }
 }
 
@@ -189,7 +204,8 @@ function makeWishes(wishes) {
   }
 
   //update to the wish view
-  wishesMapUpdate(email);
+  //TODO
+  //wishesMapUpdate(email);
   $("#wish-previews").empty();
   $("#match-title").text("View all wishes");
 
@@ -251,7 +267,8 @@ function hideMatches() {
   $("#match-title").text("View all wishes");
   $("#wish-previews").show();
 
-  updateMap();
+  //TODO
+  //updateMap();
 }
 
 function showMatches(matches) {
