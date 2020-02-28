@@ -1,7 +1,5 @@
-//todo: organisations needs fixing....
-//todo: handle multiple pins in a location
-//todo wishes tab display.
-//dateformatter still a bit broken
+//todo: fix organisations for wishes, just check if code.
+//wishes tab display.
 //listeners for date fields
 //Licences for stuff !
 //Keys fields
@@ -42,6 +40,7 @@ var homeIcon = L.icon({
 var map;
 var layerGroup;
 var oms;
+var map_initializing; //Allows spiderfy to distinguish if user is clicking or if icons being set.
 
 var selectionAdmin, selectionWish, selectionTravel;
 
@@ -61,7 +60,7 @@ function initMap() {
 }
 
 function dateFormatter(unixIn){
-	var DTform = new Date(unixIn);
+	var DTform = new Date(unixIn * 1000);
 	return (DTform.getDate() + '/' + (DTform.getMonth()+1) + '/' + DTform.getFullYear())
 }
 
@@ -71,9 +70,9 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 
 	oms.addListener('click', function(mark){
 		var classformat;
-		if (mark.getIcon() == travelIcon){
+		if (mark.trueIcon == travelIcon){
 				classformat = "popupTravel" }
-		else if(mark.getIcon() == wishIcon){
+		else if(mark.trueIcon == wishIcon){
 			classformat = "popupWish"}
 		else{ classformat = "popupPres"}
 
@@ -83,15 +82,22 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 		});
 		popup.setContent(mark.desc);
 		popup.setLatLng(mark.getLatLng());
-		map.openPopup(popup);
+		if (!map_initializing){ //Suppress popups during icon-setting
+			map.openPopup(popup);
+		}
 	})
 	
-	//Not setting the icon?
+
 	oms.addListener('spiderfy', function(mark){
 		for (var i=0; i<mark.length; i++) { mark[i].setIcon(mark[i].trueIcon)}
 	}) 
 
-	oms.addListener('unspiderfy', function(mark)) //set back to generic
+	oms.addListener('unspiderfy', function(mark){
+		for (var i=0; i<mark.length; i++) { mark[i].setIcon(genericIcon)}
+
+	});
+
+	console.log(oms.getMarkers())
 
 	var start = Math.round(document.getElementById("start-date-map").valueAsDate/1000);
 	var end = Math.round(document.getElementById("end-date-map").valueAsDate/1000);
@@ -136,17 +142,11 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 				var locationPrint = "";
 				var locationlat;
 				var locationlon;
-				if (element.constraints.locations.length ==0){
-					locationPrint = null;
-					locationlat = null;
-					locationlon = null;
-				}
-				else{
+				if (element.constraints.locations.length !=0){
 					locationPrint = locationPrint.concat(element.constraints.locations[0].city, ", ", element.constraints.locations[0].country);
 					locationlat = element.constraints.locations[0].lat;
 					locationlon = element.constraints.locations[0].lon;
-				}
-				var location = "";
+				
 				displayPin(wishIcon,
 					element.name,
 					locationlat,
@@ -154,9 +154,10 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 					null, //No organisation specifically sometimes, handle later
 					locationPrint,
 					null,
-					dateFormatter(element.startTime) + " to "+dateFormatter(element.endTime)
+					dateFormatter(element.constraints.times[0].startTime) + " to "+dateFormatter(element.constraints.times[0].endTime) //Currently only one date range visible as this is all UI allows.
 					)
 				}
+			}
 			)
 		}
 	
@@ -203,6 +204,7 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 function displayPin(eventType, eventName, eventX, eventY, organisation, eventLocationName, eventPerson, eventRange) {
 	
 	var popupString = "";
+	map_initializing = true;
 
 	for (var i=4; i<arguments.length; i++){
 		if (arguments[i]!=null){
@@ -212,23 +214,38 @@ function displayPin(eventType, eventName, eventX, eventY, organisation, eventLoc
 	}
 
 
-	//TODO set generic icon, by only having generic icon as part of marker here,
-	//pass actual icon as property that can then be unpacked above.
-	
-	var marker = L.marker([eventX,eventY], {icon: genericIcon}).on('click', function(e){e.setZIndexOffset = 100000 })
+	var marker = L.marker([eventX,eventY], {icon: eventType}).on('click', function(e){e.setZIndexOffset = 100000 })
 	marker.addTo(layerGroup);
 	marker.trueIcon = eventType;
 	marker.desc = ("<p>" + eventName.bold() + "<br />" + popupString + "</p>");
 	oms.addMarker(marker);
+	
+	//Force spiderfy then unspiderfy
+	marker.fireEvent('click');
+	map.fireEvent('click');
+	map_initializing = false;
+	
+
+
 }
 
 function wishesMapUpdate(wishid){
 	layerGroup.clearLayers();
-
+	oms = new OverlappingMarkerSpiderfier(map);
+	
 	//get wishbyid and display it
 	getWishFromId(wishid, function(result){
+		displayPin(wishIcon,
+			result.name,
+			result.constraints.locations[0].lat,
+			result.constraints.locations[0].lon,
+			null,
+			result.constraints.locations[0].city + ", " + result.constraints.locations[0].country,
+			null,
+			dateFormatter(result.constraints.times[0].startTime) + " to "  + dateFormatter(result.constraints.times[0].endTime)			
+			)
 		console.log(result);
-	})
+	});
 	
 
 	/*getAllSuggestionsFromWish */
@@ -287,12 +304,5 @@ function loadMapScenarioTravel() {
   }
   function passLatLong(selection) {
 	selectionTravel = selection;
-    /* City = selection.address.locality - UNDEFINED for country/continent/Seas
-    /*City/Location = selection.formattedSuggestion
-    Lat = selection.location.latitude
-    lon = selection.location.longitude
-
-    Basically this needs to store it to somewhere so it can be submitted when the rest of the form is.
-    */
   }     
 }
