@@ -92,10 +92,42 @@ WHERE wc.type = 'TIME' AND endTime>=? AND startTime<=?");
     return ($result);
 }
 
+function getAllOrgsAndRepsForTravel($row)
+{
+    global $dbconn;
+    $resultRow = $row;
+    //Get all involved organisations
+    $stmt = $dbconn->prepare("SELECT o.name from trip_org_presences JOIN organisations o on trip_org_presences.org_id = o.id WHERE trip_org_presences.trip_id = ?");
+    $stmt->bindValue(1, $row['travel_id'], SQLITE3_INTEGER);
+    $orgrows = $stmt->execute();
+    if (!$orgrows) error('Query failed ' . $dbconn->lastErrorMsg());
+    $orgs = array();
+    while ($org = $orgrows->fetchArray()) {
+        $org = removeNumericKeys($org);
+        $orgs[] = $org;
+    }
+    $resultRow['organisations'] = $orgs;
+
+    //Get all involved unep_reps
+    $stmt = $dbconn->prepare("SELECT r.email, r.firstName, r.lastName FROM rep_trips rt JOIN unep_reps r on rt.rep_id = r.id where rt.trip_id = ?");
+    $stmt->bindValue(1, $row['travel_id'], SQLITE3_INTEGER);
+    $reprows = $stmt->execute();
+    if (!$reprows) error('Query failed ' . $dbconn->lastErrorMsg());
+    $reps = array();
+    while ($rep = $reprows->fetchArray()) {
+        $rep = removeNumericKeys($rep);
+        $reps[] = $rep;
+    }
+    $resultRow['unep_reps'] = $reps;
+    return $resultRow;
+}
+
+
+
 function getTravelWithinTimeframe($params)
 {
     global $dbconn;
-    $stmt = $dbconn->prepare("SELECT trips.id AS travel_id, trips.name AS travel_name, trips.startTime, trips.endTime, locations.city, locations.country, locations.lat, locations.lon
+    $stmt = $dbconn->prepare("SELECT trips.id AS travel_id, trips.name AS travel_name, locations.city, locations.country, locations.lat, locations.lon, trips.startTime, trips.endTime
 FROM trips JOIN locations on trips.loc_id = locations.id WHERE endTime >= ? OR startTime <= ?
 ");
     $stmt->bindValue(1, $params->startTime, SQLITE3_INTEGER);
@@ -105,34 +137,12 @@ FROM trips JOIN locations on trips.loc_id = locations.id WHERE endTime >= ? OR s
     $result = array();
     while ($row = $rows->fetchArray()) {
         $row = removeNumericKeys($row);
-        $resultRow = $row;
-        //Get all involved organisations
-        $stmt = $dbconn->prepare("SELECT o.name from trip_org_presences JOIN organisations o on trip_org_presences.org_id = o.id WHERE trip_org_presences.trip_id = ?");
-        $stmt->bindValue(1, $row['travel_id'], SQLITE3_INTEGER);
-        $orgrows = $stmt->execute();
-        if (!$orgrows) error('Query failed ' . $dbconn->lastErrorMsg());
-        $orgs = array();
-        while ($org = $orgrows->fetchArray()) {
-            $org = removeNumericKeys($org);
-            $orgs[] = $org;
-        }
-        $resultRow['organisations'] = $orgs;
-
-        //Get all involved unep_reps
-        $stmt = $dbconn->prepare("SELECT r.email, r.firstName, r.lastName FROM rep_trips rt JOIN unep_reps r on rt.rep_id = r.id where rt.trip_id = ?");
-        $stmt->bindValue(1, $row['travel_id'], SQLITE3_INTEGER);
-        $reprows = $stmt->execute();
-        if (!$reprows) error('Query failed ' . $dbconn->lastErrorMsg());
-        $reps = array();
-        while ($rep = $reprows->fetchArray()) {
-            $rep = removeNumericKeys($rep);
-            $reps[] = $rep;
-        }
-        $resultRow['unep_reps'] = $reps;
+        $resultRow = getAllOrgsAndRepsForTravel($row);
         array_push($result, (object)$resultRow);
     }
     return ($result);
 }
+
 
 function getUnepPresencesWithinTimeframe($params)
 {
@@ -187,7 +197,8 @@ WHERE unep_reps.email = ?");
     $result = array();
     while ($row = $rows->fetchArray()) {
         $row = removeNumericKeys($row);
-        array_push($result, (object)$row);
+        $resultRow = getAllOrgsAndRepsForTravel($row);
+        array_push($result, (object)$resultRow);
     }
     return ($result);
 }
@@ -235,7 +246,8 @@ function getTravelFromId($params)
     $stmt = $dbconn->prepare("SELECT * from trips where id = ?");
     $stmt->bindValue(1, $params->travel_id, SQLITE3_INTEGER);
     $rows = $stmt->execute();
-    return removeNumericKeys($rows->fetchArray());
+    $resultRow = getAllOrgsAndRepsForTravel($rows->fetchArray());
+    return $resultRow;
 }
 
 function getUnepRepIdFromEmail($email)
