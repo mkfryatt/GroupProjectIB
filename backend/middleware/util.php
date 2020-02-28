@@ -1,5 +1,7 @@
 <?php
 
+$javaPath = '../../cost/artifacts/Juliet_jar/Juliet.jar';
+
 try {
     $dbconn = new SQLite3('../database.db');
 } catch (Exception $e) {
@@ -98,6 +100,7 @@ FROM trips JOIN locations on trips.loc_id = locations.id WHERE endTime >= ? OR s
         if (!$orgrows) error('Query failed ' . $dbconn->lastErrorMsg());
         $orgs = array();
         while ($org = $orgrows->fetchArray()) {
+            $org = removeNumericKeys($org);
             $orgs[] = $org;
         }
         $resultRow['organisations'] = $orgs;
@@ -109,6 +112,7 @@ FROM trips JOIN locations on trips.loc_id = locations.id WHERE endTime >= ? OR s
         if (!$reprows) error('Query failed ' . $dbconn->lastErrorMsg());
         $reps = array();
         while ($rep = $reprows->fetchArray()) {
+            $rep = removeNumericKeys($rep);
             $reps[] = $rep;
         }
         $resultRow['unep_reps'] = $reps;
@@ -537,23 +541,26 @@ function createNewWish($name, $email, $time_constraints, $org_constraints, $loc_
             error("invalid time range (endTime<startTime");
         }
 
-        $stmt = $dbconn->prepare("INSERT INTO wish_constraints(type,startTime,endTime) VALUES ('TIME',?,?)");
-        $stmt->bindValue(1, $startTime, SQLITE3_INTEGER);
-        $stmt->bindValue(2, $endTime, SQLITE3_INTEGER);
+        $stmt = $dbconn->prepare("INSERT INTO wish_constraints(wish_id,type,startTime,endTime) VALUES (?,'TIME',?,?)");
+        $stmt->bindValue(1, $wish_id, SQLITE3_INTEGER);
+        $stmt->bindValue(2, $startTime, SQLITE3_INTEGER);
+        $stmt->bindValue(3, $endTime, SQLITE3_INTEGER);
         $rows = $stmt->execute();
     }
 
     foreach ($org_constraints as $org_constraint) {
-        $stmt = $dbconn->prepare("INSERT INTO wish_constraints(type,org_id) VALUES ('ORGANISATION',?)");
+        $stmt = $dbconn->prepare("INSERT INTO wish_constraints(wish_id,type,org_id) VALUES (?,'ORGANISATION',?)");
         $org_id = getOrganisationIdFromName($org_constraint->name);
-        $stmt->bindValue(1, $org_id, SQLITE3_INTEGER);
+        $stmt->bindValue(1, $wish_id, SQLITE3_INTEGER);
+        $stmt->bindValue(2, $org_id, SQLITE3_INTEGER);
         $rows = $stmt->execute();
     }
 
     foreach ($loc_constraints as $loc_constraint) {
-        $stmt = $dbconn->prepare("INSERT INTO wish_constraints(type,loc_id) VALUES ('LOCATION',?)");
+        $stmt = $dbconn->prepare("INSERT INTO wish_constraints(wish_id,type,loc_id) VALUES (?,'LOCATION',?)");
         $loc_id = getOrCreateLocation($loc_constraint);
-        $stmt->bindValue(1, loc_id, SQLITE3_INTEGER);
+        $stmt->bindValue(1, $wish_id, SQLITE3_INTEGER);
+        $stmt->bindValue(2, $loc_id, SQLITE3_INTEGER);
         $rows = $stmt->execute();
     }
 
