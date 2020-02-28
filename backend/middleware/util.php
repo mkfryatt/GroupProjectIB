@@ -1,12 +1,13 @@
 <?php
 
-$javaPath = '/../cost/artifacts/Juliet_jar/Juliet.jar';
+$javaPath = '../../cost/artifacts/Juliet_jar/Juliet.jar';
+$databasePath = '../database.db';
 
 try {
     $dbconn = new SQLite3('../database.db');
 } catch (Exception $e) {
     //TODO: fix this
-    die("Couldn't connect to DB.");
+    error("Couldn't connect to DB.");
 }
 
 
@@ -21,9 +22,9 @@ $result = $statement->execute();
 
 function runJava($table_name, $id)
 {
-    global $javaPath;
+    global $javaPath, $databasePath;
     //do stuff;
-    system("java -jar " . getcwd().$javaPath . " " . $table_name . " " . strval($id));
+    exec("java -jar " . getcwd()."/".$javaPath . " " . getcwd()."/".$databasePath . " " . $table_name . " " . strval($id));
 }
 
 function answerJsonAndDie($obj)
@@ -516,6 +517,8 @@ function createNewTravel($params)
     }
 
 
+//    runJava("trips", $trip_id);
+
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $trip_id);
 }
 
@@ -576,6 +579,8 @@ function createNewWish($name, $email, $time_constraints, $org_constraints, $loc_
         $rows = $stmt->execute();
     }
 
+//    runJava("wishes", $wish_id);
+
     //TODO: similarly for org_constraints, loc_constraints. Content structure is specified in util.js
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $wish_id);
 }
@@ -612,6 +617,8 @@ function createNewUnepPresence($params)
 
     $unep_presence_id = $dbconn->lastInsertRowID();
 
+//    runJava("unep_presences", $unep_presence_id);
+
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $unep_presence_id);
 }
 
@@ -632,9 +639,11 @@ function createNewOrganisationPresence($params)
     $rows = $stmt->execute();
     if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
 
-    $unep_presence_id = $dbconn->lastInsertRowID();
+    $org_presence_id = $dbconn->lastInsertRowID();
 
-    return (object)array('outcome' => 'succeeded', 'inserted_id' => $unep_presence_id);
+//    runJava("presences", $org_presence_id);
+
+    return (object)array('outcome' => 'succeeded', 'inserted_id' => $org_presence_id);
 }
 
 function getLocationsOfSuggestion($suggestion_id)
@@ -770,21 +779,37 @@ function userExists($params)
     return (object)$result;
 }
 
-function createNewUser($params)
+function organisationExists($params)
 {
     global $dbconn;
 
-    $stmt = $dbconn->prepare("INSERT INTO unep_reps(email,firstName,lastName) VALUES(?,?,?)");
-    $stmt->bindValue(1, $params->email, SQLITE3_TEXT);
-    $stmt->bindValue(2, $params->firstName, SQLITE3_TEXT);
-    $stmt->bindValue(3, $params->lastName, SQLITE3_TEXT);
+    $stmt = $dbconn->prepare("SELECT * from organisations where name = ?");
+    $stmt->bindValue(1, $params->name, SQLITE3_TEXT);
+    $rows = $stmt->execute();
+
+    $result = array();
+    if ($rows->fetchArray()) {
+        $result['exists'] = true;
+    } else {
+        $result['exists'] = false;
+    }
+
+    return (object)$result;
+}
+
+function createNewOrganisation($params)
+{
+    global $dbconn;
+
+    $stmt = $dbconn->prepare("INSERT INTO organisations(name) VALUES (?)");
+    $stmt->bindValue(1, $params->name, SQLITE3_TEXT);
 
     $rows = $stmt->execute();
     if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
 
-    $unep_rep_id = $dbconn->lastInsertRowID();
+    $org_id = $dbconn->lastInsertRowID();
 
-    return (object)array('outcome' => 'succeeded', 'inserted_id' => $unep_rep_id);
+    return (object)array('outcome' => 'succeeded', 'inserted_id' => $org_id);
 }
 
 function removeOldTravel($params)
@@ -796,6 +821,8 @@ function removeOldTravel($params)
 }
 
 $request = json_decode($_GET['q']);
+
+runJava("unep_presences", 4);
 
 switch ($request->method) {
     case 'stub':
@@ -928,6 +955,16 @@ switch ($request->method) {
 
     case 'createNewUser':
         $result = createNewUser($request->params);
+        answerJsonAndDie($result);
+        break;
+
+    case 'organisationExists':
+        $result = organisationExists($request->params);
+        answerJsonAndDie($result);
+        break;
+
+    case 'createNewOrganisation':
+        $result = createNewOrganisation($request->params);
         answerJsonAndDie($result);
         break;
 

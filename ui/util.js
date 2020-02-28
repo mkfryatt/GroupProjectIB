@@ -26,7 +26,7 @@ function getAllOrganisationNames(callbackFunction){
         params: {
         }
     };
-    sendXmlHttpRequest(request, callbackFunction);
+    sendXmlHttpRequest(request,callbackFunction);
 }
 
 function getWishesWithinTimeframe(startTime, endTime, callbackFunction) {
@@ -305,4 +305,24 @@ function createNewUser(email, firstName, lastName, callbackFunction) {
     }
   };
   sendXmlHttpRequest(request,callbackFunction);
+}
+
+function organisationExists(name, callbackFunction) {
+    let request = {
+        method: 'organisationExists',
+        params: {
+            name:name
+        }
+    };
+    sendXmlHttpRequest(request,callbackFunction);
+}
+
+function createNewOrganisation(name, callbackFunction) {
+    let request = {
+        method: 'createNewOrganisation',
+        params: {
+            name:name
+        }
+    };
+    sendXmlHttpRequest(request,callbackFunction);
 }
