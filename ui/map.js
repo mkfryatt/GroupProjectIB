@@ -1,7 +1,7 @@
 //todo: organisations needs fixing....
 //todo: handle multiple pins in a location
-//todo unep and other presences
 //todo wishes tab display.
+//dateformatter still a bit broken
 
 var travelIcon = L.icon({
 	iconUrl: '../images/travel.png',
@@ -109,7 +109,7 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 				}
 				var location = "";
 				displayPin(wishIcon,
-					"Event name", //Needs including in db
+					element.name,
 					locationlat,
 					locationlon,
 					null, //No organisation specifically sometimes, handle later
@@ -126,8 +126,20 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 	getOrganisationPresencesWithinTimeframe(start,end, function(result){
 		console.log(result);
 		result.forEach(pres=>{
-			
-
+			var period = null;
+			if (pres.startTime != 0){ //if not headquarters
+				period = dateFormatter(pres.startTime) + " to " + dateFormatter(pres.endTime);
+			}
+			displayPin(presenceIcon,
+				pres.name,
+				pres.lat,
+				pres.lon,
+				null,
+				pres.city + ", " + pres.country,
+				null,
+				period				
+				)
+		
 		})
 
 	});
@@ -137,7 +149,7 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 
 			var period = null;
 			if (hq.startTime != 0){ //if not headquarters
-				period = dateFormatter(startTime) + " to " + dateFormatter(endTime);
+				period = dateFormatter(hq.startTime) + " to " + dateFormatter(hq.endTime);
 			}
 
 			displayPin(homeIcon, hq.name, hq.lat, hq.lon, null, hq.city + ", " + hq.country, null, period)
@@ -166,14 +178,14 @@ function displayPin(eventType, eventName, eventX, eventY, organisation, eventLoc
 	/*marker.bindPopup("<p>" + eventName.bold() + "<br />" + organisation + "<br />" + eventLocationName +"<br />" + eventPerson + "<br />" + eventStart + " to " + eventEnd +"</p>");*/
 }
 
-function wishesMapUpdate(email){
+function wishesMapUpdate(wishid, email){
 	layerGroup.clearLayers();
 
 	//Need wish id passed in to query?
 
 
 	//Read in user's wish (display as wish), and matches (display as travel)
-	
+	//displaypin for wish, displaypin for all travels.
 
 
 }
