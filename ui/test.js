@@ -17,7 +17,10 @@ function init() {
   document.getElementById("end-date-map").valueAsDate = date;
 
   var tabs = ["travel", "wish", "admin"];
-  tabs.forEach(e => $("#warning-"+e).hide());
+  tabs.forEach(e => {
+    $("#warning-"+e).hide();
+    clearForm(e);
+  });
 
   openTab("cal");
 }
@@ -331,9 +334,9 @@ function makeDefaultTravel(travels) {
     var start = (new Date(element.startTime * 1000)).toLocaleDateString('en-GB', options);
     var end = (new Date(element.endTime * 1000)).toLocaleDateString('en-GB', options);
 
+    list.append(createLI("Trip", element.travel_name));
     list.append(createLI("Location", element.city + ", " + element.country));
-    list.append(createLI("Start", start));
-    list.append(createLI("End", end));
+    list.append(createLI("Times", start + "\n" + end));
 
     btnGroup.append(btnEdit);
     btnGroup.append(btnRemove);
@@ -360,7 +363,10 @@ function showEditTravel(travel) {
 
   $("#org-travel").val(travel.name);
 
-  getLocationFromId(travel.loc_id, loc => $("#searchbox-travel").val(loc.city + ", "+ loc.country));
+  getLocationFromId(travel.loc_id, loc => {
+    $("#searchbox-travel").val(loc.city + ", "+ loc.country);
+    console.log("Loc: "+JSON.stringify(loc))
+  });
 
   document.getElementById("start-date-travel").valueAsDate = new Date(travel.startTime * 1000);
   document.getElementById("end-date-travel").valueAsDate = new Date(travel.endTime * 1000);

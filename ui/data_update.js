@@ -5,7 +5,7 @@ function submitTravelEdit(id) {
 
 function submitTravelNew() {
   //get org constraints
-  var org = $("#org-travel").val();
+  var org_name = $("#org-travel").val();
 
   //get time constraints
   var start = Math.round(document.getElementById("start-date-travel").valueAsDate/1000);
@@ -29,7 +29,8 @@ function submitTravelNew() {
   var lon = selectionTravel.location.longitude;
 
   //tell backend
-  createNewTravel(city, country, lat, lon, start, end, email, org, result => {
+  //TODO ask daniel what name is supposed to be
+  createNewTravel(org_name, city, country, lat, lon, start, end, email, "", result => {
     if (result.hasOwnProperty("error")) {
       console.log("error submitting travel");
       $("#warning-travel").text("Error: " + result.error);
@@ -39,6 +40,7 @@ function submitTravelNew() {
       $("#warning-travel").hide();
       updateMap();
       getAllTravelFromUser(email, makeDefaultTravel);
+      selectionTravel = null;
     }
   });
 }
@@ -100,6 +102,7 @@ function submitWish() {
       getAllWishesFromUser(email, makeWishes);
       clearForm("wish");
       openTab("wish");
+      submitWish = null;
     }
   });
 }
@@ -169,6 +172,7 @@ function submitAdmin() {
       $("#warning-admin").hide();
       clearForm("admin");
       updateMap();
+      selectionAdmin = null;
     }
   }
 }
