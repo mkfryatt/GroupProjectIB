@@ -5,8 +5,14 @@
 //listeners for date fields
 //Licences for stuff !
 //Keys fields
+// add a key (like a guide to the icons) on the map
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/OverlappingMarkerSpiderfier-Leaflet/0.2.6/oms.min.js"></script>
+
+var genericIcon = L.icon({
+	iconUrl: '../images/generic.png',
+	iconSize: [32, 32],
+	iconAnchor: [16,32],
+});
 
 var travelIcon = L.icon({
 	iconUrl: '../images/travel.png',
@@ -35,6 +41,7 @@ var homeIcon = L.icon({
 
 var map;
 var layerGroup;
+var oms;
 
 var selectionAdmin, selectionWish, selectionTravel;
 
@@ -60,6 +67,31 @@ function dateFormatter(unixIn){
 
 function updateMap(){ /* Core map display, all wishes and travel within date-range */
 	layerGroup.clearLayers();
+	oms = new OverlappingMarkerSpiderfier(map, legWeight = 10, keepSpiderfied = true);
+
+	oms.addListener('click', function(mark){
+		var classformat;
+		if (mark.getIcon() == travelIcon){
+				classformat = "popupTravel" }
+		else if(mark.getIcon() == wishIcon){
+			classformat = "popupWish"}
+		else{ classformat = "popupPres"}
+
+		var popup = new L.popup({
+			offset: [0,10],
+			className: classformat
+		});
+		popup.setContent(mark.desc);
+		popup.setLatLng(mark.getLatLng());
+		map.openPopup(popup);
+	})
+	
+	//Not setting the icon?
+	oms.addListener('spiderfy', function(mark){
+		for (var i=0; i<mark.length; i++) { mark[i].setIcon(mark[i].trueIcon)}
+	}) 
+
+	oms.addListener('unspiderfy', function(mark)) //set back to generic
 
 	var start = Math.round(document.getElementById("start-date-map").valueAsDate/1000);
 	var end = Math.round(document.getElementById("end-date-map").valueAsDate/1000);
@@ -179,9 +211,15 @@ function displayPin(eventType, eventName, eventX, eventY, organisation, eventLoc
 		}
 	}
 
-	var marker = L.marker([eventX,eventY], {icon: eventType}).addTo(layerGroup);
-	marker.bindPopup("<p>" + eventName.bold() + "<br />" + popupString + "</p>");
+
+	//TODO set generic icon, by only having generic icon as part of marker here,
+	//pass actual icon as property that can then be unpacked above.
 	
+	var marker = L.marker([eventX,eventY], {icon: genericIcon}).on('click', function(e){e.setZIndexOffset = 100000 })
+	marker.addTo(layerGroup);
+	marker.trueIcon = eventType;
+	marker.desc = ("<p>" + eventName.bold() + "<br />" + popupString + "</p>");
+	oms.addMarker(marker);
 }
 
 function wishesMapUpdate(wishid){
