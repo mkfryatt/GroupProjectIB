@@ -3,6 +3,10 @@
 //todo wishes tab display.
 //dateformatter still a bit broken
 //listeners for date fields
+//Licences for stuff !
+//Keys fields
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OverlappingMarkerSpiderfier-Leaflet/0.2.6/oms.min.js"></script>
 
 var travelIcon = L.icon({
 	iconUrl: '../images/travel.png',
@@ -46,6 +50,7 @@ function initMap() {
 
 	layerGroup = L.layerGroup().addTo(map);
 	updateMap(); 
+	wishesMapUpdate(1);
 }
 
 function dateFormatter(unixIn){
@@ -69,6 +74,7 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 				var attendees = "";
 				var orgs = "";
 				element.unep_reps.forEach(person=>{attendees = attendees.concat(person.firstName," ", person.lastName) });
+				console.log("attending" + attendees)
 				/*element.organisation.forEach(org=>{orgs += org.firstName}); */
 				displayPin(travelIcon,
 					element.travel_name,
@@ -175,17 +181,19 @@ function displayPin(eventType, eventName, eventX, eventY, organisation, eventLoc
 
 	var marker = L.marker([eventX,eventY], {icon: eventType}).addTo(layerGroup);
 	marker.bindPopup("<p>" + eventName.bold() + "<br />" + popupString + "</p>");
-	console.log("lo");
-	/*marker.bindPopup("<p>" + eventName.bold() + "<br />" + organisation + "<br />" + eventLocationName +"<br />" + eventPerson + "<br />" + eventStart + " to " + eventEnd +"</p>");*/
+	
 }
 
 function wishesMapUpdate(wishid){
 	layerGroup.clearLayers();
 
 	//get wishbyid and display it
+	getWishFromId(wishid, function(result){
+		console.log(result);
+	})
 	
 
-	getAllSuggestionsFromWish
+	/*getAllSuggestionsFromWish */
 
 	//Need wish id passed in to query?
 
