@@ -62,9 +62,9 @@ function getAllTables($params)
 function getWishesWithinTimeframe($params)
 {
     global $dbconn;
-    $stmt = $dbconn->prepare("SELECT wishes.id, wc.startTime, wc.endTime, wishes.wisher_id FROM wishes
+    $stmt = $dbconn->prepare("SELECT wishes.id, wishes.name, wc.startTime, wc.endTime, wishes.wisher_id FROM wishes
 JOIN wish_constraints AS wc ON wc.wish_id = wishes.id 
-WHERE wc.type = 'TIME' AND startTime<? AND endTime<?");
+WHERE wc.type = 'TIME' AND endTime>=? AND startTime<=?");
     $stmt->bindValue(1, $params->startTime, SQLITE3_INTEGER);
     $stmt->bindValue(2, $params->endTime, SQLITE3_INTEGER);
     $rows = $stmt->execute();
@@ -276,7 +276,7 @@ function getAllConstraintsFromWish($wishId)
 function getAllWishesFromUser($params)
 {
     global $dbconn;
-    $stmt = $dbconn->prepare("SELECT wishes.id, email FROM wishes
+    $stmt = $dbconn->prepare("SELECT wishes.id, wishes.name, unep_reps.email FROM wishes
 JOIN unep_reps ON wishes.wisher_id = unep_reps.id
 WHERE unep_reps.email = ?");
     $stmt->bindValue(1, $params->email, SQLITE3_TEXT);
