@@ -93,7 +93,7 @@ public class Cost {
     public static Double calculateCost(int timeDiff, double emission, double baselineEmission) {
 
         double days = (double) timeDiff / 86400;
-        return -costFunction8(days, emission);
+        return -costFunction9(days, emission);
     }
 
     public static double costFunction7(double days, double emission) {
@@ -103,6 +103,11 @@ public class Cost {
     public static double costFunction8(double days, double emission) {
         final double a = 8,b=9,c=300;
         return emission-a*Math.sin((b+c)/(days+c));
+    }
+
+    public static double costFunction9(double days, double emission) {
+        final double a = 8,b=9,c=300,d=25
+        return emission-a*Math.sin((b+c)/(days+c))*Math.exp(-days/d);
     }
 
 
