@@ -75,47 +75,24 @@ function switchUser() {
 }
 
 function showLogin() {
-  var div1 = document.createElement("div");
-  div1.setAttribute("class", "modal");
-  div1.setAttribute("id", "login");
-
-  var div2  = document.createElement("div");
-  div2.setAttribute("class", "modal-dialog");
-
-  var divContent = document.createElement("div");
-  divContent.setAttribute("class", "modal-content");
-
-  var divBody = document.createElement("div");
-  divBody.setAttribute("class", "modal-body");
-
+  var div = document.createElement("div");
   var warning = document.createElement("div");
   warning.setAttribute("class", "alert alert-danger");
   warning.setAttribute("id", "warning");
   warning.innerText = "Please enter a valid email address.";
-
   var input = document.createElement("input");
   input.setAttribute("class", "form-control");
   input.setAttribute("id", "email");
   input.setAttribute("placeholder", "Email");
   input.setAttribute("value", "");
+  div.append(warning);
+  div.append(input);
 
-  var button = document.createElement("button");
-  button.setAttribute("class", "btn btn-primary");
-  button.setAttribute("onclick", "tryLogin()");
-  button.innerText = "Login";
-
-  divBody.append(warning);
-  divBody.append(input);
-  divBody.append(button);
-
-  divContent.append(divBody);
-
-  div2.append(divContent);
-  div1.append(div2);
-
-  $("body").append(div1);
+  var dialog = createDialog("login", "Log In", "", "tryLogin()", div);
+  $("body").append(dialog);
   $("#warning").hide();
   $("#login").show();
+  $("#email").focus();
 }
 
 function tryLogin() {
@@ -148,7 +125,7 @@ function showNewUser() {
   secondName.setAttribute("type", "text");
   secondName.setAttribute("class", "form-control");
   secondName.setAttribute("id", "second-name");
-  secondName.setAttribute("placeholder", "Second Name");
+  secondName.setAttribute("placeholder", "Last Name");
   div.append(firstName);
   div.append(secondName);
 
@@ -160,6 +137,7 @@ function showNewUser() {
 
   $("body").append(dialog);
   $("#new-user").show();
+  $("#first-name").focus();
 }
 
 function makeNewUser() {
@@ -347,7 +325,6 @@ function updateCarbonCounter(carbon) {
 }
 
 function showCarbonDetails(details) {
-
   var div1 = document.createElement("div");
   div1.setAttribute("class", "modal");
   div1.setAttribute("id", "carbon-details");
@@ -461,7 +438,7 @@ function makeDefaultTravel(travels) {
 function showAddTravel() {
   $("#travel-default").hide();
   $("#travel-add").show();
-  $("#travel-btn").attr("onclick", "submitTravel(-1)");
+  $("#travel-btn").attr("onclick", "checkOrganisation('travel', -1)");
 }
 
 function showEditTravel(travel) {
@@ -471,6 +448,8 @@ function showEditTravel(travel) {
 
   $("#tag-travel").val(travel.name);
 
+  //TODO orgs
+
   getLocationFromId(travel.loc_id, loc => {
     $("#searchbox-travel").val(loc.city + ", "+ loc.country);
     console.log("Loc: "+JSON.stringify(loc))
@@ -479,7 +458,7 @@ function showEditTravel(travel) {
   document.getElementById("start-date-travel").valueAsDate = new Date(travel.startTime * 1000);
   document.getElementById("end-date-travel").valueAsDate = new Date(travel.endTime * 1000);
 
-  $("#travel-btn").attr("onclick", "submitTravel("+travel.id+")");
+  $("#travel-btn").attr("onclick", "checkOrganisation('travel', "+travel.id+")");
 }
 
 function removeTravelConfirmation(id) {
