@@ -264,7 +264,6 @@ function hideMatches() {
 
 //makes and shows matches
 function showMatches(matches) {
-  console.log(JSON.stringify(matches));
   if (matches.length>0 && matches[0].hasOwnProperty("error")) {
     console.error("Error getting matches:\n"+JSON.stringify(matches));
     return;
