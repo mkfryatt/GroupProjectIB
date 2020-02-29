@@ -264,6 +264,7 @@ function hideMatches() {
 
 //makes and shows matches
 function showMatches(matches) {
+  console.log(JSON.stringify(matches));
   if (matches.length>0 && matches[0].hasOwnProperty("error")) {
     console.error("Error getting matches:\n"+JSON.stringify(matches));
     return;
@@ -285,7 +286,9 @@ function showMatches(matches) {
 
     var cardHeader = document.createElement("div");
     cardHeader.setAttribute("class", "card-header");
-    cardHeader.innerText = element.wisher_id; //TODO: get name of the person who can satisfy the wish
+    var reps = "";
+    element.involvedReps.forEach(rep => reps += rep.firstName + " "+ rep.lastName + "<br>");
+    cardHeader.innerHTML = reps;
     
     var list = document.createElement("ul");
     list.setAttribute("class", "list-group list-group-flush");
