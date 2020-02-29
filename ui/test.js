@@ -1,3 +1,6 @@
+var mapBoxKey = 'pk.eyJ1IjoiamdjNDYiLCJhIjoiY2s2N3N0N3czMGIwaDNtb2RxNHZzazgwNSJ9.1OQ8CCRVLbUBbycUpn4T5Q';
+var bingMapsKey;
+
 var email = "";
 var firstUser = true;
 
