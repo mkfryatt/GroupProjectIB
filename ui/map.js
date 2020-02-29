@@ -4,7 +4,7 @@
 //Licences for stuff !
 //Keys fields
 // add a key (like a guide to the icons) on the map
-
+//
 
 var genericIcon = L.icon({
 	iconUrl: '../images/generic.png',
