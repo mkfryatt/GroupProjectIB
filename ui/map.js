@@ -1,3 +1,17 @@
+//todo: fix organisations for wishes, just check if code.
+//wishes tab display.
+//listeners for date fields
+//Licences for stuff !
+//Keys fields
+// add a key (like a guide to the icons) on the map
+//
+
+var genericIcon = L.icon({
+	iconUrl: '../images/generic.png',
+	iconSize: [32, 32],
+	iconAnchor: [16,32],
+});
+
 var travelIcon = L.icon({
 	iconUrl: '../images/travel.png',
 	iconSize: [32, 32],
@@ -22,10 +36,11 @@ var homeIcon = L.icon({
 	iconAnchor: [16,32],
 });
 
-
+var baseCurrentLayer;
+var wishCurrentLayer;
 var map;
-var layerGroup;
-
+var oms;
+var map_initializing; //Allows spiderfy to distinguish if user is clicking or if icons being set.
 var selectionAdmin, selectionWish, selectionTravel;
 
 function initMap() {
@@ -36,63 +51,236 @@ function initMap() {
 		id: 'mapbox/streets-v11',
 		tileSize: 512,
 		zoomOffset: -1,
-		accessToken: 'pk.eyJ1IjoiamdjNDYiLCJhIjoiY2s2N3N0N3czMGIwaDNtb2RxNHZzazgwNSJ9.1OQ8CCRVLbUBbycUpn4T5Q'}).addTo(map);
+		accessToken: 'pk.eyJ1IjoiamdjNDYiLCJhIjoiY2s2N3N0N3czMGIwaDNtb2RxNHZzazgwNSJ9.1OQ8CCRVLbUBbycUpn4T5Q'}).addTo(map);	
 
-		layerGroup = L.layerGroup().addTo(map);
-		updateMap(); 
+	oms = new OverlappingMarkerSpiderfier(map, legWeight = 10);
+	updateMap(); 
+	wishesMapUpdate(1);
 }
 
-function updateMap(){ /* Core map display, all wishes and travel within date-range */
-	layerGroup.clearLayers();
+function dateFormatter(unixIn){
+	var DTform = new Date(unixIn * 1000);
+	return (DTform.getDate() + '/' + (DTform.getMonth()+1) + '/' + DTform.getFullYear())
+}
 
-	var start = Math.round(document.getElementById("start-date-map").valueAsDate/1000);
-	var end = Math.round(document.getElementById("end-date-map").valueAsDate/1000);
-	
-	getTravelWithinTimeframe(start,end,function (result) {
-		//If time distinguish users travel from all travel
+function setMapSpiderListener(oms){
+	oms.addListener('click', function(mark){
+		var classformat;
+		if (mark.trueIcon == travelIcon){
+				classformat = "popupTravel" }
+		else if(mark.trueIcon == wishIcon){
+			classformat = "popupWish"}
+		else{ classformat = "popupPres"}
 
+		var popup = new L.popup({
+			offset: [0,10],
+			className: classformat
+		});
+		popup.setContent(mark.desc);
+		popup.setLatLng(mark.getLatLng());
+		if (!map_initializing){ //Suppress popups during icon-setting
+			map.openPopup(popup);
+		}
 	})
+	
 
-	getAllWishesFromUser(email,function (result){
+	oms.addListener('spiderfy', function(mark){
+		for (var i=0; i<mark.length; i++) { mark[i].setIcon(mark[i].trueIcon)}
+	}) 
+
+	oms.addListener('unspiderfy', function(mark){
+		for (var i=0; i<mark.length; i++) { mark[i].setIcon(genericIcon)}
 
 	});
 
-	/*getOrganisationPresencesWithinTimeframe() */
+}
 
-	getUnepPresencesWithinTimeframe(1,10, function (result) {
+
+//This isn't terminating or 
+
+function updateMap(){ /* Core map display, all wishes and travel within date-range */
+	if (wishCurrentLayer != null){
+		oms.clearListeners('click');
+		oms.clearListeners('spiderfy');
+		oms.clearListeners('unspiderfy');
+		oms.clearMarkers();
+		map.removeLayer(wishCurrentLayer);
+	}
+	baseCurrentLayer = L.layerGroup().addTo(map);
+	setMapSpiderListener(oms);
+	var start = Math.round(document.getElementById("start-date-map").valueAsDate/1000);
+	var end = Math.round(document.getElementById("end-date-map").valueAsDate/1000);
+
+
+
+	getAllWishesFromUser(email,function (wishes){
+
+		if (wishes.length>0 && wishes[0].hasOwnProperty("error")) {
+		  console.log("error getting wishes");
+		} 
+		else{
+
+			wishes.forEach(element=>{
+				var locationPrint = "";
+				var locationlat;
+				var locationlon;
+				if (element.constraints.locations.length !=0){
+					locationPrint = locationPrint.concat(element.constraints.locations[0].city, ", ", element.constraints.locations[0].country);
+					locationlat = element.constraints.locations[0].lat;
+					locationlon = element.constraints.locations[0].lon;
+				
+				displayPin(wishIcon,
+					element.name,
+					locationlat,
+					locationlon,
+					null, //No organisation specifically sometimes, handle later
+					locationPrint,
+					null,
+					dateFormatter(element.constraints.times[0].startTime) + " to "+dateFormatter(element.constraints.times[0].endTime), //Currently only one date range visible as this is all UI allows.
+					baseCurrentLayer
+					)
+				}
+			}
+			)
+		}
+	
+	});
+
+	getTravelWithinTimeframe(start,end,function (travel) {
+		if (travel.length>0 && travel[1].hasOwnProperty("error")) {
+		  console.log("error getting travel");
+		}
+		else{
+			travel.forEach(element=>{
+				var attendees = "";
+				var orgs = "";
+				element.unep_reps.forEach(person=>{attendees = attendees.concat(person.firstName," ", person.lastName) });
+				/*element.organisation.forEach(org=>{orgs += org.firstName}); */
+				displayPin(travelIcon,
+					element.travel_name,
+					element.lat,
+					element.lon,
+					null, //No organisation specifically sometimes, handle later
+					element.city + ", " + element.country,
+					attendees,
+					dateFormatter(element.startTime) + " to " + dateFormatter(element.endTime),
+					baseCurrentLayer
+					)
+				}
+			)
+		}
+		//If time distinguish users travel from all travel
+
+	}); 
+
+	getOrganisationPresencesWithinTimeframe(start,end, function(result){
+		result.forEach(pres=>{
+			var period = null;
+			if (pres.startTime != 0){ //if not headquarters
+				period = dateFormatter(pres.startTime) + " to " + dateFormatter(pres.endTime);
+			}
+			displayPin(presenceIcon,
+				pres.name,
+				pres.lat,
+				pres.lon,
+				null,
+				pres.city + ", " + pres.country,
+				null,
+				period,
+				baseCurrentLayer				
+				)
+		
+		})
+
+	});
+
+	getUnepPresencesWithinTimeframe(start,end, function (result){
+		result.forEach(hq=>{
+
+			var period = null;
+			if (hq.startTime != 0){ //if not headquarters
+				period = dateFormatter(hq.startTime) + " to " + dateFormatter(hq.endTime);
+			}
+
+			displayPin(homeIcon, hq.name, hq.lat, hq.lon, null, hq.city + ", " + hq.country, null, period, baseCurrentLayer)
+		})
 	})
-
-
 	//Read in everyone's travel, your own wishes, and all presences (Unep, and external)
-	//iteratively call displayPin
-
-	//Filter by date from db file and display pins
-	displayPin(travelIcon,"Goldfish conference", "Btec", 38.72, -9.14, "Lisbon", "Mark Smith", "1/04/20", "3/04/20");
-	displayPin(wishIcon,"Lemon meeting", "Atec" , 51.547, 0, "London", "Mark Smith", "1/04/20", "3/04/20");
-	/*layerGroup.clearLayers();  */
 }
 
 
-function displayPin(eventType, eventName, organisation, eventX, eventY, eventLocationName, eventPerson, eventStart, eventEnd) {
-	//Event name & Institution 
-	//Location (need Co-ords and city name)
-	//Person -> unep_rep & name
-	//Time
+function displayPin(eventType, eventName, eventX, eventY, organisation, eventLocationName, eventPerson, eventRange, targLayer) {
+	
+	
+	var popupString = "";
+	map_initializing = true;
 
-	var marker = L.marker([eventX,eventY], {icon: eventType}).addTo(layerGroup);
-	marker.bindPopup("<p>" + eventName.bold() + "<br />" + organisation + "<br />" + eventLocationName +"<br />" + eventPerson + "<br />" + eventStart + " to " + eventEnd +"</p>");
+	for (var i=4; i<arguments.length-1; i++){
+		if (arguments[i]!=null){
+			popupString+=arguments[i];
+			popupString+="<br />";
+		}
+	}
+
+
+	var marker = L.marker([eventX,eventY], {icon: eventType}).on('click', function(e){e.setZIndexOffset = 100000 })
+	marker.addTo(targLayer);
+	marker.trueIcon = eventType;
+	marker.desc = ("<p>" + eventName.bold() + "<br />" + popupString + "</p>");
+	oms.addMarker(marker);
+
+	//Force spiderfy then unspiderfy
+	marker.fireEvent('click');
+	map.fireEvent('click'); 
+	map_initializing = false; 
 	
 }
 
-function wishesMapUpdate(email){
-	layerGroup.clearLayers();
+function wishesMapUpdate(wishid){
+	getWishFromId(wishid, function(resultx){
+		if (resultx[0].constraints.locations.length != 0){
+			result = resultx[0];	
+			oms.clearMarkers();
+			map.removeLayer(baseCurrentLayer);
+			wishCurrentLayer = L.layerGroup().addTo(map);
 
-	//Need wish id passed in to query?
+/*
+			displayPin(wishIcon,
+				result.name,
+				result.constraints.locations[0].lat,
+				result.constraints.locations[0].lon,
+				null,
+				result.constraints.locations[0].city + ", " + result.constraints.locations[0].country,
+				null,
+				dateFormatter(result.constraints.times[0].startTime) + " to "  + dateFormatter(result.constraints.times[0].endTime),			
+				wishCurrentLayer
+				) */	
+		}}); 
+			
 
+		getAllSuggestionsFromWish(wishid, function(resulty){
+			console.log(resulty);
+			resulty.forEach(element=>{
+				console.log(element);
+				var attendees = "";
+				var orgs = "";
+				element.unep_reps.forEach(person=>{attendees = attendees.concat(person.firstName," ", person.lastName) });
+				/*element.organisation.forEach(org=>{orgs += org.firstName}); */
+				displayPin(travelIcon,
+					element.travel_name + "<br />" + "Carbon saved:" + 
+					element.lat,
+					element.lon,
+					null, //No organisation specifically sometimes, handle later
+					element.city + ", " + element.country,
+					attendees,
+					dateFormatter(element.startTime) + " to " + dateFormatter(element.endTime),
+					wishCurrentLayer
+					)
+				})
+			})
 
-	//Read in user's wish (display as wish), and matches (display as travel)
-	
-
+			//Read in user's wish (display as wish), and matches (display as travel)
+			//displaypin for wish, displaypin for all travels.
 
 }
 
@@ -141,12 +329,5 @@ function loadMapScenarioTravel() {
   }
   function passLatLong(selection) {
 	selectionTravel = selection;
-    /* City = selection.address.locality - UNDEFINED for country/continent/Seas
-    /*City/Location = selection.formattedSuggestion
-    Lat = selection.location.latitude
-    lon = selection.location.longitude
-
-    Basically this needs to store it to somewhere so it can be submitted when the rest of the form is.
-    */
   }     
 }

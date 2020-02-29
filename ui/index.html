@@ -22,6 +22,10 @@
     <!-- searchbox thing -->
     <script type='text/javascript' src='https://www.bing.com/api/maps/mapcontrol?key=AggPPU_FdoBKW9UXxPoEzElDhumgpCx_LbuW5RK8mMpLtpvQVBLL0wCZurcXTS1y&callback=loadMapScenario' async defer></script>
 
+    <!-- spiderify -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OverlappingMarkerSpiderfier-Leaflet/0.2.6/oms.min.js"></script>
+
+
     <!-- Stuff -->
     <link rel="stylesheet" type="text/css" href="style.css">
     <script src="test.js"></script>
@@ -29,9 +33,30 @@
     <script src="data_update.js"></script>
     <script src="util.js"></script>
     <title>Travelling Businesswoman Problem</title>
-  </head>
+  </head>  
   <body onload="init()">
 
+
+    <style>
+      /* css to customize Leaflet default styles  */
+      .popupWish .leaflet-popup-tip,
+      .popupWish .leaflet-popup-content-wrapper {
+          background: #eff291;
+          color: #000;
+      }
+      
+      .popupTravel .leaflet-popup-tip,
+      .popupTravel .leaflet-popup-content-wrapper {
+          background: #d8fcd4;
+          color: #000;
+      }
+      
+      .popupPres .leaflet-popup-tip,
+      .popupPres .leaflet-popup-content-wrapper {
+          background: #facdf3;
+          color: #000;
+      }
+      </style>
     <!-- Timeframe -->
     <div id="timeframe">
       <button class="btn btn-secondary btn-sm" style="width: 100%" onclick="switchUser()">Logout</button>
