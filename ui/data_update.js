@@ -8,7 +8,7 @@ function checkOrganisation(type, id) {
         var dialog = createDialog("new-org", 
         "Create New Organisation", 
         "Would you like to create a new organisation called '"+org+"'?",
-        "createNewOrganisation('"+org+"', e => doSubmit('"+type+"', "+id+"))", null);
+        "createNewOrganisation('"+org+"', e => {doSubmit('"+type+"', "+id+"); $('#new-org').remove()})", null);
         $("body").append(dialog);
         $("#new-org").show();
       }
