@@ -194,11 +194,12 @@ function doLogin() {
   getEmissionsSavedFromUser(email, updateCarbonCounter);
 
   //can only call initMap once, so if this is't the first user, just updateMap
-  if (firstUser) { //TODO
-    //initMap();
+  initMap();
+  /*if (firstUser) { //TODO
+    initMap();
   } else {
-    //updateMap();
-  }
+    updateMap();
+  } */
 }
 
 //makes the wishes tab, doesn't show it
