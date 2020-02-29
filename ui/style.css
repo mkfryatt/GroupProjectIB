@@ -58,3 +58,22 @@ body {
   margin: 1rem;
   min-width: 14rem;
 }
+
+/* css to customize Leaflet default styles  */
+.popupWish .leaflet-popup-tip,
+.popupWish .leaflet-popup-content-wrapper {
+    background: #eff291;
+    color: #000;
+}
+
+.popupTravel .leaflet-popup-tip,
+.popupTravel .leaflet-popup-content-wrapper {
+    background: #d8fcd4;
+    color: #000;
+}
+
+.popupPres .leaflet-popup-tip,
+.popupPres .leaflet-popup-content-wrapper {
+    background: #facdf3;
+    color: #000;
+}
