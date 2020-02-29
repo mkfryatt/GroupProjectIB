@@ -43,7 +43,7 @@ function submitTravel(id) {
   //get name
   var name = $("#tag-travel").val();
   if ($("#tag-travel").val()=="") {
-    $("#warning-travel").text("Please enter a travel name before submitting.");
+    $("#warning-travel").text("Please enter an event name before submitting.");
     $("#warning-travel").show();
     return;
   }
