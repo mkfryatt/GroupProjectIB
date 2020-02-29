@@ -24,7 +24,7 @@ function runJava($table_name, $id)
 {
     global $javaPath, $databasePath;
     //do stuff;
-    exec("java -jar " . getcwd()."/".$javaPath . " " . getcwd()."/".$databasePath . " " . $table_name . " " . strval($id));
+    exec("java -jar " . getcwd() . "/" . $javaPath . " " . getcwd() . "/" . $databasePath . " " . $table_name . " " . strval($id));
 }
 
 function answerJsonAndDie($obj)
@@ -63,12 +63,13 @@ function getAllTables($params)
     return ($result);
 }
 
-function getAllOrganisationNames($params){
+function getAllOrganisationNames($params)
+{
     global $dbconn;
     $stmt = $dbconn->prepare("SELECT name FROM organisations");
     $rows = $stmt->execute();
     $result = array();
-    while($row = $rows->fetchArray()){
+    while ($row = $rows->fetchArray()) {
         $result[] = $row['name'];
     }
     return $result;
@@ -121,7 +122,6 @@ function getAllOrgsAndRepsForTravel($row)
     $resultRow['unep_reps'] = $reps;
     return $resultRow;
 }
-
 
 
 function getTravelWithinTimeframe($params)
@@ -321,7 +321,8 @@ WHERE unep_reps.email = ?");
     return ($result);
 }
 
-function getWishFromId($wish_id){
+function getWishFromId($wish_id)
+{
     global $dbconn;
     $stmt = $dbconn->prepare("SELECT wishes.id, wishes.name, unep_reps.email FROM wishes
 JOIN unep_reps ON wishes.wisher_id = unep_reps.id
@@ -359,7 +360,7 @@ function getAllSuggestionsFromWish($params)
 {
     global $dbconn;
     $stmt = $dbconn->prepare("
-SELECT s.id, w.wisher_id, ur.email, ur.firstName, ur.lastName,
+SELECT s.id, w.wisher_id, w.name as wish_name, ur.email, ur.firstName, ur.lastName,
 s.emissions, s.emmission_delta, s.time_wasted, s.score,
 l.city as wishCity, l.country as wishCountry, l.lat as wishLat, l.lon as wishLon, 
 s.trips__dep_id as unepTripId, t.startTime as unepTripStart, t.endTime as unepTripEnd,
@@ -429,7 +430,7 @@ ORDER BY s.score DESC");
         //Filter results
         $newRow = array_intersect_key($row, array_flip($allKeys));
 
-        //Rename as appropriate
+        //Rename as appropriate and add more info
         if ($usedLoc) {
             $newRow['city'] = $newRow['wishCity'];
             $newRow['country'] = $newRow['wishCountry'];
@@ -464,6 +465,23 @@ ORDER BY s.score DESC");
             unset($newRow['tripCountry']);
             unset($newRow['tripLon']);
             unset($newRow['tripLat']);
+        }
+
+        $newRow['involvedReps'] = array();
+
+        if ($usedTrip) {
+            $stmt2 = $dbconn->prepare("SELECT ur.id, email, firstName, lastName
+            FROM rep_trips
+            JOIN unep_reps ur on rep_trips.rep_id = ur.id WHERE rep_trips.trip_id=?");
+            $stmt2->bindValue(1,$newRow['unepTripId']);
+
+            $rows2 = $stmt2->execute();
+            if (!$rows2) error('Query failed ' . $dbconn->lastErrorMsg());
+
+            while($row2 = $rows2->fetchArray()){
+                $row = removeNumericKeys($row2);
+                $newRow['involvedReps'][] = $row;
+            }
         }
 
         array_push($result, (object)$newRow);
