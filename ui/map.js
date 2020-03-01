@@ -88,8 +88,6 @@ function setMapSpiderListener(oms){
 
 
 function updateMap(){ /* Core map display, all wishes and travel within date-range */
-	console.log("UM");
-	console.trace();
 	oms.clearListeners('click');
 	oms.clearListeners('spiderfy');
 	oms.clearListeners('unspiderfy');
@@ -110,14 +108,10 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 	var end = Math.round(document.getElementById("end-date-map").valueAsDate/1000);
 
 
-	console.log(start);
-	console.log(end);
-
-
 	getAllWishesFromUser(email,function (wishes){
 
 		if (wishes.length>0 && wishes[0].hasOwnProperty("error")) {
-		  console.log("error getting wishes");
+		  console.error("Error getting wishes:\n"+JSON.stringify(wishes));
 		} 
 		else{
 
@@ -148,11 +142,10 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 	});
 
 	getTravelWithinTimeframe(start,end,function (travel) {
-		if (travel.length==0) {
-		  console.log("error getting travel");
+		if (travel.hasOwnProperty("error")) {
+		  console.error("Error getting travel:\n"+JSON.stringify(travel));
 		}
 		else{
-			console.log(travel);
 			travel.forEach(element=>{
 				var attendees = "";
 				var orgs = "";
@@ -239,7 +232,6 @@ function displayPin(eventType, eventName, eventX, eventY, organisation, eventLoc
 }
 
 function wishesMapUpdate(wishid){
-	console.log("maptrigger");
 	getWishFromId(wishid, function(resultx){
 		if (resultx[0].constraints.locations.length != 0){
 			result = resultx[0];	
@@ -250,7 +242,6 @@ function wishesMapUpdate(wishid){
 			if (wishCurrentLayer != null){
 				map.removeLayer(wishCurrentLayer);}
 			wishCurrentLayer = new L.FeatureGroup().addTo(map);
-			map.eachLayer(function(layer){console.log(layer)});
 			
 
 			displayPin(wishIcon,
@@ -267,7 +258,6 @@ function wishesMapUpdate(wishid){
 			
 
 		getAllSuggestionsFromWish(wishid, function(resulty){
-			console.log(resulty);
 			resulty.forEach(element=>{
 				if (element.hasOwnProperty('unepPresenceName')){
 					displayPin(homeIcon,
