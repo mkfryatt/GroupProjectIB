@@ -1,11 +1,5 @@
 //todo: fix organisations for wishes, just check if code.
-//wishes tab display.
 //listeners for date fields
-//Licences for stuff !
-//Keys field for bing?
-// add a key (like a guide to the icons) on the map
-//
-
 
 var genericIcon = L.icon({
 	iconUrl: '../images/generic.png',
@@ -55,11 +49,11 @@ function initMap() {
 		accessToken: mapBoxKey}).addTo(map);	
 
 	oms = new OverlappingMarkerSpiderfier(map, legWeight = 10);
-	baseCurrentLayer = L.layerGroup().addTo(map);
 
-	document.getElementById("start-date-map").addEventListener('change',updateMap());
-	document.getElementById("end-date-map").addEventListener('change',updateMap());
-	document.getElementById("matches-back-btn").addEventListener('click',updateMap());
+	
+	$('start-date-map').change(function(){updateMap()});
+	$('end-date-map').change(function(){updateMap()});
+	$("matches-back-btn").click(function(){updateMap()});
 	updateMap(); 
 
 }
@@ -103,14 +97,16 @@ function setMapSpiderListener(oms){
 
 
 function updateMap(){ /* Core map display, all wishes and travel within date-range */
+	console.log("UM");
+	console.trace();
 	oms.clearListeners('click');
 	oms.clearListeners('spiderfy');
 	oms.clearListeners('unspiderfy');
 	oms.clearMarkers();
 	
-	if (wishCurrentLayer != null){map.removeLayer(wishCurrentLayer);}
-	if (baseCurrentLayer != null){map.removeLayer(baseCurrentLayer); baseCurrentLayer = null;}
-	baseCurrentLayer = L.layerGroup().addTo(map);
+	if (baseCurrentLayer != null){map.removeLayer(wishCurrentLayer)}
+	baseCurrentLayer = new L.FeatureGroup().addTo(map);
+	if (wishCurrentLayer != null){map.removeLayer(wishCurrentLayer)};
 	if (document.getElementById("start-date-map").disable == true){
 		document.getElementById("end-date-map").disable = false;
 		document.getElementById("start-date-map").disable = false;
@@ -122,6 +118,9 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 	var start = Math.round(document.getElementById("start-date-map").valueAsDate/1000);
 	var end = Math.round(document.getElementById("end-date-map").valueAsDate/1000);
 
+
+	console.log(start);
+	console.log(end);
 
 
 	getAllWishesFromUser(email,function (wishes){
@@ -162,6 +161,7 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 		  console.log("error getting travel");
 		}
 		else{
+			console.log(travel);
 			travel.forEach(element=>{
 				var attendees = "";
 				var orgs = "";
@@ -256,9 +256,11 @@ function wishesMapUpdate(wishid){
 			map.removeLayer(baseCurrentLayer);
 			document.getElementById("end-date-map").disable = true;
 			document.getElementById("start-date-map").disable = true;
-			if (wishCurrentLayer != null){map.removeLayer(wishCurrentLayer); wishCurrentLayer = null;}
-			wishCurrentLayer = L.layerGroup().addTo(map);
-
+			if (wishCurrentLayer != null){
+				map.removeLayer(wishCurrentLayer);}
+			wishCurrentLayer = new L.FeatureGroup().addTo(map);
+			map.eachLayer(function(layer){console.log(layer)});
+			
 
 			displayPin(wishIcon,
 				result.name,
@@ -277,7 +279,7 @@ function wishesMapUpdate(wishid){
 			console.log(resulty);
 			resulty.forEach(element=>{
 				if (element.hasOwnProperty('unepPresenceName')){
-					displayPin(travelIcon,
+					displayPin(homeIcon,
 						element.unepPresenceName + "<br />" + "Carbon saved:",
 						element.lat,
 						element.lon,
@@ -359,3 +361,32 @@ function loadMapScenarioTravel() {
 	selectionTravel = selection;
   }     
 }
+
+//LEAFLET:
+/*
+Copyright (c) 2010-2019, Vladimir Agafonkin
+Copyright (c) 2010-2011, CloudMade
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are
+permitted provided that the following conditions are met:
+
+   1. Redistributions of source code must retain the above copyright notice, this list of
+      conditions and the following disclaimer.
+
+   2. Redistributions in binary form must reproduce the above copyright notice, this list
+      of conditions and the following disclaimer in the documentation and/or other materials
+      provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+
+
+/*Overlapping Marker Spiderfier for Leaflet - jawj - MIT licence: https://opensource.org/licenses/mit-license.php*/

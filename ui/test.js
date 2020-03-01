@@ -159,6 +159,7 @@ function makeNewUser() {
 }
 
 function doLogin() {
+  console.log("LOGIN");
   $("#current-user").text(email);
   $("#login").remove();
 
@@ -292,7 +293,8 @@ function showMatches(matches) {
     var cardHeader = document.createElement("div");
     cardHeader.setAttribute("class", "card-header");
     var reps = "";
-    element.involvedReps.forEach(rep => reps += rep.firstName + " "+ rep.lastName + "<br>");
+    if (element.hasOwnProperty('unep_reps')){
+    element.unep_reps.forEach(rep => reps += rep.firstName + " "+ rep.lastName + "<br>"); }
     cardHeader.innerHTML = reps;
     
     var list = document.createElement("ul");
