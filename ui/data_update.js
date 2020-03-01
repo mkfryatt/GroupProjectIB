@@ -18,6 +18,8 @@ function checkOrganisation(type, id) {
         $("#new-org").show();
       }
     });
+  } else {
+    doSubmit(type, id);
   }
 }
 
@@ -86,6 +88,7 @@ function submitTravel(id) {
       }
       selectionTravel = null;
       getAllTravelFromUser(email, makeDefaultTravel);
+      showDefaultTravel();
       updateMap();
     }
   });
@@ -150,7 +153,7 @@ function submitWish() {
   }
 
   //must have at least position or org
-  if (loc==[] && org==[]) {
+  if (loc.length==0 && org.length==0) {
     $("#warning-wish").text("Please enter a location or an organisation.");
     $("#warning-wish").show();
     return;
@@ -166,7 +169,7 @@ function submitWish() {
       $("#warning-wish").hide();
       getAllWishesFromUser(email, makeWishes);
       clearForm("wish");
-      openTab("wish");
+      openTab("match");
       submitWish = null;
       updateMap();
     }
