@@ -363,18 +363,19 @@ function getAllSuggestionsFromWish($params)
 SELECT s.id, w.wisher_id, w.name as wish_name, ur.email, ur.firstName, ur.lastName,
 s.emissions, s.emmission_delta, s.time_wasted, s.score,
 l.city as wishCity, l.country as wishCountry, l.lat as wishLat, l.lon as wishLon, 
-s.trips__dep_id as unepTripId, t.startTime as unepTripStart, t.endTime as unepTripEnd,
-up.id as unepPresenceId, up.name as unepPresenceName,
-s.trip_org_presences__dep_id, o1.name as 'tripOrgName', l2.city as 'tripCity', l2.country as 'tripCountry', l2.lon as 'tripLon', l2.lat as 'tripLat',
-s.presences__dep_id, o2.name as 'presenceOrgName', l3.city as 'orgCity', l3.country as 'orgCountry', l3.lon as 'orgLon', l3.lat as 'orgLat'
+s.trips__dep_id as unepTripId, t.name as unepTripName,t.startTime as unepTripStart, t.endTime as unepTripEnd, l5.city as 'unepTripCity', l5.country as 'unepTripCountry', l5.lon as 'unepTripLon', l5.lat as 'unepTripLat',
+up.id as unepPresenceId, up.name as unepPresenceName, l4.city as 'unepPresenceCity', l4.country as 'unepPresenceCountry', l4.lon as 'unepPresenceLon', l4.lat as 'unepPresenceLat',
+s.trip_org_presences__dep_id as tripOrgPresenceId, o1.name as 'tripOrgName', l2.city as 'tripCity', l2.country as 'tripCountry', l2.lon as 'tripLon', l2.lat as 'tripLat',
+s.presences__dep_id as presenceOrgId, o2.name as 'presenceOrgName', l3.city as 'orgCity', l3.country as 'orgCountry', l3.lon as 'orgLon', l3.lat as 'orgLat'
 FROM suggestions s
 JOIN wishes w ON s.wish_id = w.id
 JOIN unep_reps ur ON w.wisher_id = ur.id
 LEFT JOIN wish_constraints wc ON wc.wish_id = w.id AND wc.type = 'LOCATION'
 LEFT JOIN locations l ON wc.loc_id = l.id
-
 LEFT JOIN trips t ON s.trips__dep_id = t.id
+LEFT JOIN locations l5 ON t.loc_id = l5.id
 LEFT JOIN unep_presences up ON s.unep_presences__dep_id = up.id
+LEFT JOIN locations l4 ON up.loc_id = l4.id
 LEFT JOIN trip_org_presences top ON s.trip_org_presences__dep_id = top.id
 LEFT JOIN organisations o1 ON top.org_id = o1.id
 LEFT JOIN trips t2 ON top.trip_id = t2.id
@@ -382,7 +383,6 @@ LEFT JOIN locations l2 ON t2.loc_id = l2.id
 LEFT JOIN presences p ON s.presences__dep_id = p.id
 LEFT JOIN organisations o2 ON p.org_id = o2.id
 LEFT JOIN locations l3 ON p.loc_id = l3.id
-
 WHERE w.id = ?
 
 ORDER BY s.score DESC");
@@ -393,45 +393,36 @@ ORDER BY s.score DESC");
 
     $baseKeys = array("id", "wisher_id", "emissions", "emmision_delta", "time_wasted", "score");
     $locConstraintKeys = array("wishCity", "wishCountry", "wishLat", "wishLon");
-    $usedLoc = false;
-    $unepTripKeys = array("unepTripId", "unepTripStart", "unepTripEnd");
-    $usedTrip = false;
-    $unepPresenceKeys = array("unepPresenceId", "unepPresenceName");
-    $usedUnepPresence = false;
+    $unepTripKeys = array("unepTripId", "unepTripStart", "unepTripEnd", "unepTripName", "unepTripCity", "unepTripCountry", "unepTripLon", "unepTripLat");
+    $unepPresenceKeys = array("unepPresenceId", "unepPresenceName", "unepPresenceCity", "unepPresenceCountry", "unepPresenceLon", "unepPresenceLat");
     $tripOrgKeys = array("tripOrgName", "tripCity", "tripCountry", "tripLon", "tripLat");
-    $usedTripOrg = false;
     $orgPresenceKeys = array("presenceOrgName", "orgCity", "orgCountry", "orgLon", "orgLat");
-    $usedOrgPresence = false;
 
     while ($row = $rows->fetchArray()) {
         $row = removeNumericKeys($row);
         $allKeys = $baseKeys;
         if (!is_null($row['wishCity'])) {
             $allKeys = array_merge($allKeys, $locConstraintKeys);
-            $usedLoc = true;
         }
         if (!is_null($row['unepTripId'])) {
             $allKeys = array_merge($allKeys, $unepTripKeys);
-            $usedTrip = true;
         }
         if (!is_null($row['unepPresenceId'])) {
             $allKeys = array_merge($allKeys, $unepPresenceKeys);
-            $usedUnepPresence = true;
         }
-        if (!is_null($row['tripOrgName'])) {
+        if (!is_null($row['tripOrgPresenceId'])) {
             $allKeys = array_merge($allKeys, $tripOrgKeys);
-            $usedTripOrg = true;
         }
-        if (!is_null($row['presenceOrgName'])) {
+        if (!is_null($row['presenceOrgId'])) {
             $allKeys = array_merge($allKeys, $orgPresenceKeys);
-            $usedOrgPresence = true;
         }
+
 
         //Filter results
         $newRow = array_intersect_key($row, array_flip($allKeys));
 
         //Rename as appropriate and add more info
-        if ($usedLoc) {
+        /*if ($usedLoc) {
             $newRow['city'] = $newRow['wishCity'];
             $newRow['country'] = $newRow['wishCountry'];
             $newRow['lon'] = $newRow['wishLon'];
@@ -456,32 +447,63 @@ ORDER BY s.score DESC");
         }
 
         if ($usedOrgPresence) {
-            $newRow['city'] = $newRow['tripCity'];
-            $newRow['country'] = $newRow['tripCountry'];
-            $newRow['lon'] = $newRow['tripLon'];
-            $newRow['lat'] = $newRow['tripLat'];
+            $newRow['city'] = $newRow['orgCity'];
+            $newRow['country'] = $newRow['orgCountry'];
+            $newRow['lon'] = $newRow['orgLon'];
+            $newRow['lat'] = $newRow['orgLat'];
 
             unset($newRow['tripCity']);
             unset($newRow['tripCountry']);
             unset($newRow['tripLon']);
             unset($newRow['tripLat']);
+        }*/
+        
+        if(key_exists('unepTripId',$newRow)){
+            $newRow['city'] = $newRow['unepTripCity'];
+            $newRow['country'] = $newRow['unepTripCountry'];
+            $newRow['lon'] = $newRow['unepTripLon'];
+            $newRow['lat'] = $newRow['unepTripLat'];
+
+            unset($newRow['unepTripCity']);
+            unset($newRow['unepTripCountry']);
+            unset($newRow['unepTripLon']);
+            unset($newRow['unepTripLat']);
         }
 
-        $newRow['involvedReps'] = array();
+        if(key_exists('unepPresenceId' ,$newRow)){
+            $newRow['city'] = $newRow['unepPresenceCity'];
+            $newRow['country'] = $newRow['unepPresenceCountry'];
+            $newRow['lon'] = $newRow['unepPresenceLon'];
+            $newRow['lat'] = $newRow['unepPresenceLat'];
 
-        if ($usedTrip) {
-            $stmt2 = $dbconn->prepare("SELECT ur.id, email, firstName, lastName
-            FROM rep_trips
-            JOIN unep_reps ur on rep_trips.rep_id = ur.id WHERE rep_trips.trip_id=?");
-            $stmt2->bindValue(1,$newRow['unepTripId']);
+            unset($newRow['unepPresenceCity']);
+            unset($newRow['unepPresenceCountry']);
+            unset($newRow['unepPresenceLon']);
+            unset($newRow['unepPresenceLat']);
+        }
 
-            $rows2 = $stmt2->execute();
-            if (!$rows2) error('Query failed ' . $dbconn->lastErrorMsg());
+        //$newRow['involvedReps'] = array();
 
-            while($row2 = $rows2->fetchArray()){
-                $row = removeNumericKeys($row2);
-                $newRow['involvedReps'][] = $row;
-            }
+        if (key_exists('unepTripId',$newRow)) {
+//            $stmt2 = $dbconn->prepare("SELECT ur.id, email, firstName, lastName
+//            FROM rep_trips
+//            JOIN unep_reps ur on rep_trips.rep_id = ur.id WHERE rep_trips.trip_id=?");
+//            $stmt2->bindValue(1,$newRow['unepTripId']);
+//
+//            $rows2 = $stmt2->execute();
+//            if (!$rows2) error('Query failed ' . $dbconn->lastErrorMsg());
+//
+//            while($row2 = $rows2->fetchArray()){
+//                $row = removeNumericKeys($row2);
+//                $newRow['involvedReps'][] = $row;
+//            }
+
+            $newRow['travel_id']=$newRow['unepTripId'];
+
+            $newRow = getAllOrgsAndRepsForTravel($newRow);
+
+            unset($newRow['travel_id']);
+
         }
 
         array_push($result, (object)$newRow);
@@ -547,7 +569,7 @@ function createNewTravel($params)
     }
 
 
-//    runJava("trips", $trip_id);
+    runJava("trips", $trip_id);
 
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $trip_id);
 }
@@ -609,7 +631,7 @@ function createNewWish($name, $email, $time_constraints, $org_constraints, $loc_
         $rows = $stmt->execute();
     }
 
-//    runJava("wishes", $wish_id);
+    runJava("wishes", $wish_id);
 
     //TODO: similarly for org_constraints, loc_constraints. Content structure is specified in util.js
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $wish_id);
@@ -647,7 +669,7 @@ function createNewUnepPresence($params)
 
     $unep_presence_id = $dbconn->lastInsertRowID();
 
-//    runJava("unep_presences", $unep_presence_id);
+    runJava("unep_presences", $unep_presence_id);
 
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $unep_presence_id);
 }
@@ -671,7 +693,7 @@ function createNewOrganisationPresence($params)
 
     $org_presence_id = $dbconn->lastInsertRowID();
 
-//    runJava("presences", $org_presence_id);
+    runJava("presences", $org_presence_id);
 
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $org_presence_id);
 }
@@ -875,9 +897,17 @@ function removeOldTravel($params)
     $stmt->execute();
 }
 
-$request = json_decode($_GET['q']);
+function debug1($params){
+    global $dbconn;
+    $stmt = $dbconn->query("SELECT * FROM suggestions WHERE id=1");
+    $result = array();
+    $resultRow = $stmt->fetchArray();
+    $result['array'] = var_export($resultRow, true);
+    $result['nullCheck'] = is_null($resultRow['trips__dep_id']);
+    return (object)$result;
+}
 
-runJava("unep_presences", 4);
+$request = json_decode($_GET['q']);
 
 switch ($request->method) {
     case 'stub':
@@ -1020,6 +1050,11 @@ switch ($request->method) {
 
     case 'createNewOrganisation':
         $result = createNewOrganisation($request->params);
+        answerJsonAndDie($result);
+        break;
+
+    case 'debug1':
+        $result = debug1($request->params);
         answerJsonAndDie($result);
         break;
 

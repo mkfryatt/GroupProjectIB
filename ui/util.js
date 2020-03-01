@@ -328,3 +328,13 @@ function createNewOrganisation(name, callbackFunction) {
     };
     sendXmlHttpRequest(request,callbackFunction);
 }
+
+// function debug1(callbackFunction) {
+//     let request = {
+//         method: 'debug1',
+//         params: {
+//
+//         }
+//     };
+//     sendXmlHttpRequest(request,callbackFunction);
+// }
