@@ -47,7 +47,6 @@ function submitTravel(id) {
     $("#warning-travel").show();
     return;
   }
-  $("#warning-travel").hide();
 
   //get times
   var start = Math.round(document.getElementById("start-date-travel").valueAsDate/1000);
@@ -64,7 +63,6 @@ function submitTravel(id) {
     $("#warning-travel").show();
     return;
   }
-  $("#warning-travel").hide();
   var city = selectionTravel.address.locality;
   var country = selectionTravel.address.countryRegion;
   var lat = selectionTravel.location.latitude;
@@ -72,6 +70,8 @@ function submitTravel(id) {
 
   //get orgs (optional, may just be "")
   var org = $("#org-travel").val();
+
+  //submit to backend
   createNewTravel(name, city, country, lat, lon, start, end, email, org, result => {
     if (result.hasOwnProperty("error")) {
       console.error("Error submitting travel:\n"+JSON.stringify(result));
@@ -130,17 +130,31 @@ function submitWish() {
   }
   var time = [{startTime: start, endTime: end}];
 
-  //get position constraints
-  if (selectionWish==null || $("#searchbox-wish").val()=="") {
-    $("#warning-wish").text("Please select a location from the drop down list before submitting.");
+  //get position constraints (optional)
+  var loc = [];
+  if ($("#searchbox-wish").val()!="") {
+    if (selectionWish==null) {
+      //this implies they have typed in a loc
+      //but not actually selected anything from the dropdown list
+      //so it warns them and fails to submit
+      $("#warning-wish").text("Please select a location from the drop down list before submitting.");
+      $("#warning-wish").show();
+      return;
+    } else {
+      var city = selectionWish.address.locality;
+      var country = selectionWish.address.countryRegion;
+      var lat = selectionWish.location.latitude;
+      var lon = selectionWish.location.longitude;
+      loc = [{city: city, country: country, lat: lat, lon: lon}];
+    }
+  }
+
+  //must have at least position or org
+  if (loc==[] && org==[]) {
+    $("#warning-wish").text("Please enter a location or an organisation.");
     $("#warning-wish").show();
     return;
   }
-  var city = selectionWish.address.locality;
-  var country = selectionWish.address.countryRegion;
-  var lat = selectionWish.location.latitude;
-  var lon = selectionWish.location.longitude;
-  var loc = [{city: city, country: country, lat: lat, lon: lon}];
 
   //tell backend
   createNewWish(tag, email, time, org, loc, result => {

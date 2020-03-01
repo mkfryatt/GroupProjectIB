@@ -32,10 +32,6 @@ function init() {
   date.setMonth(1 + date.getMonth());
   document.getElementById("end-date-map").valueAsDate = date;
 
-  //add listeners to date pickers for the map
-  $("#start-date-map").change(e => updateMap());
-	$("#end-date-map").change(e => updateMap());
-
   //open correct tab
   var tabs = ["travel", "wish", "admin"];
   tabs.forEach(type => {
