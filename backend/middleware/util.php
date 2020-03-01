@@ -22,9 +22,35 @@ $result = $statement->execute();
 
 function runJava($table_name, $id)
 {
-    global $javaPath, $databasePath;
+    global $dbconn, $javaPath, $databasePath;
     //do stuff;
-    exec("java -jar " . getcwd() . "/" . $javaPath . " " . getcwd() . "/" . $databasePath . " " . $table_name . " " . strval($id));
+    $doRun = true;
+
+
+    if ($table_name === 'wishes') {
+        //Wish check
+        $rows = $dbconn->query("SELECT * FROM suggestions WHERE wish_id = " . strval($id));
+        while ($row = $rows->fetchArray()) {
+            $doRun = false;
+            break;
+        }
+    } else {
+        //Dependency check
+        $rows = $dbconn->query("SELECT * FROM suggestions WHERE " . $table_name . "__dep_id" . " = " . strval($id));
+        while ($row = $rows->fetchArray()) {
+            $doRun = false;
+            break;
+        }
+    }
+
+
+
+
+    if ($doRun) {
+        exec("java -jar " . getcwd() . "/" . $javaPath . " " . getcwd() . "/" . $databasePath . " " . $table_name . " " . strval($id));
+    }
+
+    return $doRun;
 }
 
 function answerJsonAndDie($obj)
@@ -457,8 +483,8 @@ ORDER BY s.score DESC");
             unset($newRow['tripLon']);
             unset($newRow['tripLat']);
         }*/
-        
-        if(key_exists('unepTripId',$newRow)){
+
+        if (key_exists('unepTripId', $newRow)) {
             $newRow['city'] = $newRow['unepTripCity'];
             $newRow['country'] = $newRow['unepTripCountry'];
             $newRow['lon'] = $newRow['unepTripLon'];
@@ -470,7 +496,7 @@ ORDER BY s.score DESC");
             unset($newRow['unepTripLat']);
         }
 
-        if(key_exists('unepPresenceId' ,$newRow)){
+        if (key_exists('unepPresenceId', $newRow)) {
             $newRow['city'] = $newRow['unepPresenceCity'];
             $newRow['country'] = $newRow['unepPresenceCountry'];
             $newRow['lon'] = $newRow['unepPresenceLon'];
@@ -484,7 +510,7 @@ ORDER BY s.score DESC");
 
         //$newRow['involvedReps'] = array();
 
-        if (key_exists('unepTripId',$newRow)) {
+        if (key_exists('unepTripId', $newRow)) {
 //            $stmt2 = $dbconn->prepare("SELECT ur.id, email, firstName, lastName
 //            FROM rep_trips
 //            JOIN unep_reps ur on rep_trips.rep_id = ur.id WHERE rep_trips.trip_id=?");
@@ -498,7 +524,7 @@ ORDER BY s.score DESC");
 //                $newRow['involvedReps'][] = $row;
 //            }
 
-            $newRow['travel_id']=$newRow['unepTripId'];
+            $newRow['travel_id'] = $newRow['unepTripId'];
 
             $newRow = getAllOrgsAndRepsForTravel($newRow);
 
@@ -897,14 +923,12 @@ function removeOldTravel($params)
     $stmt->execute();
 }
 
-function debug1($params){
-    global $dbconn;
-    $stmt = $dbconn->query("SELECT * FROM suggestions WHERE id=1");
-    $result = array();
-    $resultRow = $stmt->fetchArray();
-    $result['array'] = var_export($resultRow, true);
-    $result['nullCheck'] = is_null($resultRow['trips__dep_id']);
-    return (object)$result;
+function debug1($params)
+{
+    $stuff = array();
+    $stuff['javaRan'] = runJava("wishes", 5);
+    return (object)$stuff;
+
 }
 
 $request = json_decode($_GET['q']);
