@@ -796,9 +796,9 @@ function acceptSuggestion($params)
 
     if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
 
-//    $stmt = $dbconn->prepare("DELETE FROM wishes WHERE id = ?");
-//    $stmt->bindValue(1,$wish_id,SQLITE3_INTEGER);
-//    $rows = $stmt->execute();
+    $stmt = $dbconn->prepare("DELETE FROM wishes WHERE id = ?");
+    $stmt->bindValue(1,$wish_id,SQLITE3_INTEGER);
+    $rows = $stmt->execute();
 
     $entry_id = $dbconn->lastInsertRowID();
 
