@@ -33,8 +33,8 @@ function init() {
   document.getElementById("end-date-map").valueAsDate = date;
 
   //add listeners to date pickers for the map
-  $("#start-date-map").change(e => {console.log("hit"); updateMap()});
-	$("#end-date-map").change(e => {console.log("end"); updateMap()});
+  $("#start-date-map").change(e => updateMap());
+	$("#end-date-map").change(e => updateMap());
 
   //open correct tab
   var tabs = ["travel", "wish", "admin"];
@@ -163,7 +163,6 @@ function makeNewUser() {
 }
 
 function doLogin() {
-  console.log("LOGIN");
   $("#current-user").text(email);
   $("#login").remove();
 
@@ -249,7 +248,6 @@ function makeWishes(wishes) {
     remove.innerHTML = "Remove";
     remove.setAttribute("onclick", "removeWishConfirmation(" + element.id + ")");
     remove.setAttribute("class", "btn btn-danger");
-    $(remove).click(e => updateMap());
 
     cardBody.append(cardTitle);
     cardBody.append(cardText);

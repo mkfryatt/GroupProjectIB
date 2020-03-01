@@ -84,9 +84,9 @@ function submitTravel(id) {
       if (id!=-1) {
         deleteTravel(id);
       }
-      updateMap();
       selectionTravel = null;
       getAllTravelFromUser(email, makeDefaultTravel);
+      updateMap();
     }
   });
 }
@@ -97,8 +97,8 @@ function deleteTravel(id) {
     if (result.hasOwnProperty("error")) {
       console.error("Error deleting travel:\n"+JSON.stringify(result));
     } else {
-      updateMap();
       $("#travel-"+id).remove();
+      updateMap();
     }
   });
 }
@@ -150,11 +150,11 @@ function submitWish() {
       $("#warning-wish").show();
     } else {
       $("#warning-wish").hide();
-      updateMap();
       getAllWishesFromUser(email, makeWishes);
       clearForm("wish");
       openTab("wish");
       submitWish = null;
+      updateMap();
     }
   });
 }
@@ -166,8 +166,8 @@ function deleteWish(id) {
     if (result.hasOwnProperty("error")) {
       console.error("Error deleting wish:\n"+JSON.stringify(result));
     } else {
-      updateMap();
       $("#wish-"+id).remove();
+      updateMap();
     }
   });
 }
@@ -216,8 +216,8 @@ function submitAdmin() {
     } else {
       $("#warning-admin").hide();
       clearForm("admin");
-      updateMap();
       selectionAdmin = null;
+      updateMap();
     }
   }
 
@@ -235,13 +235,13 @@ function acceptMatch(id) {
     if (result.hasOwnProperty("error")) {
       console.error("Error accepting match:\n"+JSON.stringify(result));
     } else {
-      updateMap();
       //switch back to all wishes view
       getAllWishesFromUser(email, makeWishes);
       $("#match-previews").hide();
       $("#matches-back-btn").hide();
       $("#wish-previews").show();
       getEmissionsSavedFromUser(email, updateCarbonCounter);
+      updateMap();
     }
   });
 }
