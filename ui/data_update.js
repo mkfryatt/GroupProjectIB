@@ -70,6 +70,14 @@ function submitTravel(id) {
   var lat = selectionTravel.location.latitude;
   var lon = selectionTravel.location.longitude;
 
+  //geocoding api doesn't always provide a city / country
+  if (city==null) {
+    city = $("#searchbox-travel").val().split(", ")[0];
+  }
+  if (country==null) {
+    city = $("#searchbox-travel").val().split(", ")[1];
+  }
+
   //get orgs (optional, may just be "")
   var org = $("#org-travel").val();
 
@@ -148,6 +156,15 @@ function submitWish() {
       var country = selectionWish.address.countryRegion;
       var lat = selectionWish.location.latitude;
       var lon = selectionWish.location.longitude;
+
+      //geocoding api doesn't always provide a city / country
+      if (city==null) {
+        city = $("#searchbox-wish").val().split(", ")[0];
+      }
+      if (country==null) {
+        city = $("#searchbox-wish").val().split(", ")[1];
+      }
+
       loc = [{city: city, country: country, lat: lat, lon: lon}];
     }
   }
@@ -224,6 +241,14 @@ function submitAdmin() {
   var country = selectionAdmin.address.countryRegion;
   var lat = selectionAdmin.location.latitude;
   var lon = selectionAdmin.location.longitude;
+
+  //geocoding api doesn't always provide a city / country
+  if (city==null) {
+    city = $("#searchbox-admin").val().split(", ")[0];
+  }
+  if (country==null) {
+    city = $("#searchbox-admin").val().split(", ")[1];
+  }
 
   function callback(result) {
     if (result.hasOwnProperty("error")) {
