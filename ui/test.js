@@ -180,7 +180,9 @@ function doLogin() {
     initMap();
     firstUser = false;
   }
-  updateMap();
+  else{
+   updateMap();
+  }
 }
 
 //makes the wishes tab, doesn't show it
@@ -236,11 +238,14 @@ function makeWishes(wishes) {
     view.setAttribute("onclick", "getAllSuggestionsFromWish(" + element.id + ", showMatches)");
     view.setAttribute("class", "btn btn-success");
 
+    view.addEventListener("onclick", wishesMapUpdate(element.id));
+
     //button brings up wish delete confirmation
     var remove = document.createElement("button");
     remove.innerHTML = "Remove";
     remove.setAttribute("onclick", "removeWishConfirmation(" + element.id + ")");
     remove.setAttribute("class", "btn btn-danger");
+    remove.addEventListener("click", updateMap());
 
     cardBody.append(cardTitle);
     cardBody.append(cardText);
@@ -275,7 +280,7 @@ function showMatches(matches) {
   $("#match-previews").empty();
   $("#match-title").text("View all matches for your wish");
   $("#matches-back-btn").show(); //this button takes user back to wish view
-
+  
   //sorts by score, highest to lowest
   matches.sort((a, b) => b.score - a.score);
 

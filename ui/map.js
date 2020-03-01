@@ -55,8 +55,13 @@ function initMap() {
 		accessToken: mapBoxKey}).addTo(map);	
 
 	oms = new OverlappingMarkerSpiderfier(map, legWeight = 10);
+	baseCurrentLayer = L.layerGroup().addTo(map);
+
+	document.getElementById("start-date-map").addEventListener('change',updateMap());
+	document.getElementById("end-date-map").addEventListener('change',updateMap());
+	document.getElementById("matches-back-btn").addEventListener('click',updateMap());
 	updateMap(); 
-	wishesMapUpdate(1);
+
 }
 
 function dateFormatter(unixIn){
@@ -98,15 +103,22 @@ function setMapSpiderListener(oms){
 
 
 function updateMap(){ /* Core map display, all wishes and travel within date-range */
-	if (wishCurrentLayer != null){
-		oms.clearListeners('click');
-		oms.clearListeners('spiderfy');
-		oms.clearListeners('unspiderfy');
-		oms.clearMarkers();
-		map.removeLayer(wishCurrentLayer);
-	}
+	oms.clearListeners('click');
+	oms.clearListeners('spiderfy');
+	oms.clearListeners('unspiderfy');
+	oms.clearMarkers();
+	
+	if (wishCurrentLayer != null){map.removeLayer(wishCurrentLayer);}
+	if (baseCurrentLayer != null){map.removeLayer(baseCurrentLayer); baseCurrentLayer = null;}
 	baseCurrentLayer = L.layerGroup().addTo(map);
+	if (document.getElementById("start-date-map").disable == true){
+		document.getElementById("end-date-map").disable = false;
+		document.getElementById("start-date-map").disable = false;
+	}	
 	setMapSpiderListener(oms);
+
+
+	
 	var start = Math.round(document.getElementById("start-date-map").valueAsDate/1000);
 	var end = Math.round(document.getElementById("end-date-map").valueAsDate/1000);
 
@@ -241,6 +253,8 @@ function wishesMapUpdate(wishid){
 			result = resultx[0];	
 			oms.clearMarkers();
 			map.removeLayer(baseCurrentLayer);
+			document.getElementById("end-date-map").disable = true;
+			document.getElementById("start-date-map").disable = true;
 			wishCurrentLayer = L.layerGroup().addTo(map);
 
 
