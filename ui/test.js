@@ -94,6 +94,7 @@ function showLogin() {
   $("#warning").hide();
   $("#login").show();
   $("#email").focus();
+  $(input).keypress(e =>{if (e.keyCode==13) {tryLogin();}});
 }
 
 function tryLogin() {
@@ -129,6 +130,8 @@ function showNewUser() {
   lastName.setAttribute("placeholder", "Last Name");
   div.append(firstName);
   div.append(lastName);
+  $(firstName).keypress(e =>{if (e.keyCode==13) {$("#last-name").focus()}});
+  $(lastName).keypress(e =>{if (e.keyCode==13) {makeNewUser()}});
 
   var dialog = createDialog("new-user",
   "Create New User",
