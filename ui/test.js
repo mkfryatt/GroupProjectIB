@@ -493,6 +493,8 @@ function showEditTravel(travel) {
   });
 
   document.getElementById("start-date-travel").valueAsDate = new Date(travel.startTime * 1000);
+  $('start-date-map').change(function(){updateMap(); console.log("hit")});
+	$('end-date-map').change(function(){updateMap(); console.log("end")});
   document.getElementById("end-date-travel").valueAsDate = new Date(travel.endTime * 1000);
 
   $("#travel-btn").attr("onclick", "checkOrganisation('travel', "+travel.id+")");
