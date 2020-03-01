@@ -49,13 +49,7 @@ function initMap() {
 		accessToken: mapBoxKey}).addTo(map);	
 
 	oms = new OverlappingMarkerSpiderfier(map, legWeight = 10);
-
-	
-	$('start-date-map').change(function(){updateMap()});
-	$('end-date-map').change(function(){updateMap()});
-	$("matches-back-btn").click(function(){updateMap()});
 	updateMap(); 
-
 }
 
 function dateFormatter(unixIn){
