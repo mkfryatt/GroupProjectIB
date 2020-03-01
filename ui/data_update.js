@@ -84,8 +84,7 @@ function submitTravel(id) {
       if (id!=-1) {
         deleteTravel(id);
       }
-      //TODO
-      //updateMap();
+      updateMap();
       selectionTravel = null;
       getAllTravelFromUser(email, makeDefaultTravel);
     }
@@ -98,8 +97,7 @@ function deleteTravel(id) {
     if (result.hasOwnProperty("error")) {
       console.error("Error deleting travel:\n"+JSON.stringify(result));
     } else {
-      //TODO
-      //updateMap();
+      updateMap();
       $("#travel-"+id).remove();
     }
   });
@@ -152,8 +150,7 @@ function submitWish() {
       $("#warning-wish").show();
     } else {
       $("#warning-wish").hide();
-      //TODO
-      //updateMap();
+      updateMap();
       getAllWishesFromUser(email, makeWishes);
       clearForm("wish");
       openTab("wish");
@@ -169,8 +166,7 @@ function deleteWish(id) {
     if (result.hasOwnProperty("error")) {
       console.error("Error deleting wish:\n"+JSON.stringify(result));
     } else {
-      //TODO
-      //updateMap();
+      updateMap();
       $("#wish-"+id).remove();
     }
   });
@@ -220,8 +216,7 @@ function submitAdmin() {
     } else {
       $("#warning-admin").hide();
       clearForm("admin");
-      //TODO
-      //updateMap();
+      updateMap();
       selectionAdmin = null;
     }
   }
@@ -240,8 +235,7 @@ function acceptMatch(id) {
     if (result.hasOwnProperty("error")) {
       console.error("Error accepting match:\n"+JSON.stringify(result));
     } else {
-      //TODO
-      //updateMap();
+      updateMap();
       //switch back to all wishes view
       getAllWishesFromUser(email, makeWishes);
       $("#match-previews").hide();

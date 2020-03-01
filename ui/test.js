@@ -237,15 +237,14 @@ function makeWishes(wishes) {
     view.innerHTML = "View";
     view.setAttribute("onclick", "getAllSuggestionsFromWish(" + element.id + ", showMatches)");
     view.setAttribute("class", "btn btn-success");
-
-    view.addEventListener("onclick", wishesMapUpdate(element.id));
+    $(view).click(e => wishesMapUpdate(element.id));
 
     //button brings up wish delete confirmation
     var remove = document.createElement("button");
     remove.innerHTML = "Remove";
     remove.setAttribute("onclick", "removeWishConfirmation(" + element.id + ")");
     remove.setAttribute("class", "btn btn-danger");
-    remove.addEventListener("click", updateMap());
+    $(remove).click(e => updateMap());
 
     cardBody.append(cardTitle);
     cardBody.append(cardText);
@@ -266,8 +265,7 @@ function hideMatches() {
   $("#match-title").text("View all wishes");
   $("#wish-previews").show();
 
-  //TODO
-  //updateMap();
+  updateMap();
 }
 
 //makes and shows matches
