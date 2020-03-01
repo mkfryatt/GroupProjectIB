@@ -187,7 +187,7 @@ function submitWish() {
       getAllWishesFromUser(email, makeWishes);
       clearForm("wish");
       openTab("match");
-      submitWish = null;
+      selectionWish = null;
       updateMap();
     }
   });
