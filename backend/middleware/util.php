@@ -569,7 +569,7 @@ function createNewTravel($params)
     }
 
 
-//    runJava("trips", $trip_id);
+    runJava("trips", $trip_id);
 
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $trip_id);
 }
@@ -631,7 +631,7 @@ function createNewWish($name, $email, $time_constraints, $org_constraints, $loc_
         $rows = $stmt->execute();
     }
 
-//    runJava("wishes", $wish_id);
+    runJava("wishes", $wish_id);
 
     //TODO: similarly for org_constraints, loc_constraints. Content structure is specified in util.js
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $wish_id);
@@ -669,7 +669,7 @@ function createNewUnepPresence($params)
 
     $unep_presence_id = $dbconn->lastInsertRowID();
 
-//    runJava("unep_presences", $unep_presence_id);
+    runJava("unep_presences", $unep_presence_id);
 
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $unep_presence_id);
 }
@@ -693,7 +693,7 @@ function createNewOrganisationPresence($params)
 
     $org_presence_id = $dbconn->lastInsertRowID();
 
-//    runJava("presences", $org_presence_id);
+    runJava("presences", $org_presence_id);
 
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $org_presence_id);
 }
@@ -908,8 +908,6 @@ function debug1($params){
 }
 
 $request = json_decode($_GET['q']);
-
-runJava("unep_presences", 4);
 
 switch ($request->method) {
     case 'stub':
