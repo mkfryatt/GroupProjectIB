@@ -80,7 +80,7 @@ function getWishesWithinTimeframe($params)
     global $dbconn;
     $stmt = $dbconn->prepare("SELECT wishes.id, wishes.name, wc.startTime, wc.endTime, wishes.wisher_id FROM wishes
 JOIN wish_constraints AS wc ON wc.wish_id = wishes.id 
-WHERE wc.type = 'TIME' AND endTime>=? AND startTime<=?");
+WHERE wc.type = 'TIME' AND ? <= endTime AND ? >= startTime");
     $stmt->bindValue(1, $params->startTime, SQLITE3_INTEGER);
     $stmt->bindValue(2, $params->endTime, SQLITE3_INTEGER);
     $rows = $stmt->execute();
@@ -128,7 +128,7 @@ function getTravelWithinTimeframe($params)
 {
     global $dbconn;
     $stmt = $dbconn->prepare("SELECT trips.id AS travel_id, trips.name AS travel_name, locations.city, locations.country, locations.lat, locations.lon, trips.startTime, trips.endTime
-FROM trips JOIN locations on trips.loc_id = locations.id WHERE endTime >= ? OR startTime <= ?
+FROM trips JOIN locations on trips.loc_id = locations.id WHERE ? <= endTime AND ? >= startTime
 ");
     $stmt->bindValue(1, $params->startTime, SQLITE3_INTEGER);
     $stmt->bindValue(2, $params->endTime, SQLITE3_INTEGER);
@@ -150,7 +150,7 @@ function getUnepPresencesWithinTimeframe($params)
     $stmt = $dbconn->prepare("SELECT unep_presences.name, unep_presences.startTime, 
        unep_presences.endTime, locations.city, locations.country, locations.lat, locations.lon
        FROM unep_presences JOIN locations on unep_presences.loc_id = locations.id
-        WHERE endTime >= ? OR startTime <= ?");
+        WHERE ? <= endTime AND ? >= startTime");
     $stmt->bindValue(1, $params->startTime, SQLITE3_INTEGER);
     $stmt->bindValue(2, $params->endTime, SQLITE3_INTEGER);
     $rows = $stmt->execute();
@@ -169,7 +169,7 @@ function getOrganisationPresencesWithinTimeframe($params)
     $stmt = $dbconn->prepare("SELECT p.id, o.name, p.startTime, p.endTime, l.city, l.country, l.lat, l.lon FROM presences p
         JOIN organisations o on p.org_id = o.id
         JOIN locations l on p.loc_id = l.id
-        WHERE endTime >= ? OR startTime <= ?");
+        WHERE ? <= endTime AND ? >= startTime");
     $stmt->bindValue(1, $params->startTime, SQLITE3_INTEGER);
     $stmt->bindValue(2, $params->endTime, SQLITE3_INTEGER);
     $rows = $stmt->execute();
