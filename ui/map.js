@@ -1,6 +1,3 @@
-//todo: fix organisations for wishes, just check if code.
-//listeners for date fields
-
 var genericIcon = L.icon({
 	iconUrl: '../images/generic.png',
 	iconSize: [32, 32],
@@ -98,7 +95,7 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 	oms.clearListeners('unspiderfy');
 	oms.clearMarkers();
 	
-	if (baseCurrentLayer != null){map.removeLayer(wishCurrentLayer)}
+	if (baseCurrentLayer != null){map.removeLayer(baseCurrentLayer)}
 	baseCurrentLayer = new L.FeatureGroup().addTo(map);
 	if (wishCurrentLayer != null){map.removeLayer(wishCurrentLayer)};
 	if (document.getElementById("start-date-map").disable == true){
@@ -128,7 +125,7 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 				var locationPrint = "";
 				var locationlat;
 				var locationlon;
-				if (element.constraints.locations.length !=0){
+				if (element.constraints.locations.length !=0 && element.constraints.times[0].startTime < end && element.constraints.times[0].startTime > start){
 					locationPrint = locationPrint.concat(element.constraints.locations[0].city, ", ", element.constraints.locations[0].country);
 					locationlat = element.constraints.locations[0].lat;
 					locationlon = element.constraints.locations[0].lon;
@@ -151,7 +148,7 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 	});
 
 	getTravelWithinTimeframe(start,end,function (travel) {
-		if (travel.length>0 && travel[1].hasOwnProperty("error")) {
+		if (travel.length==0) {
 		  console.log("error getting travel");
 		}
 		else{
