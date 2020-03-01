@@ -2,9 +2,10 @@
 //wishes tab display.
 //listeners for date fields
 //Licences for stuff !
-//Keys fields
+//Keys field for bing?
 // add a key (like a guide to the icons) on the map
 //
+
 
 var genericIcon = L.icon({
 	iconUrl: '../images/generic.png',
@@ -51,7 +52,7 @@ function initMap() {
 		id: 'mapbox/streets-v11',
 		tileSize: 512,
 		zoomOffset: -1,
-		accessToken: 'pk.eyJ1IjoiamdjNDYiLCJhIjoiY2s2N3N0N3czMGIwaDNtb2RxNHZzazgwNSJ9.1OQ8CCRVLbUBbycUpn4T5Q'}).addTo(map);	
+		accessToken: mapBoxKey}).addTo(map);	
 
 	oms = new OverlappingMarkerSpiderfier(map, legWeight = 10);
 	updateMap(); 
@@ -95,8 +96,6 @@ function setMapSpiderListener(oms){
 
 }
 
-
-//This isn't terminating or 
 
 function updateMap(){ /* Core map display, all wishes and travel within date-range */
 	if (wishCurrentLayer != null){
@@ -244,7 +243,7 @@ function wishesMapUpdate(wishid){
 			map.removeLayer(baseCurrentLayer);
 			wishCurrentLayer = L.layerGroup().addTo(map);
 
-/*
+
 			displayPin(wishIcon,
 				result.name,
 				result.constraints.locations[0].lat,
@@ -254,34 +253,46 @@ function wishesMapUpdate(wishid){
 				null,
 				dateFormatter(result.constraints.times[0].startTime) + " to "  + dateFormatter(result.constraints.times[0].endTime),			
 				wishCurrentLayer
-				) */	
+				) 	
 		}}); 
 			
 
 		getAllSuggestionsFromWish(wishid, function(resulty){
 			console.log(resulty);
 			resulty.forEach(element=>{
-				console.log(element);
-				var attendees = "";
-				var orgs = "";
-				element.unep_reps.forEach(person=>{attendees = attendees.concat(person.firstName," ", person.lastName) });
-				/*element.organisation.forEach(org=>{orgs += org.firstName}); */
-				displayPin(travelIcon,
-					element.travel_name + "<br />" + "Carbon saved:" + 
-					element.lat,
-					element.lon,
-					null, //No organisation specifically sometimes, handle later
-					element.city + ", " + element.country,
-					attendees,
-					dateFormatter(element.startTime) + " to " + dateFormatter(element.endTime),
-					wishCurrentLayer
-					)
+				if (element.hasOwnProperty('unepPresenceName')){
+					displayPin(travelIcon,
+						element.unepPresenceName + "<br />" + "Carbon saved:" + Math.round(element.emissions).toString + "Kg <br />",
+						element.lat,
+						element.lon,
+						null, //No organisation specifically sometimes, handle later
+						element.city + ", " + element.country,
+						null,
+						null,
+						wishCurrentLayer
+						)
+					}
+				else{
+					var attendees = "";
+					var orgs = "";
+					element.involvedReps.forEach(person=>{attendees = attendees.concat(person.firstName," ", person.lastName) });
+					/*element.organisation.forEach(org=>{orgs += org.firstName}); */
+					displayPin(travelIcon,
+						"EN", 
+						element.lat,
+						element.lon,
+						orgs, //No organisation specifically sometimes, handle later
+						element.city + ", " + element.country,
+						null,
+						dateFormatter(element.unepTripStart) + " to " + dateFormatter(element.unepTripEnd),
+						wishCurrentLayer
+						)
+					}
 				})
 			})
 
 			//Read in user's wish (display as wish), and matches (display as travel)
 			//displaypin for wish, displaypin for all travels.
-
 }
 
 function loadMapScenario() {
