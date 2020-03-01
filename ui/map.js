@@ -125,7 +125,7 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 				var locationPrint = "";
 				var locationlat;
 				var locationlon;
-				if (element.constraints.locations.length !=0 && element.constraints.times[0].startTime < end && element.constraints.times[0].startTime > start){
+				if (element.constraints.locations.length !=0){
 					locationPrint = locationPrint.concat(element.constraints.locations[0].city, ", ", element.constraints.locations[0].country);
 					locationlat = element.constraints.locations[0].lat;
 					locationlon = element.constraints.locations[0].lon;
