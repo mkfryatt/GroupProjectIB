@@ -256,6 +256,7 @@ function wishesMapUpdate(wishid){
 			map.removeLayer(baseCurrentLayer);
 			document.getElementById("end-date-map").disable = true;
 			document.getElementById("start-date-map").disable = true;
+			if (wishCurrentLayer != null){map.removeLayer(wishCurrentLayer); wishCurrentLayer = null;}
 			wishCurrentLayer = L.layerGroup().addTo(map);
 
 
@@ -269,7 +270,7 @@ function wishesMapUpdate(wishid){
 				dateFormatter(result.constraints.times[0].startTime) + " to "  + dateFormatter(result.constraints.times[0].endTime),			
 				wishCurrentLayer
 				) 	
-		}}); 
+		
 			
 
 		getAllSuggestionsFromWish(wishid, function(resulty){
@@ -277,7 +278,7 @@ function wishesMapUpdate(wishid){
 			resulty.forEach(element=>{
 				if (element.hasOwnProperty('unepPresenceName')){
 					displayPin(travelIcon,
-						element.unepPresenceName + "<br />" + "Carbon saved:" + Math.round(element.emissions).toString + "Kg <br />",
+						element.unepPresenceName + "<br />" + "Carbon saved:",
 						element.lat,
 						element.lon,
 						null, //No organisation specifically sometimes, handle later
@@ -293,7 +294,7 @@ function wishesMapUpdate(wishid){
 					element.unep_reps.forEach(person=>{attendees = attendees.concat(person.firstName," ", person.lastName) });
 					/*element.organisation.forEach(org=>{orgs += org.firstName}); */
 					displayPin(travelIcon,
-						"EN", 
+						element.unepTripName + "<br />" + "Carbon saved:",
 						element.lat,
 						element.lon,
 						orgs, //No organisation specifically sometimes, handle later
@@ -308,6 +309,7 @@ function wishesMapUpdate(wishid){
 
 			//Read in user's wish (display as wish), and matches (display as travel)
 			//displaypin for wish, displaypin for all travels.
+		}}); 
 }
 
 function loadMapScenario() {
