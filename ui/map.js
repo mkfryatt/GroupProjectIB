@@ -248,6 +248,7 @@ function displayPin(eventType, eventName, eventX, eventY, organisation, eventLoc
 }
 
 function wishesMapUpdate(wishid){
+	console.log("maptrigger");
 	getWishFromId(wishid, function(resultx){
 		if (resultx[0].constraints.locations.length != 0){
 			result = resultx[0];	
@@ -289,7 +290,7 @@ function wishesMapUpdate(wishid){
 				else{
 					var attendees = "";
 					var orgs = "";
-					element.involvedReps.forEach(person=>{attendees = attendees.concat(person.firstName," ", person.lastName) });
+					element.unep_reps.forEach(person=>{attendees = attendees.concat(person.firstName," ", person.lastName) });
 					/*element.organisation.forEach(org=>{orgs += org.firstName}); */
 					displayPin(travelIcon,
 						"EN", 
