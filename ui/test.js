@@ -32,6 +32,10 @@ function init() {
   date.setMonth(1 + date.getMonth());
   document.getElementById("end-date-map").valueAsDate = date;
 
+  //add listeners to date pickers for the map
+  $("#start-date-map").change(e => {console.log("hit"); updateMap()});
+	$("#end-date-map").change(e => {console.log("end"); updateMap()});
+
   //open correct tab
   var tabs = ["travel", "wish", "admin"];
   tabs.forEach(type => {
@@ -293,8 +297,9 @@ function showMatches(matches) {
     var cardHeader = document.createElement("div");
     cardHeader.setAttribute("class", "card-header");
     var reps = "";
-    if (element.hasOwnProperty('unep_reps')){
-    element.unep_reps.forEach(rep => reps += rep.firstName + " "+ rep.lastName + "<br>"); }
+    if (element.hasOwnProperty("unep_reps")) {
+      element.unep_reps.forEach(rep => reps += rep.firstName + " "+ rep.lastName + "<br>");
+    }
     cardHeader.innerHTML = reps;
     
     var list = document.createElement("ul");
@@ -493,8 +498,6 @@ function showEditTravel(travel) {
   });
 
   document.getElementById("start-date-travel").valueAsDate = new Date(travel.startTime * 1000);
-  $('start-date-map').change(function(){updateMap(); console.log("hit")});
-	$('end-date-map').change(function(){updateMap(); console.log("end")});
   document.getElementById("end-date-travel").valueAsDate = new Date(travel.endTime * 1000);
 
   $("#travel-btn").attr("onclick", "checkOrganisation('travel', "+travel.id+")");
