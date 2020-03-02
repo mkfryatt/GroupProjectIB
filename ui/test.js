@@ -182,6 +182,8 @@ function doLogin() {
 
   getEmissionsSavedFromUser(email, updateCarbonCounter);
 
+  $("#carbon-btn").attr("onclick", "getUserSavingDetails('"+email+"', showCarbonDetails)");
+
   //can only call initMap once, so if this is't the first user, just updateMap
   if (firstUser) {
     initMap();
@@ -352,6 +354,9 @@ function updateCarbonCounter(carbon) {
 }
 
 function showCarbonDetails(details) {
+
+  console.log(JSON.stringify(details));
+
   var div1 = document.createElement("div");
   div1.setAttribute("class", "modal");
   div1.setAttribute("id", "carbon-details");
@@ -381,13 +386,21 @@ function showCarbonDetails(details) {
   divBody.setAttribute("class", "modal-body");
 
   //TODO add carbon details
+  var list = document.createElement("ul");
+  list.setAttribute("class", "list-group list-group-flush");
+
+  details.forEach(saving => {
+    var options = {year: "numeric", month: "numeric", day: "numeric" };
+    var date = (new Date(saving.time_accepted * 1000)).toLocaleDateString("en-GB", options);
+    list.append(createLI(saving.wish_name, "Date: " + date + "<br>Saving: " + Math.round(saving.emission_delta)));
+  });
 
   btnX.append(span);
   divHeader.append(title);
   divHeader.append(btnX);
 
   divContent.append(divHeader);
-  divContent.append(divBody);
+  divContent.append(list);
 
   div2.append(divContent);
   div1.append(div2);
