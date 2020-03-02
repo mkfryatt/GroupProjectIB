@@ -354,9 +354,6 @@ function updateCarbonCounter(carbon) {
 }
 
 function showCarbonDetails(details) {
-
-  console.log(JSON.stringify(details));
-
   var div1 = document.createElement("div");
   div1.setAttribute("class", "modal");
   div1.setAttribute("id", "carbon-details");
