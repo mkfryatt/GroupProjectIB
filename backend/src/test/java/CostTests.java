@@ -23,8 +23,6 @@ public class CostTests {
     public static ArrayList<Location> destinationList = new ArrayList<Location>(Arrays.asList(capeTown, kampala, rome,
             shanghai, wuxi, tokyo, london, milan));
 
-
-
     @Test
     public static void testHowTimeDifferenceAffectsRankings() {
         Double capeTown3DayTimeDiffRanking = calculateCost(3, nairobi, capeTown);
