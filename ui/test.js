@@ -293,27 +293,33 @@ function showMatches(matches) {
 
     var cardHeader = document.createElement("div");
     cardHeader.setAttribute("class", "card-header");
-    var reps = "";
-    if (element.hasOwnProperty("unep_reps")) {
-      element.unep_reps.forEach(rep => reps += rep.firstName + " "+ rep.lastName + "<br>");
-    }
-    cardHeader.innerHTML = reps;
-    
+
     var list = document.createElement("ul");
     list.setAttribute("class", "list-group list-group-flush");
-    list.append(createLI("Emissions", Math.round(element.emissions)));
 
-    //two types of match: static unep hq (no dates needed); person's travel to visit org / loc
-    if (element.hasOwnProperty("unepPresenceId")) {
-      list.append(createLI("Presence", element.unepPresenceName));
+    //unep hq match
+    if (element.hasOwnProperty("unepPresenceName")) {
+      cardHeader.innerText = element.unepPresenceName;
+      list.append(createLI("Emissions", Math.round(element.emissions)));
       list.append(createLI("Location", element.city + ", " + element.country));
-    } else {
+
+    } else {//person match
+      var reps = "";
+      if (element.hasOwnProperty("unep_reps")) {
+        element.unep_reps.forEach(rep => reps += rep.firstName + " "+ rep.lastName + "<br>");
+      }
+      cardHeader.innerHTML = reps;
+
+      list.append(createLI("Emissions", Math.round(element.emissions)));
+      list.append(createLI("Location", element.city + ", " + element.country));
+      if (element.hasOwnProperty("organisations")) {
+        var orgs = "";
+        element.organisations.forEach(org => orgs += org.name + "<br>");
+        list.append(createLI("Organisation", orgs));
+      }
       var options = {year: "numeric", month: "short", day: "numeric" };
       var start = (new Date(element.unepTripStart * 1000)).toLocaleDateString("en-GB", options);
       var end = (new Date(element.unepTripEnd * 1000)).toLocaleDateString("en-GB", options);
-
-      list.append(createLI("Organisation", element.tripOrgName));
-      list.append(createLI("Location", element.city + ", " + element.country));
       list.append(createLI("Dates", start + " - " + end));
     }
 

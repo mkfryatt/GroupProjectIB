@@ -1,3 +1,5 @@
+//Icons for map display, no licence required.
+
 var genericIcon = L.icon({
 	iconUrl: '../images/generic.png',
 	iconSize: [32, 32],
@@ -28,13 +30,15 @@ var homeIcon = L.icon({
 	iconAnchor: [16,32],
 });
 
+//Per-map (i.e. singleton) layers/shell/spiderfying capsule.
 var baseCurrentLayer;
 var wishCurrentLayer;
 var map;
 var oms;
 var map_initializing; //Allows spiderfy to distinguish if user is clicking or if icons being set.
-var selectionAdmin, selectionWish, selectionTravel;
+var selectionAdmin, selectionWish, selectionTravel; //For initializing geocoders
 
+//Run at first map usage (i.e. at login) - and once only.
 function initMap() {
 	map = L.map('map').setView({lon: 0.0917, lat: 52.2196 }, 2);
 	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
@@ -45,15 +49,25 @@ function initMap() {
 		zoomOffset: -1,
 		accessToken: mapBoxKey}).addTo(map);	
 
-	oms = new OverlappingMarkerSpiderfier(map, legWeight = 10);
-	updateMap(); 
+	oms = new OverlappingMarkerSpiderfier(map, legWeight = 10); //Setup spiderfier for clustering points
+
+	var legend = L.control({position: 'bottomleft'}); //Setup for key
+    legend.onAdd = function (map) {
+		var div = L.DomUtil.create('div', 'legend');
+		div.style.width = "20%";
+		div.innerHTML = '<img src="../images/key.png" width="100%" height="100%"></img>';	
+		return div; }
+	legend.addTo(map);
+	updateMap();  //Pull points
 }
 
+//Utility to convert unix to dd/mm/yyyy
 function dateFormatter(unixIn){
 	var DTform = new Date(unixIn * 1000);
 	return (DTform.getDate() + '/' + (DTform.getMonth()+1) + '/' + DTform.getFullYear())
 }
 
+//Setup SpiderfyListener to detect clusters being selected/deselected and update icons accordingly
 function setMapSpiderListener(oms){
 	oms.addListener('click', function(mark){
 		var classformat;
@@ -63,6 +77,7 @@ function setMapSpiderListener(oms){
 			classformat = "popupWish"}
 		else{ classformat = "popupPres"}
 
+		//When cluster clicked, set icon to its 'true' icon rather than the cluster one.
 		var popup = new L.popup({
 			offset: [0,10],
 			className: classformat
@@ -75,7 +90,7 @@ function setMapSpiderListener(oms){
 	})
 	
 
-	oms.addListener('spiderfy', function(mark){
+	oms.addListener('spiderfy', function(mark){ 
 		for (var i=0; i<mark.length; i++) { mark[i].setIcon(mark[i].trueIcon)}
 	}) 
 
@@ -88,11 +103,12 @@ function setMapSpiderListener(oms){
 
 
 function updateMap(){ /* Core map display, all wishes and travel within date-range */
-	oms.clearListeners('click');
+	oms.clearListeners('click'); //Reset spiderfy references by deleting all listeners and clearing markers
 	oms.clearListeners('spiderfy');
 	oms.clearListeners('unspiderfy');
 	oms.clearMarkers();
 	
+	//Clean-out current layers
 	if (baseCurrentLayer != null){map.removeLayer(baseCurrentLayer)}
 	baseCurrentLayer = new L.FeatureGroup().addTo(map);
 	if (wishCurrentLayer != null){map.removeLayer(wishCurrentLayer)};
@@ -102,12 +118,11 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 	}	
 	setMapSpiderListener(oms);
 
-
-	
+	//Read in date filter fields
 	var start = Math.round(document.getElementById("start-date-map").valueAsDate/1000);
 	var end = Math.round(document.getElementById("end-date-map").valueAsDate/1000);
 
-
+	//Pull all user wishes
 	getAllWishesFromUser(email,function (wishes){
 
 		if (wishes.length>0 && wishes[0].hasOwnProperty("error")) {
@@ -115,20 +130,25 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 		} 
 		else{
 
+			//Setup passing to displayPin
 			wishes.forEach(element=>{
 				var locationPrint = "";
 				var locationlat;
 				var locationlon;
-				if (element.constraints.locations.length !=0){
+				var orgs;
+				if (element.constraints.locations.length !=0){ //If locations set for wish then plot, else don't
 					locationPrint = locationPrint.concat(element.constraints.locations[0].city, ", ", element.constraints.locations[0].country);
 					locationlat = element.constraints.locations[0].lat;
 					locationlon = element.constraints.locations[0].lon;
-				
+
+				if (element.constraints.organisations.length != 0){ //If there's organisations, accrue them in orgs for display.
+						orgs = element.constraints.organisations[0].name;
+					}
 				displayPin(wishIcon,
 					element.name,
 					locationlat,
 					locationlon,
-					null, //No organisation specifically sometimes, handle later
+					orgs, //No organisation specifically sometimes
 					locationPrint,
 					null,
 					dateFormatter(element.constraints.times[0].startTime) + " to "+dateFormatter(element.constraints.times[0].endTime), //Currently only one date range visible as this is all UI allows.
@@ -141,6 +161,7 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 	
 	});
 
+	//Same for wishes as for travel, except these always have locations
 	getTravelWithinTimeframe(start,end,function (travel) {
 		if (travel.hasOwnProperty("error")) {
 		  console.error("Error getting travel:\n"+JSON.stringify(travel));
@@ -148,14 +169,17 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 		else{
 			travel.forEach(element=>{
 				var attendees = "";
-				var orgs = "";
+				var orgs;
 				element.unep_reps.forEach(person=>{attendees = attendees.concat(person.firstName," ", person.lastName) });
-				/*element.organisation.forEach(org=>{orgs += org.firstName}); */
+				
+				if (element.organisations.length != 0){
+					orgs = element.organisations[0].name;
+				}
 				displayPin(travelIcon,
 					element.travel_name,
 					element.lat,
 					element.lon,
-					null, //No organisation specifically sometimes, handle later
+					orgs,
 					element.city + ", " + element.country,
 					attendees,
 					dateFormatter(element.startTime) + " to " + dateFormatter(element.endTime),
@@ -164,10 +188,10 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 				}
 			)
 		}
-		//If time distinguish users travel from all travel
 
 	}); 
 
+	//Pull external organisations HQs/Presence
 	getOrganisationPresencesWithinTimeframe(start,end, function(result){
 		result.forEach(pres=>{
 			var period = null;
@@ -200,16 +224,17 @@ function updateMap(){ /* Core map display, all wishes and travel within date-ran
 			displayPin(homeIcon, hq.name, hq.lat, hq.lon, null, hq.city + ", " + hq.country, null, period, baseCurrentLayer)
 		})
 	})
-	//Read in everyone's travel, your own wishes, and all presences (Unep, and external)
 }
 
 
+//Master pin display function, takes many parameters for all types of display.
 function displayPin(eventType, eventName, eventX, eventY, organisation, eventLocationName, eventPerson, eventRange, targLayer) {
 	
 	
 	var popupString = "";
 	map_initializing = true;
 
+	//Accrue optional arguments into string for display, if not null
 	for (var i=4; i<arguments.length-1; i++){
 		if (arguments[i]!=null){
 			popupString+=arguments[i];
@@ -217,24 +242,26 @@ function displayPin(eventType, eventName, eventX, eventY, organisation, eventLoc
 		}
 	}
 
-
+	//Create marker on map, add to wish or base layer. Base layer for normal map, wish layer for map showing wishes and matches.
 	var marker = L.marker([eventX,eventY], {icon: eventType}).on('click', function(e){e.setZIndexOffset = 100000 })
 	marker.addTo(targLayer);
-	marker.trueIcon = eventType;
+	marker.trueIcon = eventType; //Set true icon as custom property for unpacking when cluster expanded.
 	marker.desc = ("<p>" + eventName.bold() + "<br />" + popupString + "</p>");
 	oms.addMarker(marker);
 
-	//Force spiderfy then unspiderfy
+	//Force spiderfy then unspiderfy - glitch with spiderfy requires this for properly initializing the icons
 	marker.fireEvent('click');
 	map.fireEvent('click'); 
-	map_initializing = false; 
+	map_initializing = false;  //so that all the pop-ups don't appear as you trigger the listeners.
 	
 }
 
+
+//Called to fetch new wish matches and update the map, takes wishid of wish being viewed.
 function wishesMapUpdate(wishid){
 	getWishFromId(wishid, function(resultx){
-		if (resultx[0].constraints.locations.length != 0){
-			result = resultx[0];	
+		if (resultx[0].constraints.locations.length != 0){ //Can only display wishes with a location.
+			result = resultx[0];	//Clear away map and set wish layer.
 			oms.clearMarkers();
 			map.removeLayer(baseCurrentLayer);
 			document.getElementById("end-date-map").disable = true;
@@ -259,9 +286,10 @@ function wishesMapUpdate(wishid){
 
 		getAllSuggestionsFromWish(wishid, function(resulty){
 			resulty.forEach(element=>{
+				console.log(element);
 				if (element.hasOwnProperty('unepPresenceName')){
 					displayPin(homeIcon,
-						element.unepPresenceName + "<br />" + "Carbon saved:",
+						element.unepPresenceName + "<br />" + "Carbon saved:" + element.emissions,
 						element.lat,
 						element.lon,
 						null, //No organisation specifically sometimes, handle later
@@ -275,14 +303,15 @@ function wishesMapUpdate(wishid){
 					var attendees = "";
 					var orgs = "";
 					element.unep_reps.forEach(person=>{attendees = attendees.concat(person.firstName," ", person.lastName) });
-					/*element.organisation.forEach(org=>{orgs += org.firstName}); */
-					displayPin(travelIcon,
-						element.unepTripName + "<br />" + "Carbon saved:",
+					if (element.organisations.length != 0){
+						orgs = element.organisations[0].name;
+					}displayPin(travelIcon,
+						element.unepTripName + "<br />" + "Carbon saved:" + element.emissions,
 						element.lat,
 						element.lon,
-						orgs, //No organisation specifically sometimes, handle later
+						orgs, 
 						element.city + ", " + element.country,
-						null,
+						attendees,
 						dateFormatter(element.unepTripStart) + " to " + dateFormatter(element.unepTripEnd),
 						wishCurrentLayer
 						)
