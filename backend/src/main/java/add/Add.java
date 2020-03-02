@@ -59,12 +59,12 @@ public class Add {
 
             double camEmissions = Cost.calculateFlightEmissions(cambridge,dest);
             emissions = Cost.calculateFlightEmissions(src,dest);
-            emission_delta = camEmissions - emissions;
+            emission_delta = emissions - camEmissions;
 
-            dbCon.executeQuery("UPDATE acceptedSuggestions " +
+            dbCon.executeStatement("UPDATE acceptedSuggestions " +
                     "SET emissions = " + String.valueOf(emissions) +
                     ", emission_delta =  " + String.valueOf(emission_delta) +
-                    "WHERE id = " + String.valueOf(acceptedSuggestionId));
+                    " WHERE id = " + String.valueOf(acceptedSuggestionId));
 
         } catch (SQLException e) {
             e.printStackTrace();

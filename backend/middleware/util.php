@@ -45,7 +45,10 @@ function computeMatches($table_name, $id)
     }
 
     if ($doRun) {
-        exec("java -jar " . getcwd() . "/" . $javaPath . " " . getcwd() . "/" . $databasePath . " 0 " . $table_name . " " . strval($id));
+
+        $command = "java -jar " . getcwd() . "/" . $javaPath . " " . getcwd() . "/" . $databasePath . " 0 " . $table_name . " " . strval($id);
+        error_log(var_export($command,true));
+        exec($command);
 
         //old version
        // exec("java -jar " . getcwd() . "/" . $javaPath . " " . getcwd() . "/" . $databasePath . " " . $table_name . " " . strval($id));
@@ -56,7 +59,8 @@ function computeMatches($table_name, $id)
 
 function updateSuggestion($accepted_suggestion_id){
     global $javaPath, $databasePath;
-    exec("java -jar " . getcwd() . "/" . $javaPath . " " . getcwd() . "/" . $databasePath . " 1 " . strval($accepted_suggestion_id));
+    $command = "java -jar " . getcwd() . "/" . $javaPath . " " . getcwd() . "/" . $databasePath . " 1 " . strval($accepted_suggestion_id);
+    exec($command);
 }
 
 function answerJsonAndDie($obj)
@@ -790,13 +794,14 @@ function acceptSuggestion($params)
 
     $locs = getLocationsOfSuggestion($params->suggestion_id);
 
-    $stmt = $dbconn->prepare("INSERT INTO acceptedSuggestions(wisher_id, emissions, emission_delta, time_accepted,src_loc_id, dest_loc_id) VALUES(?,?,?,?,?,?)");
+    $stmt = $dbconn->prepare("INSERT INTO acceptedSuggestions(wisher_id, wish_name, emissions, emission_delta, time_accepted,src_loc_id, dest_loc_id) VALUES(?,?,?,?,?,?,?)");
     $stmt->bindValue(1, $row['wisher_id'], SQLITE3_INTEGER);
-    $stmt->bindValue(2, $row['emissions'], SQLITE3_FLOAT);
-    $stmt->bindValue(3, $row['emmission_delta'], SQLITE3_FLOAT);
-    $stmt->bindValue(4, time(), SQLITE3_INTEGER);
-    $stmt->bindValue(5, $locs['src'], SQLITE3_INTEGER);
-    $stmt->bindValue(6, $locs['dest'], SQLITE3_INTEGER);
+    $stmt->bindValue(2, $row['name'], SQLITE3_TEXT);
+    $stmt->bindValue(3, $row['emissions'], SQLITE3_FLOAT);
+    $stmt->bindValue(4, $row['emmission_delta'], SQLITE3_FLOAT);
+    $stmt->bindValue(5, time(), SQLITE3_INTEGER);
+    $stmt->bindValue(6, $locs['src'], SQLITE3_INTEGER);
+    $stmt->bindValue(7, $locs['dest'], SQLITE3_INTEGER);
 
     $stmt->execute();
 
@@ -808,7 +813,7 @@ function acceptSuggestion($params)
 
     $entry_id = $dbconn->lastInsertRowID();
 
-    //updateSuggestion($entry_id);
+    updateSuggestion($entry_id);
 
     // return (object)$row;
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $entry_id);
@@ -939,6 +944,7 @@ function debug1($params)
 }
 
 $request = json_decode($_GET['q']);
+
 
 switch ($request->method) {
     case 'stub':
