@@ -5,6 +5,7 @@ $databasePath = '../database.db';
 
 try {
     $dbconn = new SQLite3('../database.db');
+    $dbconn->exec("PRAGMA foreign_keys=ON");
 } catch (Exception $e) {
     //TODO: fix this
     error("Couldn't connect to DB.");
@@ -20,7 +21,7 @@ $result = $statement->execute();
 ?>
  */
 
-function runJava($table_name, $id)
+function computeMatches($table_name, $id)
 {
     global $dbconn, $javaPath, $databasePath;
     //do stuff;
@@ -43,14 +44,19 @@ function runJava($table_name, $id)
         }
     }
 
-
-
-
     if ($doRun) {
-        exec("java -jar " . getcwd() . "/" . $javaPath . " " . getcwd() . "/" . $databasePath . " " . $table_name . " " . strval($id));
+        exec("java -jar " . getcwd() . "/" . $javaPath . " " . getcwd() . "/" . $databasePath . " 0 " . $table_name . " " . strval($id));
+
+        //old version
+       // exec("java -jar " . getcwd() . "/" . $javaPath . " " . getcwd() . "/" . $databasePath . " " . $table_name . " " . strval($id));
     }
 
     return $doRun;
+}
+
+function updateSuggestion($accepted_suggestion_id){
+    global $javaPath, $databasePath;
+    exec("java -jar " . getcwd() . "/" . $javaPath . " " . getcwd() . "/" . $databasePath . " 1 " . strval($accepted_suggestion_id));
 }
 
 function answerJsonAndDie($obj)
@@ -595,7 +601,7 @@ function createNewTravel($params)
     }
 
 
-    runJava("trips", $trip_id);
+    computeMatches("trips", $trip_id);
 
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $trip_id);
 }
@@ -657,7 +663,7 @@ function createNewWish($name, $email, $time_constraints, $org_constraints, $loc_
         $rows = $stmt->execute();
     }
 
-    runJava("wishes", $wish_id);
+    computeMatches("wishes", $wish_id);
 
     //TODO: similarly for org_constraints, loc_constraints. Content structure is specified in util.js
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $wish_id);
@@ -695,7 +701,7 @@ function createNewUnepPresence($params)
 
     $unep_presence_id = $dbconn->lastInsertRowID();
 
-    runJava("unep_presences", $unep_presence_id);
+    computeMatches("unep_presences", $unep_presence_id);
 
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $unep_presence_id);
 }
@@ -719,7 +725,7 @@ function createNewOrganisationPresence($params)
 
     $org_presence_id = $dbconn->lastInsertRowID();
 
-    runJava("presences", $org_presence_id);
+    computeMatches("presences", $org_presence_id);
 
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $org_presence_id);
 }
@@ -802,6 +808,7 @@ function acceptSuggestion($params)
 
     $entry_id = $dbconn->lastInsertRowID();
 
+    //updateSuggestion($entry_id);
 
     // return (object)$row;
     return (object)array('outcome' => 'succeeded', 'inserted_id' => $entry_id);
@@ -926,7 +933,7 @@ function removeOldTravel($params)
 function debug1($params)
 {
     $stuff = array();
-    $stuff['javaRan'] = runJava("wishes", 5);
+    $stuff['javaRan'] = computeMatches("wishes", 5);
     return (object)$stuff;
 
 }
