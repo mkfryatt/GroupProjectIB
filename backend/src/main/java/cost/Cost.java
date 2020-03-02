@@ -15,6 +15,11 @@ import java.util.Base64;
 
 public class Cost {
 
+    // calculate cost using actual emissions
+    public static Double calculateCost(int timeDiff, Location wish, Location trip) {
+        return calculateCost(timeDiff, calculateFlightEmissions(trip, wish));
+    }
+
     public static Double calculateFlightEmissions(Location source, Location destination) {
 
         String stringURL = "https://api.carbonkit.net/3.6/categories/Great_Circle_flight_methodology/calculation?type" +
@@ -26,6 +31,7 @@ public class Cost {
         try {
             url = new URL(stringURL);
             URLConnection uc = url.openConnection();
+            // TODO: remove personal username and password when giving to client
             String username = "Oberon_99";
             String password = "CarbonKit123!";
             String userpass = username + ":" + password;
@@ -61,11 +67,6 @@ public class Cost {
         return totalDirectEmissions;
     }
 
-
-    public static Double calculateCost(int timeDiff, Location wish, Location trip) {
-        return calculateCost(timeDiff, calculateFlightEmissions(trip, wish));
-    }
-
     public static Double calculateCost(int timeDiff, double emission) {
 
         double days = (double) timeDiff / 86400;
@@ -77,6 +78,8 @@ public class Cost {
         return emission - a * Math.sin((b + c) / (days + c)) * Math.exp(-days / d);
     }
 
+    // ----------------------------------------------------------------------
+    // calculate cost using estimated emissions
     public static double calculateDistance(Location start, Location end) {
         // returns distance between 2 lat and long points in km
         double startLat = start.getLat();
@@ -95,19 +98,17 @@ public class Cost {
             dist *= 1.609344;
             return dist;
         }
-
-
     }
 
     public static double calculateEstimatedCost(int timeDiff, Location wish, Location trip) {
         double days = (double) timeDiff / 86400;
-        double estimatedEmissions = emissionsByDistance(wish, trip);
+        double estimatedEmissions = calculateEmissionsByDistance(wish, trip);
         final double a = 8, b = 9, c = 300, d = 25;
         return -(estimatedEmissions - a * Math.sin((b + c) / (days + c)) * Math.exp(-days / d));
 
     }
 
-    public static double emissionsByDistance(Location start, Location end) {
+    public static double calculateEmissionsByDistance(Location start, Location end) {
         double distance = calculateDistance(start, end);
         return distance * 0.118;
 

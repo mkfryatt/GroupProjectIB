@@ -26,8 +26,7 @@ public class AddedAggregatedWish {
     //                  if type = trip, then means unep already there, cost(time_diff, org_loc, org_loc)
     //                  if type = HQ, iterate over unep_presences, cost(time_diff, org_loc, unep_loc)
 
-
-    // 3: 1 or more org constraints, 1 location constraint
+    // Uses emission estimates not actual values
     public static int add(int wishId) throws SQLException {
         int generatedSuggestions = 0;
 

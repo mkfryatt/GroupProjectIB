@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class AddedAggregatedOrgPresence {
+
+    // Uses emission estimates not actual values
     public static int add(String table, int key) throws SQLException {
         int generatedSuggestions = 0;
 

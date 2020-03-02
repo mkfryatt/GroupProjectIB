@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 public class AddedAggregatedUnepPresence {
 
-
+    // Uses emission estimates not actual values
     public static int add(String table, int key) throws SQLException {
         int generatedSuggestions = 0;
         ResultSet rsUnepPres = Add.dbCon.executeQuery("SELECT * FROM aggregate_unep_presences WHERE table_id = " + key + " AND type = '" + table + "'");

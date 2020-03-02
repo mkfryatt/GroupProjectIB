@@ -77,13 +77,13 @@ public class CostTests {
     }
 
     @Test
-    public static void testHowManyDaysAreAcceptable(){
+    public static void testHowManyDaysAreAcceptable(int days){
         Location target = rome;
         Location start = london;
         Location startAlt = milan;
 
         double emission = calculateFlightEmissions(start,target);
-        int time = 86400 * 0;
+        int time = 86400 * days;
         double score = calculateCost(time,emission);
 
         double emissionAlt = calculateFlightEmissions(startAlt,target);
@@ -100,24 +100,40 @@ public class CostTests {
         System.out.println("Flying from "+start.name+" to "+target.name+" wasting "+(time/86400)+" days is ranked similarly to flying from "+startAlt.name+" to "+target.name+" wasting "+(timeAlt/86400)+"days");
     }
 
-    public static void printScore(int days, Location start, Location end) {
-        int timeAlt = 86400 * days;
-        double emissions = calculateFlightEmissions(start, end);
-        double score = calculateCost(timeAlt, emissions);
-        System.out.println(start.getName() + " to " + end.getName() + " and " + days + " days wasted: " + score);
+    @Test
+    public static void testHowManyDaysAreAcceptableFaster(int days){
+        Location target = rome;
+        Location start = london;
+        Location startAlt = milan;
+
+
+        int time = 86400 * days;
+        double score = calculateEstimatedCost(time,target, start);
+
+        int timeAlt=0;
+        double scoreAlt;
+        {
+            long l = 0,r=Integer.MAX_VALUE;
+            while(l<r-5){
+                timeAlt = (int)((l +r)/2);
+                scoreAlt = calculateEstimatedCost(timeAlt,target, startAlt);
+                if(scoreAlt<score)r=timeAlt; else l=timeAlt;
+            }
+        }
+        System.out.println("Flying from "+start.name+" to "+target.name+" wasting "+(time/86400)+" days is ranked similarly to flying from "+startAlt.name+" to "+target.name+" wasting "+(timeAlt/86400)+"days");
     }
 
+    @Test
     public static void checkDistanceEmissionCalculationsAreRoughlySame() {
         for(Location location : destinationList) {
             double actualEmission = calculateFlightEmissions(location, nairobi);
-            double estimatedEmission = emissionsByDistance(location, nairobi);
-            System.out.println("Actual vs Estimated: " + actualEmission + " vs " + estimatedEmission);
+            double estimatedEmission = calculateEmissionsByDistance(location, nairobi);
+            Assertions.assertTrue(((actualEmission - 50.0 <= estimatedEmission) && (estimatedEmission <= actualEmission + 50.0)));
         }
 
     }
 
-
-
+    @Test
     public static void checkDistanceAndEmissionRankingsAreSame(int timeDiff){
         HashMap<Double, String> emissionScores = new HashMap<>();
         HashMap<Double, String> distanceScores = new HashMap<>();
@@ -131,26 +147,30 @@ public class CostTests {
         TreeMap<Double, String> emissionSorted = new TreeMap<>(emissionScores);
         TreeMap<Double, String> distanceSorted = new TreeMap<>(distanceScores);
 
-//        assert(emissionSorted.values() == distanceSorted.values());
+        List<String> emissionSortedValues = new ArrayList<>(emissionSorted.values());
+        List<String> distanceSortedValues = new ArrayList<>(distanceSorted.values());
 
-        for(Map.Entry<Double, String> emissionEntry : emissionSorted.entrySet()) {
-            System.out.println(emissionEntry.getValue() + ": " + emissionEntry.getKey());
-        }
+        Assertions.assertEquals(emissionSortedValues, distanceSortedValues);
 
-        System.out.println("------------");
-
-        for(Map.Entry<Double, String> distanceEntry : distanceSorted.entrySet()) {
-            System.out.println(distanceEntry.getValue() + ": " + distanceEntry.getKey());
-        }
+        // to print results uncomment following:
+//        for(Map.Entry<Double, String> emissionEntry : emissionSorted.entrySet()) {
+//            System.out.println(emissionEntry.getValue() + ": " + emissionEntry.getKey());
+//        }
+//
+//        System.out.println("------------");
+//
+//        for(Map.Entry<Double, String> distanceEntry : distanceSorted.entrySet()) {
+//            System.out.println(distanceEntry.getValue() + ": " + distanceEntry.getKey());
+//        }
 
     }
 
     public static void main(String[] args) {
-//        testHowTimeDifferenceAffectsRankings();
-//        testHowFlightEmissionsAffectsRankings();
-//        testHowFlightAndTimeDiffAffectRankings();
+        checkDistanceAndEmissionRankingsAreSame(0);
         checkDistanceAndEmissionRankingsAreSame(3);
-//        checkDistanceEmissionCalculationsAreRoughlySame();
+        checkDistanceEmissionCalculationsAreRoughlySame();
+        testHowManyDaysAreAcceptableFaster(0);
+
     }
 
 
