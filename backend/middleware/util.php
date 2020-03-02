@@ -931,8 +931,31 @@ function removeOldTravel($params)
 {
     global $dbconn;
     $stmt = $dbconn->prepare("DELETE FROM trips WHERE endTime<?");
-    $stmt->bindValue(1, time(), SQLITE3_INTEGER);
+    $stmt->bindValue(1, time() + 86400, SQLITE3_INTEGER);
     $stmt->execute();
+}
+
+function getUserSavingDetails($params){
+    global $dbconn;
+    $stmt = $dbconn->prepare("SELECT wish_name, emission_delta, 
+       l.city as src_city, l.country as src_country, l2.city as dest_city, l2.country as dest_country,
+       time_accepted
+FROM acceptedSuggestions 
+JOIN unep_reps ur on acceptedSuggestions.wisher_id = ur.id
+JOIN locations l on acceptedSuggestions.src_loc_id = l.id
+JOIN locations l2 on acceptedSuggestions.dest_loc_id = l2.id
+WHERE ur.email = ?");
+    $stmt->bindValue(1,$params->email,SQLITE3_TEXT);
+    $rows = $stmt->execute();
+    if (!$rows) error('Query failed ' . $dbconn->lastErrorMsg());
+    $result = array();
+    while ($row = $rows->fetchArray()) {
+        $row = removeNumericKeys($row);
+        array_push($result, (object)$row);
+    }
+    return ($result);
+
+
 }
 
 function debug1($params)
@@ -1070,6 +1093,11 @@ switch ($request->method) {
         answerJsonAndDie($result);
         break;
 
+    case 'getUserSavingDetails':
+        $result = getUserSavingDetails($request->params);
+        answerJsonAndDie($result);
+        break;
+
     case 'userExists':
         $result = userExists($request->params);
         answerJsonAndDie($result);
@@ -1087,6 +1115,11 @@ switch ($request->method) {
 
     case 'createNewOrganisation':
         $result = createNewOrganisation($request->params);
+        answerJsonAndDie($result);
+        break;
+
+    case 'removeOldTravel':
+        $result = removeOldTravel($request->params);
         answerJsonAndDie($result);
         break;
 

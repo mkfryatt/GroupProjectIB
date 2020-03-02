@@ -6,6 +6,10 @@ var firstUser = true;
 
 //this is called once (when the page loads)
 function init() {
+  //Bookkeeping
+
+  removeOldTravel();
+
   showLogin();
 
   //add listener to checkbox on admin tab

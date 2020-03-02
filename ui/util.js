@@ -287,6 +287,16 @@ function getEmissionsSavedFromUser(email, callbackFunction) {
     sendXmlHttpRequest(request,callbackFunction);
 }
 
+function getUserSavingDetails(email, callbackFunction) {
+    let request = {
+        method: 'getUserSavingDetails',
+        params: {
+            email: email
+        }
+    };
+    sendXmlHttpRequest(request,callbackFunction);
+}
+
 function userExists(email, callbackFunction) {
   let request = {
     method: 'userExists',
@@ -320,6 +330,19 @@ function organisationExists(name, callbackFunction) {
 }
 
 function createNewOrganisation(name, callbackFunction) {
+    let request = {
+        method: 'createNewOrganisation',
+        params: {
+            name:name
+        }
+    };
+    sendXmlHttpRequest(request,callbackFunction);
+}
+
+function removeOldTravel() {
+    let callbackFunction = function (result) {
+        console.log("cleared old travel");
+    };
     let request = {
         method: 'createNewOrganisation',
         params: {
