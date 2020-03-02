@@ -77,7 +77,7 @@ public class Add {
         // Expecting 3 commmand line arguments - database path, table, key
 
         if (args.length > 4 || args.length < 3) {
-            throw new IllegalArgumentException("Incorrect number of arguments supplied");
+            throw new IllegalArgumentException("Incorrect number of arguments supplied:" + String.valueOf(args.length));
         }
         String databasePath = args[0];
         setDbCon(databasePath);
