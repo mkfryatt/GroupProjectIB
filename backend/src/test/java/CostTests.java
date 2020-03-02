@@ -1,30 +1,35 @@
 package test.java;
 
 import main.java.data.*;
-import main.java.cost.*;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.*;
+
 import static main.java.cost.Cost.*;
 
 public class CostTests {
-    public static Location nairobiWish = new Location(0, "nairobi", 36.8219, 1.2921);
+    public static Location nairobi = new Location(0, "nairobi", 36.8219, 1.2921);
     public static Location capeTown = new Location(0, "cape town", 18.42141, 33.9249);
     public static Location kampala = new Location(0, "kampala", 32.5825, 0.3476);
     public static Location rome = new Location(0, "rome", 12.4964, 41.9028);
     public static Location shanghai = new Location(0, "shanghai", 121.4737, 31.2304);
-    public static Location nearShangai = new Location(0,"wuxi",120.3119,31.4912);
+    public static Location wuxi = new Location(0,"wuxi",120.3119,31.4912);
     public static Location tokyo = new Location(0, "tokyo", 139.6503, 35.6762);
     public static Location london = new Location(0, "london",  0.1278, 51.5074);
     public static Location milan = new Location(0, "milan", 9.1900, 45.4642);
 
+    public static ArrayList<Location> destinationList = new ArrayList<Location>(Arrays.asList(capeTown, kampala, rome,
+            shanghai, wuxi, tokyo, london, milan));
+
+
 
     @Test
     public static void testHowTimeDifferenceAffectsRankings() {
-        Double capeTown3DayTimeDiffRanking = calculateCost(3, nairobiWish, capeTown);
-        Double capeTown10DayTimeDiffRanking = calculateCost(10, nairobiWish, capeTown);
-        Double capeTown60DayTimeDiffRanking = calculateCost(60, nairobiWish, capeTown);
+        Double capeTown3DayTimeDiffRanking = calculateCost(3, nairobi, capeTown);
+        Double capeTown10DayTimeDiffRanking = calculateCost(10, nairobi, capeTown);
+        Double capeTown60DayTimeDiffRanking = calculateCost(60, nairobi, capeTown);
 
         Assertions.assertTrue((capeTown3DayTimeDiffRanking > capeTown10DayTimeDiffRanking), "Show that rating for 3 " +
                 "day time difference is greater than the rating for 10 day time difference");
@@ -42,9 +47,9 @@ public class CostTests {
 
     @Test
     public static void testHowFlightEmissionsAffectsRankings() {
-        Double capeTownRanking = calculateCost(3, nairobiWish, capeTown);
-        Double kampalaRanking = calculateCost(3, nairobiWish, kampala);
-        Double romeRanking = calculateCost(3, nairobiWish, rome);
+        Double capeTownRanking = calculateCost(3, nairobi, capeTown);
+        Double kampalaRanking = calculateCost(3, nairobi, kampala);
+        Double romeRanking = calculateCost(3, nairobi, rome);
 
         Assertions.assertTrue(kampalaRanking > capeTownRanking, "Show that Kamapala has a better ranking than Cape " +
                 "Town to fulfil a Nairobi Wish");
@@ -59,9 +64,9 @@ public class CostTests {
 
     @Test
     public static void testHowFlightAndTimeDiffAffectRankings() {
-        Double kampala30Ranking = calculateCost(30*86400, nairobiWish, kampala);
-        Double capeTown10Ranking = calculateCost(10*86400, nairobiWish, capeTown);
-        Double rome5Ranking = calculateCost(5*86400, nairobiWish, rome);
+        Double kampala30Ranking = calculateCost(30*86400, nairobi, kampala);
+        Double capeTown10Ranking = calculateCost(10*86400, nairobi, capeTown);
+        Double rome5Ranking = calculateCost(5*86400, nairobi, rome);
 
         Assertions.assertTrue(capeTown10Ranking > kampala30Ranking, "Show that to fulfil a wish in Nairobi, timeDiff " +
                 "of 30 days in Kampala is ranked lower than 10 days in Cape Town");
@@ -102,10 +107,50 @@ public class CostTests {
         System.out.println(start.getName() + " to " + end.getName() + " and " + days + " days wasted: " + score);
     }
 
+    public static void checkDistanceEmissionCalculationsAreRoughlySame() {
+        for(Location location : destinationList) {
+            double actualEmission = calculateFlightEmissions(location, nairobi);
+            double estimatedEmission = emissionsByDistance(location, nairobi);
+            System.out.println("Actual vs Estimated: " + actualEmission + " vs " + estimatedEmission);
+        }
+
+    }
+
+
+
+    public static void checkDistanceAndEmissionRankingsAreSame(int timeDiff){
+        HashMap<Double, String> emissionScores = new HashMap<>();
+        HashMap<Double, String> distanceScores = new HashMap<>();
+        for(Location location : destinationList) {
+            double  emissionScore = calculateCost(timeDiff, nairobi, location);
+            double distanceScore = calculateEstimatedCost(timeDiff, nairobi, location);
+            emissionScores.put(emissionScore, location.getName());
+            distanceScores.put(distanceScore, location.getName());
+        }
+
+        TreeMap<Double, String> emissionSorted = new TreeMap<>(emissionScores);
+        TreeMap<Double, String> distanceSorted = new TreeMap<>(distanceScores);
+
+//        assert(emissionSorted.values() == distanceSorted.values());
+
+        for(Map.Entry<Double, String> emissionEntry : emissionSorted.entrySet()) {
+            System.out.println(emissionEntry.getValue() + ": " + emissionEntry.getKey());
+        }
+
+        System.out.println("------------");
+
+        for(Map.Entry<Double, String> distanceEntry : distanceSorted.entrySet()) {
+            System.out.println(distanceEntry.getValue() + ": " + distanceEntry.getKey());
+        }
+
+    }
+
     public static void main(String[] args) {
-        testHowTimeDifferenceAffectsRankings();
-        testHowFlightEmissionsAffectsRankings();
-        testHowFlightAndTimeDiffAffectRankings();
+//        testHowTimeDifferenceAffectsRankings();
+//        testHowFlightEmissionsAffectsRankings();
+//        testHowFlightAndTimeDiffAffectRankings();
+        checkDistanceAndEmissionRankingsAreSame(3);
+//        checkDistanceEmissionCalculationsAreRoughlySame();
     }
 
 

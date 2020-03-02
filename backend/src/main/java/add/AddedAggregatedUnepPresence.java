@@ -49,7 +49,7 @@ public class AddedAggregatedUnepPresence {
                 while (matchingOrgPresences.next()) {
                     // For each OrgPresence, consider the intersection between timeframe of that OrgPresence and the union of the wish timeframes.
                     ResultSet timeConstraints = Add.dbCon.executeQuery("SELECT * FROM wish_constraints WHERE type = 'TIME' AND wish_id = " + id);
-                    if (AddedHelperFunctions.insertSuggestion(
+                    if (AddedHelperFunctions.insertSuggestionFaster(
                             wishes.getInt("id"), table, key,
                             matchingOrgPresences.getString("type"),
                             matchingOrgPresences.getInt("table_id"),
@@ -65,7 +65,8 @@ public class AddedAggregatedUnepPresence {
                 //Consider all time constraints
                 ResultSet timeConstraints = Add.dbCon.executeQuery("SELECT * FROM wish_constraints WHERE type = 'TIME' AND wish_id = " + id);
                 // Finally we can generate 1 suggestion, relying only on "table".key, with the aforementioned cost
-                if (AddedHelperFunctions.insertSuggestion(wishes.getInt("id"), table, key, null, 0, UPlocation, locationConstraint, AddedHelperFunctions.smallestTimeDelta(timeConstraints, UPstartTime, UPendTime)))
+                if (AddedHelperFunctions.insertSuggestionFaster(wishes.getInt("id"), table, key, null, 0, UPlocation,
+                        locationConstraint, AddedHelperFunctions.smallestTimeDelta(timeConstraints, UPstartTime, UPendTime)))
                     generatedSuggestions++;
             }
         }

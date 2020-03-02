@@ -90,7 +90,7 @@ public class AddedAggregatedWish {
                             UnepPresEndTime
                     );
                     Location matchLocation = AddedHelperFunctions.getLocationById(rsUnepPres.getInt("loc_id"));
-                    if(AddedHelperFunctions.insertWishSuggestion(
+                    if(AddedHelperFunctions.insertWishSuggestionFaster(
                             wishId, unepPresType, unepPresTypeId, orgType, orgTypeId, orgLocation, matchLocation
                             , time_wasted
                     )) {
@@ -117,7 +117,7 @@ public class AddedAggregatedWish {
                 int unepPresId = unepPres.getInt("table_id");
                 int time_wasted = AddedHelperFunctions.smallestTimeDelta(timeConstraints, unepPresStartTime,
                         unepPresEndTime);
-                if(AddedHelperFunctions.insertWishSuggestion(
+                if(AddedHelperFunctions.insertWishSuggestionFaster(
                         wishId, unepPresenceType, unepPresId, null,0,locationConstraint, matchLocation, time_wasted
                 )) {
                     generatedSuggestions ++;

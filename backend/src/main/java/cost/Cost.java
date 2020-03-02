@@ -77,14 +77,41 @@ public class Cost {
         return emission - a * Math.sin((b + c) / (days + c)) * Math.exp(-days / d);
     }
 
-    //    public static double costFunction7(double days, double emission) {
-//        return Math.log(emission + 100.0) + 0.05 * days * days;
-//    }
-//
-//    public static double costFunction8(double days, double emission) {
-//        final double a = 8, b = 9, c = 300;
-//        return emission - a * Math.sin((b + c) / (days + c));
-//    }
+    public static double calculateDistance(Location start, Location end) {
+        // returns distance between 2 lat and long points in km
+        double startLat = start.getLat();
+        double startLong = start.getLon();
+        double endLat = end.getLat();
+        double endLong = end.getLon();
+        if ((startLat == endLat) && (startLong == endLong)) {
+            return 0;
+        } else {
+            double theta = startLong - endLong;
+            double dist =
+                    Math.sin(Math.toRadians(startLat)) * Math.sin(Math.toRadians(endLat)) + Math.cos(Math.toRadians(startLat)) * Math.cos(Math.toRadians(endLat)) * Math.cos(Math.toRadians(theta));
+            dist = Math.acos(dist);
+            dist = Math.toDegrees(dist);
+            dist = dist * 60 * 1.1515;
+            dist *= 1.609344;
+            return dist;
+        }
+
+
+    }
+
+    public static double calculateEstimatedCost(int timeDiff, Location wish, Location trip) {
+        double days = (double) timeDiff / 86400;
+        double estimatedEmissions = emissionsByDistance(wish, trip);
+        final double a = 8, b = 9, c = 300, d = 25;
+        return -(estimatedEmissions - a * Math.sin((b + c) / (days + c)) * Math.exp(-days / d));
+
+    }
+
+    public static double emissionsByDistance(Location start, Location end) {
+        double distance = calculateDistance(start, end);
+        return distance * 0.118;
+
+    }
 
     public static void main(String[] args) {
         System.out.println("works");

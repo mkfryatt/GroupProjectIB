@@ -36,7 +36,7 @@ public class AddedAggregatedOrgPresence {
             ResultSet rsUnepPresences = Add.dbCon.executeQuery("SELECT * FROM aggregate_unep_presences");
             while (rsUnepPresences.next()) {
 
-                if (AddedHelperFunctions.insertSuggestion(
+                if (AddedHelperFunctions.insertSuggestionFaster(
                         rsWishes.getInt("id"),
                         rsUnepPresences.getString("type"),
                         rsUnepPresences.getInt("table_id"),

@@ -84,6 +84,7 @@ public class AddedHelperFunctions {
         if (time_wasted >= timeLimit) return false;
         double suggestionEmissions = Cost.calculateFlightEmissions(startLocation, endLocation);
         double fromCamEmissions = Cost.calculateFlightEmissions(unepCambridgeLocation, endLocation);
+
         double emissionsDelta = fromCamEmissions - suggestionEmissions;
         double score = Cost.calculateCost(time_wasted, endLocation, startLocation);
         if(score == 0) {
@@ -101,6 +102,32 @@ public class AddedHelperFunctions {
         return true;
     }
 
+    static boolean insertSuggestionFaster(int wish_id, String unep_presence_type, int unep_table_id,
+                                     String org_presence_type, int org_table_id, Location startLocation, Location endLocation, int time_wasted) {
+        final int timeLimit = Integer.MAX_VALUE;
+        if (time_wasted >= timeLimit) return false;
+        double suggestionEmissions = Cost.emissionsByDistance(startLocation, endLocation);
+        double fromCamEmissions = Cost.emissionsByDistance(unepCambridgeLocation, endLocation);
+
+        double emissionsDelta = fromCamEmissions - suggestionEmissions;
+        double score = Cost.calculateEstimatedCost(time_wasted, endLocation, startLocation);
+        if(score == 0) {
+            return false;
+        }
+        String sql =
+                "INSERT INTO suggestions (wish_id,emissions,emmission_delta,time_wasted,score,"+unep_presence_type+
+                        "__dep_id";
+        if(org_presence_type!=null)sql+=","+org_presence_type+"__dep_id";
+        sql+=String.format(") VALUES (%d,%f,%f, %d,%f,%d",wish_id,suggestionEmissions,emissionsDelta, time_wasted,score,
+                unep_table_id);
+        if(org_presence_type!=null)sql+=String.format(",%d",org_table_id);
+        sql+=")";
+        Add.dbCon.executeStatement(sql);
+        return true;
+    }
+
+
+
     static boolean insertWishSuggestion(int wish_id, String unepPresType, int unepPresId, String orgPresType,
                                         int orgPresId, Location wish, Location match, int time_wasted) {
         final int timeLimit = Integer.MAX_VALUE;
@@ -109,6 +136,53 @@ public class AddedHelperFunctions {
         double fromCamEmissions = Cost.calculateFlightEmissions(unepCambridgeLocation, wish);
         double emissionsDelta = fromCamEmissions - suggestionEmissions;
         double score = Cost.calculateCost(time_wasted, wish, match);
+        if(score == 0) {
+            return false;
+        }
+        String sql;
+        if(unepPresType != null) {
+            String unepPresTypeId = unepPresType + "__dep_id";
+            if(orgPresType != null) {
+                String orgPresTypeId = orgPresType + "__dep_id";
+                // unep and org constraint
+                sql =
+                        "INSERT into suggestions (wish_id, emissions, emmission_delta, time_wasted, score, " + unepPresTypeId + ", " + orgPresTypeId + ")";
+                sql += String.format(" VALUES(%d, %f, %f, %d, %f, %d, %d", wish_id, suggestionEmissions,
+                        emissionsDelta, time_wasted, score, unepPresId, orgPresId);
+            } else {
+                // unep constraint
+                sql =
+                        "INSERT into suggestions (wish_id, emissions, emmission_delta, time_wasted, score, " + unepPresTypeId + ")";
+                sql += String.format(" VALUES(%d, %f, %f, %d, %f, %d", wish_id, suggestionEmissions,
+                        emissionsDelta, time_wasted, score, unepPresId);
+            }
+        } else {
+            // no unepPresType
+            if(orgPresType != null) {
+                // org constraint
+                String orgPresTypeId = orgPresType + "__dep_id";
+                sql =
+                        "INSERT into suggestions (wish_id, emissions, emmission_delta, time_wasted, score, " + orgPresTypeId + ")";
+                sql += String.format(" VALUES(%d, %f, %f, %d, %f, %d", wish_id, suggestionEmissions,
+                        emissionsDelta, time_wasted, score, orgPresId);
+            } else {
+                return false;
+            }
+        }
+        sql += ")";
+        Add.dbCon.executeStatement(sql);
+        return true;
+    }
+
+
+    static boolean insertWishSuggestionFaster(int wish_id, String unepPresType, int unepPresId, String orgPresType,
+                                        int orgPresId, Location wish, Location match, int time_wasted) {
+        final int timeLimit = Integer.MAX_VALUE;
+        if (time_wasted >= timeLimit) return false;
+        double suggestionEmissions = Cost.emissionsByDistance(match, wish);
+        double fromCamEmissions = Cost.emissionsByDistance(unepCambridgeLocation, wish);
+        double emissionsDelta = fromCamEmissions - suggestionEmissions;
+        double score = Cost.calculateEstimatedCost(time_wasted, wish, match);
         if(score == 0) {
             return false;
         }
