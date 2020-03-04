@@ -97,6 +97,7 @@ function submitTravel(id) {
       selectionTravel = null;
       getAllTravelFromUser(email, makeDefaultTravel);
       showDefaultTravel();
+      getAllWishesFromUser(email, makeWishes);
       updateMap();
     }
   });
