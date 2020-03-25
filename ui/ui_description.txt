@@ -1,0 +1,166 @@
+void init():
+  calls removeOldTravel(), showLogin(), openTab("cal")
+
+void openTab(type: string):
+  opens tab with id=type
+
+void switchUser():
+  calls openTab("cal"), showLogin()
+
+void showLogin():
+  calls createDialog(args)
+  shows dialog
+  dialog has button that can call tryLogin()
+
+void tryLogin():
+  calls userExists(email, callback)
+  if user exists, it calls doLogin()
+  otherwise, it calls showNewUser()
+
+void showNewUser():
+  calls createDialog(args)
+  shows dialog
+  dialog has button that can call makeNewUser()
+
+void makeNewUser():
+  calls createNewUser(email, first, last, callback)
+  if no error, it calls doLogin()
+  otherwise, it calls showNewUser()
+
+void doLogin():
+  removes login prompt
+  calls getAllTravelFromUser(email, makeDefaultTravel), 
+    getAllWishesFromUser(email, makeWishes),
+    getEmissionsSavedFromUser(email, updateCarbonCounter)
+  if this is the first user to login (since the page loaded), call initMap()
+  otherwise, call updateMap()
+
+void makeWishes(wishes: JSON array):
+  makes wishes tab from data in wishes
+  make each wish card:
+    calls getAllSuggestionsFromWish(element.id, callback which adds num of matches to wish card)
+    adds button to call getAllSuggestionsFromWish(element.id, showMatches) and wishesMapUpdate()
+
+void hideMatches():
+  empties matches view
+  hides matches view
+  shows wishes view
+  calls updateMap()
+
+void showMatches(matches: JSON array):
+  empties matches view
+  makes matches view from matches data
+  make each match card:
+    adds button to call acceptMatchConfirmation(element.id)
+  hides wishes view
+  shows matches view
+
+void updateCarbonCounter(detail: JSON object):
+  creates dialog from details data
+  shows dialog
+
+void showDefaultTravel():
+  hides add travel form
+  clears add travel form fields
+  shows travel cards
+
+void makeDefaultTravel(travels: JSON array):
+  empties default travel
+  makes default travel view
+  adds button to call showAddTravel()
+  make each travel card:
+    adds button to call getTravelFromId(element.travel_id, showEditTravel)
+    adds button to call removeTravelConfirmation(element.travel_id)
+
+void showAddTravel():
+  hides default travel
+  shows add travel form
+  submit button onclick=checkOrganisation('travel', -1)
+
+void showEditTravel(travel: JSON object):
+  hides default travel
+  shows add travel form
+  fills in form with travel data
+  calls getLocationFromId(travel.loc_id, callback)
+  submit button onclick=checkOrganisation('travel', travel.id)
+
+void removeTravelConfirmation(id: int):
+  calls createDialog(args) to create confirmation dialog
+  OK button onclick=deleteTravel(id)
+  shows dialog
+
+void removeWishConfirmation(id: int):
+  calls createDialog(args) to create confirmation dialog
+  OK button onclick=deleteWish(id)
+  shows dialog
+
+void acceptMatchConfirmation(id: int):
+  calls createDialog(args) to create confirmation dialog
+  OK button onclick=acceptMatch(id)
+  shows dialog
+
+element createDialog(dialogID:string, dialogTitle:string, dialogQuestion:string, dialogOK:string, fields:element):
+  creates dialog from args
+  returns dialog
+
+element createLI(title:string, value:string):
+  create list item
+  returns list item
+
+void checkOrganisation(type:string, id:int):
+  if org is "", calls doSubmit and ends
+  otherwise, calls organisationExists(org, callback)
+    if org exists, calls doSubmit(type, id)
+    otherwise, creates dialog to make new org that can call createNewOrganisation(org, doSubmit)
+
+void doSubmit(type:string, id:int):
+  calls submitTravel(id), submitWish(), or submitAdmin() according to type
+
+submitTravel(id:int):
+  gets name, times, locs, orgs
+  validates data and shows warning if there are issues
+  calls createNewTravel(args, callback)
+  callback calls clearForm("travel"),
+    deleteTravel(id) if id!=-1 (because that means it was called from edit travel form),
+    getAllTravelFromUser(email, makeDefaultTravel),
+    showDefaultTravel(),
+    getAllWishesFromUser(email, makeWishes),
+    updateMap()
+
+void deleteTravel(id:int):
+  removes confirmation dialog
+  calls deleteTravelFromId(id, callback)
+  callback removes travel card and calls updateMap()
+
+void submitWish():
+  gets name, times, locs, orgs
+  validates data and shows warning if there are issues
+  calls createNewWish(args, callback)
+  callback calls getAllWishesFromUser(email, makeWishes),
+    clearForm("wish"),
+    openTab("match"),
+    updateMap()
+
+void deleteWish(id:int):
+  removes confirmation dialog
+  calls deleteWishFromId(id, callback)
+  callback removes wish card and calls updateMap()
+
+void submitAdmin():
+  gets times, locs, org
+  validates data and shows warning if there are issues
+  if unep project checked, calls createNewUnepPresence(args, callback)
+  otherwise, calls createNewOrganisationPresence(args, callback)
+  callback calls calls clearForm("admin"), updateMap()
+
+void acceptMatch(id:int):
+  removes confirmation dialog
+  calls acceptSuggestion(id, callback)
+  callback calls getAllWishesFromUser(email, makeWishes),
+    hides match view,
+    shows wish view,
+    calls getEmissionsSavedFromUser(email, updateCarbonCounter),
+    updateMap()
+
+void clearForm(type:string):
+  clear all form fields on form with id=type
