@@ -31,9 +31,9 @@ public class Cost {
         try {
             url = new URL(stringURL);
             URLConnection uc = url.openConnection();
-            // TODO: remove personal username and password when giving to client
-            String username = "Oberon_99";
-            String password = "CarbonKit123!";
+            // TODO: create an account on CarbonKit to use the API
+            String username = "";
+            String password = "";
             String userpass = username + ":" + password;
             String basicAuth = "Basic " + (Base64.getEncoder().encodeToString(userpass.getBytes()));
             uc.setRequestProperty("Authorization", basicAuth);
